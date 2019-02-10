@@ -1,0 +1,333 @@
+﻿@model MySpritzer.Models.UrgentIssueModel
+
+@{
+	ViewBag.Title = "UI";
+
+	string Status = "";
+	if (ViewBag.Status != null)
+	{
+		Status = ViewBag.Status;
+	}
+	string Company = "";
+	string UserId = "";
+
+	if (!string.IsNullOrEmpty(Session["Company"] as string))
+	{
+		Company = Session["Company"].ToString();
+
+	}
+	if (!string.IsNullOrEmpty(Session["User"] as string))
+	{
+
+		UserId = Session["User"].ToString();
+	}
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Urgent Issue
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				@using (Html.BeginForm("UI", "UrgentIssue", FormMethod.Post, new { id = "DetailForm" }))
+				{
+					@Html.AntiForgeryToken()
+					<hr />
+					@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+					@Html.HiddenFor(model => model.Company, new { @id = "txtCompany" })
+					@Html.HiddenFor(model => model.AssemblySeq, new { @id = "txtAssemblySeq" })
+					@Html.HiddenFor(model => model.MtlSeq, new { @id = "txtMtlSeq" })
+					@Html.HiddenFor(model => model.Qty, new { @id = "txtQty" })
+					<input type="hidden" id="pgStatus" data-value="@Status" />
+					<fieldset>
+
+						<div class="col-xs-10">
+							<div class="form-group">
+								@Html.LabelFor(model => model.JobNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.JobNum, new { @class = "form-control", @id = "txtJobNum" })
+									@Html.ValidationMessageFor(model => model.JobNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.PartNum, new { @class = "form-control", @id = "txtPartNum" })
+									@Html.ValidationMessageFor(model => model.PartNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartDesc, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.PartDesc, new { @class = "form-control", @id = "txtPartDesc", @readonly = "readonly" })
+									@Html.ValidationMessageFor(model => model.PartDesc, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.LotNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.LotNum, new { @class = "form-control", @id = "txtLotNum" })
+									@Html.ValidationMessageFor(model => model.LotNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.UserQty, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.UserQty, new { @class = "form-control", @id = "txtUserQty", @type = "number", @style = "text-align: right" })
+									@Html.ValidationMessageFor(model => model.UserQty, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.IUM, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.IUM, new { @class = "form-control", @id = "txtIUM", @readonly = "readonly" })
+									@Html.ValidationMessageFor(model => model.IUM, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.FromBin, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.FromBin, new { @class = "form-control", @id = "txtFromBin" })
+									@Html.ValidationMessageFor(model => model.FromBin, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.FromWH, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.FromWH, new { @class = "form-control", @id = "txtFromWH" })
+									@Html.ValidationMessageFor(model => model.FromWH, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.ToBin, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.ToBin, new { @class = "form-control", @id = "txtToBin", @readonly = "readonly" })
+									@Html.ValidationMessageFor(model => model.ToBin, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.ToWH, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.ToWH, new { @class = "form-control", @id = "txtToWH", @readonly = "readonly" })
+									@Html.ValidationMessageFor(model => model.ToWH, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+					</fieldset>
+				}
+
+			</div>
+
+			<div class="panel-footer">
+				@*<button type="reset" class="btn btn-primary pull-left" id="btnReset" form="DetailForm">Clear</button>*@
+				@*<button type="submit" class="btn btn-primary pull-right" id="btnSubmit" form="DetailForm">Submit</button>*@
+				<button type="button" class="btn btn-primary pull-left" id="btnReset">Clear</button>
+				<button type="button" class="btn btn-primary pull-right" id="btnSubmit">Submit</button>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- The Modal -->
+<div class="modal fade" id="alertModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			@*Modal Header*@
+			<div class="modal-header">
+				<h4 class="modal-title">Modal Heading</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+				<h4>Please insert DO Number.</h4>
+			</div>
+
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!--MODAL//-->
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		$("#txtJobNum").focus();
+
+		$("#txtUserQty").change(function () {
+			$('#txtFromBin').focus();
+		});
+
+		$("#txtFromBin").change(function () {
+			var binCode = $("#txtFromBin").val();
+			if (binCode != "") {
+				var whCode = TrimBinCode(binCode);
+				$("#txtFromWH").val(whCode);
+				$('#txtFromWH').focus();
+			}
+		});
+
+        //alert("ready doc");
+        $("#btnReset").click(function () {
+			ClearForm();
+            //$('#btnSubmit').removeAttr("disabled");
+		});
+
+		function ClearForm() {
+			$("#pgStatus").val("");
+
+			$('#txtJobNum').val("");
+			$("#txtPartNum").val("");
+			$("#txtPartDesc").val("");
+			$("#txtLotNum").val("");
+			$("#txtUserQty").val(0);
+			$("#txtIUM").val("");
+			$("#txtFromWH").val("");
+			$("#txtFromBin").val("");
+			$("#txtToWH").val("");
+			$("#txtToBin").val("");
+
+			$("#txtJobNum").focus();
+		}
+
+		$('#txtJobNum').change(function () {
+			$("#txtPartNum").focus();
+
+            if ( $('#txtJobNum').val() != "" && $('#txtPartNum').val() != "") {
+                //alert('Job');
+                GetData();
+            }
+		});
+
+		$('#txtPartNum').change(function () {
+			$("#txtLotNum").focus();
+
+			if ($('#txtJobNum').val() != "" && $('#txtPartNum').val() != "") {
+                //alert('Part');
+                GetData();
+            }
+        });
+		$('#txtLotNum').change(function () {
+            if ( $('#txtJobNum').val() != "" && $('#txtPartNum').val() != "" && $('#txtLotNum').val() != "") {
+                //alert('Lot');
+                GetData();
+            }
+        });
+        function GetData() {
+			//alert('GetData');
+			ShowLoader();
+            $.ajax({
+
+                    type: 'GET',
+                    url: '@Url.Action("GetData", "UrgentIssue")',
+                data: { Company: '@Company', JobNum: $('#txtJobNum').val(), PartNum: $('#txtPartNum').val(), LotNum: $('#txtLotNum').val()},
+				success: function (response) {
+					HideLoader();
+                    if (response.success) {
+                        $('#txtCompany').val(response.responseText.Company);
+                        $('#txtPartDesc').val(response.responseText.PartDesc);
+                        $('#txtAssemblySeq').val(response.responseText.AssemblySeq);
+                        $('#txtMtlSeq').val(response.responseText.MtlSeq);
+						$('#txtQty').val(response.responseText.Qty);
+						$('#txtUserQty').val(response.responseText.UserQty);
+                        $('#txtIUM').val(response.responseText.IUM);
+
+                        $('#txtFromWH').val(response.responseText.FromWH);
+                        $('#txtFromBin').val(response.responseText.FromBin);
+                        $('#txtToWH').val(response.responseText.ToWH);
+						$('#txtToBin').val(response.responseText.ToBin);
+
+						$("#txtUserQty").select();
+
+                        //alert(response.responseText.PartNum);
+                        }
+					else {
+						$('#txtJobNum').val("");
+						$('#txtPartNum').val("");
+						$('#txtLotNum').val("");
+						$('#txtJobNum').focus();
+						var msg = response.responseText;
+
+						//$.notify(msg, "error");
+
+						var model = $('#alertModal').modal();
+						model.find('.modal-title').text("Info");
+						model.find('.modal-body').text(msg);
+
+                        //alert(response.responseText);
+                    }
+                },
+				error: function (response) {
+					HideLoader();
+					var msg = response.responseText;
+					//var msg "Something wrong happen when requesting to the Server.";
+
+					//$.notify(msg, "error");
+
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Error");
+					model.find('.modal-body').text(msg);
+                }
+
+            });
+		}
+
+        var msg = $("#pgStatus").data("value");
+		if (msg != '') {
+
+			//$.notify(msg, "info");
+
+            var model = $('#alertModal').modal();
+            model.find('.modal-title').text("Info");
+			model.find('.modal-body').text(msg);
+
+            //$('#btnSubmit').attr("disabled", "true");
+        }
+        else {
+           // $('#btnSubmit').removeAttr("disabled");
+		};
+
+		$("#btnSubmit").click(function () {
+			$('#DetailForm').submit();
+		});
+
+
+    });
+</script>

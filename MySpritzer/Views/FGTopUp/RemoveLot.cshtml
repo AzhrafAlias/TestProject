@@ -1,0 +1,40 @@
+﻿@model IEnumerable<MySpritzer.Models.FGTopUpModel>
+
+@*<p>
+    @Html.ActionLink("Create New", "Create")
+</p>*@
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Company)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LotNo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Qty)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Company)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LotNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Qty)
+            </td>
+
+
+            @*@Html.ActionLink("Remove", "Delete", new { /* id=item.PrimaryKey */ })*@
+            <td><a href="#" class="btn btn-danger" onclick="DeleteLot('@item.LotNo')"><i class="glyphicon glyphicon-trash"></i> </a> </td>
+
+        </tr>
+    }
+
+</table>

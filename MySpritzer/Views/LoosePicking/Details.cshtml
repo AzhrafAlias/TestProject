@@ -1,0 +1,249 @@
+﻿@model List<MySpritzer.Models.LoosePickingDetailModel>
+
+@{
+	ViewBag.Title = "Details";
+
+	string SONum = "";
+
+	if (!string.IsNullOrEmpty(Session["SONum"] as string))
+	{
+		SONum = Session["SONum"] as string;
+	}
+
+}
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Loose Picking - Details
+			</div>
+
+			<div class="panel-body" style="max-height:550px; overflow-y: scroll;">
+
+				<fieldset>
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="SONum">SO Num: @SONum</label>
+						</div>
+					</div>
+				</fieldset>
+				<hr />
+
+
+				<fieldset>
+					<div class="table-responsive">
+						<table id="WOLPSODetailTable" class="table table-responsive table-condensed" style="width:100%">
+							<thead>
+								<tr>
+									<th>Action</th>
+									<th>Part</th>
+									<th>PartDesc</th>
+									<th>Qty</th>
+									<th>UOM</th>
+									<th>Remark</th>
+								</tr>
+							</thead>
+							<tbody>
+							@{
+								int index = 0;
+								foreach (var lpd in Model)
+								{
+									if (lpd.LooseAreaAvailableQty > 0 && lpd.LooseAreaAvailableQty >= lpd.Qty)
+									//if (lpd.LooseAreaAvailableQty <= lpd.Qty)
+									{
+										//Background colour of the record will change to Green once the quantity was fulfill and waiting the confirmation. Once confirm, web api will automatically remove from the list. Front end no need to do anything
+										//Yellow if ActQty != Qty && PrevLPQty > 0
+										//Row Color can be defined by this 3 qty:
+										//1) ActQty : Actual available qty
+										//2) PrevLPQty: Previous Qty that has been scanned and place in the Pallet
+										//3) Qty: Remaining Qty for this Part
+										string rowColor = "";
+										if (lpd.Qty == 0) {
+											rowColor = "#9ACD32"; //Green
+										}
+										else if (lpd.ActQty != lpd.Qty && lpd.PrevLPQty > 0 && lpd.Qty>0)
+										{
+											rowColor = "#FFFF00"; //Yellow
+
+										}
+										else
+										{
+											rowColor = ""; //Default
+										}
+										<tr style="background-color: @rowColor">
+											<td>
+												@*<input type="hidden" name="Id" class="Id" value=@lpd.Id>
+												<input type="hidden" name="UD108Key1" class="UD108Key1" value=@lpd.UD108Key1>
+												<input type="hidden" name="SysRowId" class="SysRowId" value=@lpd.SysRowId>
+												<input type="hidden" name="Company" class="Company" value=@lpd.Company>
+												<input type="hidden" name="Plant" class="Plant" value=@lpd.Plant>
+												<input type="hidden" name="SONum" class="SONum" value=@lpd.SONum>*@
+												@*<button type="button" class="btn btn-primary PickButton" value="Id=@lpd.Id&UD108Key1=@lpd.UD108Key1&SysRowId=@lpd.SysRowId&Company=@lpd.Company&Plant=@lpd.Plant&SONum=@lpd.SONum"><i class="glyphicon glyphicon-check"></i></button>*@
+												@*<button type="button" class="btn btn-primary PickButton" value="Id=@lpd.Id&UD108Key1=@lpd.UD108Key1&SysRowId=@lpd.SysRowId&Company=@lpd.Company&Plant=@lpd.Plant&SONum=@lpd.SONum&ShipByDate=@lpd.ShipByDate.ToString("yyyy-MM-dd")&PartNum=@lpd.PartNum&PartDesc=@lpd.PartDesc&ActQty=@lpd.ActQty&PrevLPQty=@lpd.PrevLPQty&Qty=@lpd.Qty&UomCode=@lpd.UomCode&Remark=@lpd.Remark&LooseAreaAvailableQty=@lpd.LooseAreaAvailableQty&LoosePickStatus=@lpd.LoosePickStatus&IsLoosePickFull=@lpd.IsLoosePickFull&UserId=@lpd.UserId"><i class="glyphicon glyphicon-check"></i></button>*@
+												<button type="button" class="btn btn-primary PickButton" value='@index'><i class="glyphicon glyphicon-check"></i></button>
+												<input type="hidden" id='hQty_@index' value='@lpd.Qty' />
+												<input type="hidden" id='hParams_@index' value='Id=@lpd.Id&UD108Key1=@lpd.UD108Key1&SysRowId=@lpd.SysRowId&Company=@lpd.Company&Plant=@lpd.Plant&SONum=@lpd.SONum&ShipByDate=@lpd.ShipByDate.ToString("yyyy-MM-dd")&PartNum=@lpd.PartNum&PartDesc=@lpd.PartDesc&ActQty=@lpd.ActQty&PrevLPQty=@lpd.PrevLPQty&Qty=@lpd.Qty&UomCode=@lpd.UomCode&Remark=@lpd.Remark&LooseAreaAvailableQty=@lpd.LooseAreaAvailableQty&LoosePickStatus=@lpd.LoosePickStatus&IsLoosePickFull=@lpd.IsLoosePickFull&UserId=@lpd.UserId&DPNum=@lpd.DPNum' />
+											</td>
+											<td>
+												@lpd.PartNum
+											</td>
+											<td>
+												@lpd.PartDesc
+											</td>
+											<td>
+												@lpd.Qty
+											</td>
+											<td>
+												@lpd.UomCode
+											</td>
+											<td>@lpd.Remark</td>
+										</tr>
+									}
+									else
+									{
+										<tr>
+											<td>
+												@*<button type="button" class="btn btn-default RetrieveButton" value="Id=@lpd.Id&UD108Key1=@lpd.UD108Key1&SysRowId=@lpd.SysRowId&Company=@lpd.Company&Plant=@lpd.Plant&SONum=@lpd.SONum&ShipByDate=@lpd.ShipByDate.ToString("yyyy-MM-dd")&PartNum=@lpd.PartNum&PartDesc=@lpd.PartDesc&ActQty=@lpd.ActQty&PrevLPQty=@lpd.PrevLPQty&Qty=@lpd.Qty&UomCode=@lpd.UomCode&Remark=@lpd.Remark&LooseAreaAvailableQty=@lpd.LooseAreaAvailableQty&LoosePickStatus=@lpd.LoosePickStatus&IsLoosePickFull=@lpd.IsLoosePickFull&UserId=@lpd.UserId"><i class="glyphicon glyphicon-import"></i></button>*@
+												<button type="button" class="btn btn-red RetrieveButton" value='@index'><i class="glyphicon glyphicon-import"></i></button>
+												<input type="hidden" id='hQty_@index' value='@lpd.Qty' />
+												<input type="hidden" id='hParams_@index' value='Id=@lpd.Id&UD108Key1=@lpd.UD108Key1&SysRowId=@lpd.SysRowId&Company=@lpd.Company&Plant=@lpd.Plant&SONum=@lpd.SONum&ShipByDate=@lpd.ShipByDate.ToString("yyyy-MM-dd")&PartNum=@lpd.PartNum&PartDesc=@lpd.PartDesc&ActQty=@lpd.ActQty&PrevLPQty=@lpd.PrevLPQty&Qty=@lpd.Qty&UomCode=@lpd.UomCode&Remark=@lpd.Remark&LooseAreaAvailableQty=@lpd.LooseAreaAvailableQty&LoosePickStatus=@lpd.LoosePickStatus&IsLoosePickFull=@lpd.IsLoosePickFull&UserId=@lpd.UserId&DPNum=@lpd.DPNum' />
+											</td>
+											<td>
+												@lpd.PartNum
+											</td>
+											<td>
+												@lpd.PartDesc
+											</td>
+											<td>
+												@lpd.Qty
+											</td>
+											<td>
+												@lpd.UomCode
+											</td>
+											<td>@lpd.Remark</td>
+										</tr>
+									}
+
+									index++;
+								}
+							}
+							</tbody>
+						</table>
+					</div>
+				</fieldset>
+
+
+			</div>
+
+			<div class="panel-footer">
+				@*<button type="button" class="btn btn-primary">Retrieve</button>
+					<button type="button" class="btn btn-primary">Pick</button>*@
+				@*<button type="button" class="btn btn-danger" onclick="location.href = '/LoosePicking/Index';">Close</button>*@
+				<button type="button" class="btn btn-danger" id="CloseDetail">Close</button>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title">Warning</h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4>This SO No is currently in picking process.</h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+</div>
+
+<script type="text/javascript">
+
+	$(document).ready(function () {
+		$('#WOLPSODetailTable').on('click', '.RetrieveButton', function () {
+			//var partNum = $(this).val();
+			//window.location.href = "Retrieve?id=" + partNum;
+
+			/*
+			var index = $(this).val();
+			var Id = $('#Id_' + index).val();
+			var UD108Key1 = $('#UD108Key1_' + index).val();
+			var SysRowId = $('#SysRowId_' + index).val();
+			var Company = $('#Company_' + index).val();
+			var Plant = $('#Plant_' + index).val();
+			var SONum = $('#SONum_' + index).val();
+			var ShipByDate = $('#ShipByDate_' + index).val();
+			var PartNum = $('#PartNum_' + index).val();
+			var PartDesc = $('#PartDesc_' + index).val();
+			var ActQty = $('#ActQty_' + index).val();
+			var PrevLPQty = $('#PrevLPQty_' + index).val();
+			var Qty = $('#Qty_' + index).val();
+			var UomCode = $('#UomCode_' + index).val();
+			var Remark = $('#Remark_' + index).val();
+			var LooseAreaAvailableQty = $('#LooseAreaAvailableQty_' + index).val();
+			var LoosePickStatus = $('#LoosePickStatus_' + index).val();
+			var IsLoosePickFull = $('#IsLoosePickFull_' + index).val();
+			var UserId = $('#UserId_' + index).val();
+			*/
+
+			var index = $(this).val();
+			//var Qty = $('#hQty_' + index).val();
+			var Params = $('#hParams_' + index).val();
+
+			var url = '@Url.Action("Retrieve", "LoosePicking")' + "?" +Params;
+			window.location.href = url;
+			//window.location.href = "Retrieve?" + Params;
+			//if (Qty > 0) {
+			//	window.location.href = "Retrieve?" + Params;
+			//} else {
+			//	alert(Qty + " no enough");
+			//}
+
+		});
+
+
+		$('#WOLPSODetailTable').on('click', '.PickButton', function () {
+			var index = $(this).val();
+			var Qty = $('#hQty_' + index).val();
+			var Params = $('#hParams_' + index).val();
+
+			//if (Qty > 0) {
+			var url = '@Url.Action("PalletSelection", "LoosePicking")' + "?" +Params;
+			window.location.href = url;
+				//window.location.href = "PalletSelection?" + Params;
+			//} else {
+				//alert(Qty + " no enough");
+			//}
+		});
+
+		$('#CloseDetail').click(function () {
+			//location.href = document.referrer;
+			@*window.location.href = '@ViewBag.BackButtonParams';*@
+			var url = '@Url.Action("Index", "LoosePicking")';
+			window.location.href = url;
+		})
+
+
+	});
+
+
+</script>
+
+
+

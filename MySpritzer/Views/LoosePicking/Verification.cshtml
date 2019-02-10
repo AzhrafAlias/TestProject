@@ -1,0 +1,434 @@
+﻿@model List<MySpritzer.Models.PalletSelectionModel>
+
+@{
+	ViewBag.Title = "Verification";
+
+	string SONum = "";
+	if (!string.IsNullOrEmpty(Session["SONum"] as string))
+	{
+		SONum = Session["SONum"] as string;
+	}
+
+	//string PalletNum = "-";
+	//if (!string.IsNullOrEmpty(Session["PalletNum"] as string))
+	//{
+	//	PalletNum = (string)Session["PalletNum"];
+	//}
+	int PalletNum;
+	PalletNum = (int)Session["PalletNum"];
+
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Pallet Product Verification
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				<fieldset>
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="SONum">SO Num: @SONum</label>
+							<br />
+							<label class="control-label" for="Pallet">Pallet: @PalletNum</label>
+							@*<input type="text" class="form-control" name="SONum" id="SONum" readonly value="SO Num: SO1234567890">*@
+						</div>
+					</div>
+				</fieldset>
+				<hr />
+
+				@using (@Html.BeginForm("Index", "POReceipt", FormMethod.Get, new { id = "SearchForm" }))
+				{
+					<fieldset>
+						<div>
+							<table id="verificationListTable" class="table table-responsive table-condensed" style="width:100%">
+								<thead>
+									<tr>
+										<th>Remove</th>
+										<th>Part</th>
+										<th>Description</th>
+										<th>Lot Num</th>
+										<th>Qty</th>
+									</tr>
+								</thead>
+								<tbody>
+
+									@if (Model == null)
+									{
+										<tr>
+											<td valign="top" colspan="5" class="dataTables_empty">No data available in table</td>
+										</tr>
+									}
+									else
+									{
+										int index = 0;
+										foreach (var psm in Model)
+										{
+											//if (!psm.VerifyStatus)
+											//{
+											<tr>
+												<td>
+													<input type="hidden" class='itemToDelete_@index' value="@psm.Id" />
+													<button type="button" class="btn btn-danger DeleteButton" value=@index><i class="glyphicon glyphicon-trash"></i></button>
+													@*<button type="button" class="btn btn-danger DeleteButton" value=@psm.Id><i class="glyphicon glyphicon-trash"></i></button>*@
+												</td>
+												<td>
+													@psm.PartNum / @index
+												</td>
+												<td>
+													@psm.PartDesc
+												</td>
+												<td>
+													@psm.LotNum
+												</td>
+												<td>
+													@psm.PalletQty
+												</td>
+											</tr>
+											//}
+											//else {
+											@*<tr>
+													<td>
+														<button type="button" class="btn btn-warning" value=@psm.Id><i class="glyphicon glyphicon-ban-circle"></i></button>
+													</td>
+													<td>
+														@psm.PartNum
+													</td>
+													<td>
+														@psm.PartDesc
+													</td>
+													<td>
+														@psm.LotNum
+													</td>
+													<td>
+														@psm.PalletQty
+													</td>
+												</tr>*@
+											//}
+
+
+											index++;
+										}
+									}
+								</tbody>
+							</table>
+						</div>
+					</fieldset>
+				}
+
+			</div>
+
+			<div class="panel-footer">
+				@*<button type="button" class="btn btn-danger" onclick="location.href = 'PalletSelection';">Close</button>*@
+				<button type="button" class="btn btn-danger" id="CloseVerify">Close</button>
+				<button type="button" class="btn btn-primary pull-right" id="ConfirmButton">Confirm</button>
+				@*@if (ViewBag.Verify == "F")
+					{
+						<button type="button" class="btn btn-primary pull-right" id="ConfirmButton">Confirm</button>
+					}
+					else
+					{
+						<button type="button" class="btn btn-primary pull-right" disabled>Verified</button>
+					}*@
+
+			</div>
+		</div>
+	</div>
+
+
+	<!-- The Modal -->
+	<div class="modal fade" id="responseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+	<!-- removeItemModal -->
+	<div class="modal fade" id="removeItemModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="SureDeleteBtn">Remove</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+	<!-- refreshPageModal -->
+	<div class="modal fade" id="refreshPageModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="RefreshPageBtn">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+	<input type="hidden" id="HiddenMessage" value=@TempData["ResponseMessage"] />
+	<input type="hidden" id="h_PalletNum" value=@PalletNum />
+
+
+</div>
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		var itemIdToRemove = "";
+
+		$('#CloseVerify').click(function () {
+			backToPalletSelection();
+			//history.go(-1);
+
+			@*var object = new Object();
+			object = '@ViewBag.BackButtonObject';
+			$.ajax({
+					type: "GET",
+					url: '@(Url.Action("PalletSelection", "LoosePicking"))',
+					data: JSON.stringify(object)
+			});*@
+		});
+
+		function backToPalletSelection() {
+			var url = '@Url.Action("PalletSelection", "LoosePicking")';
+			window.location.href = url;
+		}
+
+		$('#verificationListTable').DataTable({
+			//"dom": '<"top"iflp<"clear">>rt<"bottom"iflp<"clear">>',
+			//"dom": '<"top"iflp<"clear">>',
+			//bLengthChange: false,
+			//scrollX: true,
+			//searching: false,
+			//iDisplayLength: 5,
+			//aLengthMenu: [[5], [5]]
+			//Ramesh
+			paging: true,
+			sort: true,
+			searching: false,
+			pageLength: 5,
+			bLengthChange: false,
+			dom: '<"top"i>rt<"bottom"flp><"clear">'
+		});
+
+		$('#verificationListTable').on('click', '.DeleteButton', function () {
+			var index = $(this).val();
+			var xid = $('.itemToDelete_' + index).val();//$(this).val();
+			//var xid = line.val();
+			var msg = "Are you sure to remove this (" + xid + ") item from the list?";
+			var modal = $('#removeItemModal').modal();
+			modal.find('.modal-header').text("Confirmation");
+			modal.find('.modal-body').text(msg);
+
+			itemIdToRemove = xid;
+		});
+
+		$('#SureDeleteBtnTest').click(function () {
+			var xid = itemIdToRemove;
+			//alert(xid);
+		});
+
+		$('#RefreshPageBtn').click(function () {
+			var palletNum = '@PalletNum';
+			var url = '@Url.Action("Verification", "LoosePicking")' + "?id=" + palletNum;
+			window.location.href = url;
+			//window.location.href = "Verification?id=" + palletNum;
+		});
+
+		//$('#verificationListTable').on('click', '.DeleteButton', function () {
+		$('#SureDeleteBtn').click(function () {
+			var xid = itemIdToRemove;//$(this).val();
+			ShowLoader();
+			$.ajax(
+			{
+				url: '@(Url.Action("DeleteFromVerification", "LoosePicking"))',
+				data: { id: xid},
+				success: function (data) {
+					HideLoader();
+					if (data) {
+						if (data.Message) {
+							if (data.Message == "Success") {
+								backToPalletSelection();
+								//var modal = $('#refreshPageModal').modal({
+								//	backdrop: 'static',
+								//	keyboard: false
+								//});
+								//var msg = "Item has been removed";
+								//modal.find('.modal-header').text("Response Message");
+								//modal.find('.modal-body').text(msg);
+							} else {
+								var msg = data.Message;
+
+								var modal = $('#responseModal').modal();
+								modal.find('.modal-header').text("Response Message");
+								modal.find('.modal-body').text(msg);
+							}
+						}
+					}
+				},
+				failure: function (response) {
+					HideLoader();
+
+					var msg = response.responseText;
+
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				},
+				error: function (response) {
+					HideLoader();
+
+					var msg = response.responseText;
+
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				}
+
+			});
+		});
+
+		//$('#ConfirmButton').click(function () {
+		//	window.location.href = "Verified";
+		//});
+
+		@*ReadHiddenMessage();
+
+		function ReadHiddenMessage() {
+			//var msg = @TempData["ResponseMessage"];
+			var msg = $('#HiddenMessage').val();
+			if (msg) {
+				var modal = $('#responseModal').modal();
+				model.find('.modal-title').text("Response Message");
+				modal.find('.modal-body').text(msg);
+			}
+		}*@
+
+
+		$('#ConfirmButton').click(function ()
+		{
+			ShowLoader();
+			$.ajax(
+			{
+				url: '@(Url.Action("Verified", "LoosePicking"))',
+				success: function (data)
+				{
+					HideLoader();
+					if (data)
+					{
+						if (data.Status == "Success") {
+							backToPalletSelection();
+							//refreshPageModal
+							//var modal = $('#refreshPageModal').modal({
+							//	backdrop: 'static',
+							//	keyboard: false
+							//});
+							//var msg = data.Message;
+							//modal.find('.modal-header').text("Response Message");
+							//modal.find('.modal-body').text(msg);
+						}
+						else {
+							var msg = data.Message;
+							var modal = $('#responseModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						}
+					}
+				},
+				failure: function (response)
+				{
+					HideLoader();
+					var msg = response.responseText;
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				},
+				error: function (response)
+				{
+					HideLoader();
+
+					var msg = response.responseText;
+
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				}
+			});
+		});
+
+		//window.onload = CheckVerifyStatus();
+		CheckVerifyStatus();
+
+		function CheckVerifyStatus() {
+			if ('@ViewBag.VerifyStatus' == "T") {
+				$('.DeleteButton').attr("disabled", true);
+				$('#ConfirmButton').attr("disabled", true);
+				$('#ConfirmButton').text("Verified");
+			} else {
+				$('.DeleteButton').attr("disabled", false);
+				$('#ConfirmButton').attr("disabled", false);
+			}
+		}
+
+
+
+
+
+	});
+
+
+</script>

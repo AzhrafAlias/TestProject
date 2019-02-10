@@ -1,0 +1,347 @@
+﻿@model List<MySpritzer.Models.FinishGoodModel>
+
+@{
+	ViewBag.Title = "Finish Goods";
+
+	string Status = "";
+	if (ViewBag.Status != null)
+	{
+		Status = ViewBag.Status;
+	}
+}
+
+<input type="hidden" id="pgStatus" data-value='@Status' />
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Finish Goods
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				@if (Model != null)
+				{
+					string TruckNo = "";
+					string LoadingBay = "";
+					foreach (var fg in Model)
+					{
+						TruckNo = fg.TruckNo;
+						LoadingBay = fg.LoadingBay;
+					}
+					<fieldset>
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label">Truck No: @TruckNo</label>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Loading Bay: @LoadingBay</label>
+							</div>
+						</div>
+					</fieldset>
+				}
+
+				<hr />
+				<fieldset>
+					<div>
+						<table id="FinishGoodTbl" class="table table-responsive table-condensed" style="width:100%">
+							<thead>
+								<tr>
+									<th>Confirm</th>
+									<th>Part</th>
+									<th>Description</th>
+									<th>Qty (Ctn)</th>
+									<th>Qty (Pallet)</th>
+									<th>Loose</th>
+									<th>Comment</th>
+								</tr>
+							</thead>
+							<tbody>
+								@{
+									if (Model == null)
+									{
+										<tr>
+											<td valign="top" colspan="7" class="dataTables_empty">No data available in table</td>
+										</tr>
+									}
+									else
+									{
+										int index = 0;
+										foreach (var fg in Model)
+										{
+											string rowColor = "";
+											if (fg.PickedPalletQty > 0)
+											{
+												rowColor = "#FFFF00";
+											}
+											else
+											{
+												rowColor = "";
+											}
+											<tr style="background-color: @rowColor">
+												<td>
+													<form method="get" id='FGForm_@index'>
+														<input type="hidden" name="Company" value='@fg.Company' />
+														<input type="hidden" name="Key1" value='@fg.Key1' />
+														<input type="hidden" name="Key2" value='@fg.Key2' />
+														<input type="hidden" name="Key3" value='@fg.Key3' />
+														<input type="hidden" name="Key4" value='@fg.Key4' />
+														<input type="hidden" name="PartNum" value='@fg.PartNum' />
+														<input type="hidden" name="PartDesc" value='@fg.PartDesc' />
+														<input type="hidden" name="PalletQty" value='@fg.PalletQty' />
+														<input type="hidden" name="PickedPalletQty" value='@fg.PickedPalletQty' />
+														<input type="hidden" name="Qty" value='@fg.Qty' />
+														<input type="hidden" name="PickedQty" value='@fg.PickedQty' />
+														<input type="hidden" name="PalletType" value='@fg.PalletType' />
+														<input type="hidden" name="Comment" value='@fg.Comment' />
+														<input type="hidden" name="TruckNo" value='@fg.TruckNo' />
+														<input type="hidden" name="LoadingBay" value='@fg.LoadingBay' />
+													</form>
+													<input type="hidden" id='hParams_@index' value='Company=@fg.Company&Key1=@fg.Key1&Key2=@fg.Key2&Key3=@fg.Key3&Key4=@fg.Key4&PartNum=@fg.PartNum&PartDesc=@fg.PartDesc&PalletQty=@fg.PalletQty&PickedPalletQty=@fg.PickedPalletQty&Qty=@fg.Qty&PickedQty=@fg.PickedQty&PalletType=@fg.PalletType&Comment=@fg.Comment&TruckNo=@fg.TruckNo&LoadingBay=@fg.LoadingBay' />
+
+													@if (fg.PalletType == "L")
+													{
+														<button type="button" class="btn btn-default PickFGButtonLoose" value='@index'><i class="glyphicon glyphicon-check"></i></button> <!--Add On-->
+													}
+													else
+													{
+														<button type="button" class="btn btn-primary PickFGButton" value='@index'><i class="glyphicon glyphicon-check"></i></button> <!--Add On-->
+
+													}
+
+
+												</td>
+												<td>
+													@fg.PartNum
+												</td>
+												<td>@fg.PartDesc</td>
+												<td>@fg.Qty</td>
+												<td>@fg.PickedPalletQty / @fg.PalletQty</td>
+												<td>
+													@if (fg.PalletType == "L")
+													{
+														<div class="form-check">
+															<input type="checkbox" class="form-check-input" disabled checked>
+														</div>
+													}
+													else
+													{
+														<div class="form-check">
+															<input type="checkbox" class="form-check-input" disabled>
+														</div>
+													}
+												</td>
+												<td>@fg.Comment</td>
+											</tr>
+
+											index++;
+										}
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				</fieldset>
+
+			</div>
+
+			<div class="panel-footer">
+				@*<button type="button" class="btn btn-danger" id="CloseBtn">Close</button>*@
+				@*<button type="button" class="btn btn-danger">All Return</button>
+				<button type="button" class="btn btn-primary pull-right" id="ConfirmReviewBtn">Confirm</button>*@
+			</div>
+
+		</div>
+
+	</div>
+
+
+
+	<!-- removeProductModal Modal -->
+	<div class="modal fade" id="removeProductModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Remove</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- removeProductModal Modal// -->
+	<!-- palletTypeConfirmationModal Modal -->
+	<div class="modal fade" id="palletTypeConfirmationModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title">Pallet Type Confirmation</h4>
+				</div>
+
+				<div class="modal-body">
+					<form>
+						<div class="form-group">
+							<label for="PalletType">Pallet Type: </label>
+							<select class="form-control" name="PalletType" id="PalletType">
+								<option>Pallet 1</option>
+								<option>Pallet 2</option>
+								<option>Pallet 3</option>
+								<option>Pallet 4</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="Qty">Qty: </label>
+							<input type="number" class="form-control" step="0.01" name="Qty" id="Qty">
+						</div>
+					</form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="NextPalletTypeBtn">Next</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="ConfirmPalletTypeBtn">Confirm</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- palletTypeConfirmationModal Modal// -->
+	<!-- Alert Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- Alert Modal// -->
+
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		var msg = $("#pgStatus").data("value");
+		if (msg != '') {
+			//alert(msg);
+
+			//$.notify(msg, "info");
+
+			var model = $('#alertModal').modal();
+			model.find('.modal-title').text("Error");
+			model.find('.modal-body').text(msg);
+		};
+
+
+		$('#FinishGoodTbl').DataTable({
+			//dom: '<"top"iflp<"clear">>rt<"bottom"iflp<"clear">>',
+			//searching: false, paging: true, info: false, bLengthChange: false
+			//dom: '<"top"iflp<"clear">>',
+			//bLengthChange: false,
+			//scrollX: true,
+			//searching: false,
+			//iDisplayLength: 5,
+			//aLengthMenu: [[5], [5]]
+			//Ramesh
+			paging: true,
+			sort: true,
+			searching: false,
+			pageLength: 5,
+			bLengthChange: false,
+			dom: '<"top"i>rt<"bottom"flp><"clear">'
+		});
+
+		//$('#FinishGoodTblTest').DataTable({
+		//	initComplete: function () {
+		//		this.api().columns().every(function () {
+		//			var column = this;
+		//			var select = $('<select><option value=""></option></select>')
+		//				.appendTo($(column.footer()).empty())
+		//				.on('change', function () {
+		//					var val = $.fn.dataTable.util.escapeRegex(
+		//						$(this).val()
+		//					);
+
+		//					column
+		//						.search(val ? '^' + val + '$' : '', true, false)
+		//						.draw();
+		//				});
+
+		//			column.data().unique().sort().each(function (d, j) {
+		//				if (column.search() === '^' + d + '$') {
+		//					select.append('<option value="' + d + '" selected="selected">' + d + '</option>')
+		//				} else {
+		//					select.append('<option value="' + d + '">' + d + '</option>')
+		//				}
+		//			});
+		//		});
+		//	}
+		//});
+
+
+
+
+
+		$('#FinishGoodTbl').on('click', '.PickFGButton', function () {
+			var index = $(this).val();
+			var hParams_ = $('#hParams_' + index).val();
+			//var FGForm_ = $('FGForm_' + index);
+			var url = '@Url.Action("FinishGoodsPickProcess", "FullPicking")' + "?" + hParams_;
+			window.location.href = url;
+			//window.location.href = "../FullPicking/FinishGoodsPickProcess?" + hParams_;
+		});
+
+		$('#FinishGoodTbl').on('click', '.PickFGButtonLoose', function () {
+			var index = $(this).val();
+			var hParams_ = $('#hParams_' + index).val();
+			//var FGForm_ = $('FGForm_' + index);
+			var url = '@Url.Action("FinishGoodsPickProcessLoose", "FullPicking")' + "?" + hParams_;
+			window.location.href = url;
+			//window.location.href = "../FullPicking/FinishGoodsPickProcess?" + hParams_;
+		});
+
+		$('#CloseBtn').click(function () {
+			var url = '@Url.Action("FinishGoodsShipTo", "FullPicking")';
+			window.location.href = url;
+		});
+
+		$('#ConfirmReviewBtn').click(function () {
+			$('#palletTypeConfirmationModal').modal();
+		});
+
+		$('#NextPalletTypeBtn').click(function () {
+			$('#PalletType').val("");
+			$('#Qty').val("");
+		});
+
+	});
+
+
+
+</script>
+

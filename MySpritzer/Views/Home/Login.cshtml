@@ -1,0 +1,94 @@
+﻿@{
+	ViewBag.Title = "Login";
+
+	var companyParam = "";
+	var selected = "";
+
+	if (!string.IsNullOrEmpty(Request.QueryString["company"]))
+	{
+		companyParam = Request.QueryString["company"];
+	}
+}
+
+
+<div class="container">
+	<h2>User Login</h2>
+	@using (@Html.BeginForm("LoginUser", "Home", FormMethod.Get, new { id = "LoginForm" }))
+	{
+		<div class="form-group">
+			<label for="user">User:</label>
+			<input type="text" class="form-control" id="userid" required name="UserId" autofocus placeholder="Enter UserName">
+		</div>
+		<div class="form-group">
+			<label for="pwd">Password:</label>
+			<input type="password" class="form-control" id="pwd" required name="UserPassword" placeholder="Enter password">
+		</div>
+
+		<div class="form-group">
+			<label class="control-label" for="company">Company:</label>
+			<select name="company" required class="form-control">
+				@if (ViewBag.Companies != null)
+				{
+					foreach (var comp in ViewBag.Companies)
+					{
+
+						if (comp.CompanyId == companyParam)
+						{
+							selected = "selected";
+						}
+						else
+						{
+							selected = "";
+						}
+
+						<option value="@comp.CompanyId" @selected>@comp.Name</option>
+					}
+				}
+				else
+				{
+					<option>-</option>
+				}
+
+			</select>
+		</div>
+
+		@*<div class="checkbox">
+			<label><input type="checkbox"> Remember me</label>
+		</div>*@
+		<button type="submit" class="btn btn-info" id="LoginBtn">Login</button>
+	}
+
+	<div>
+		@if (ViewBag.Companies == null)
+		{
+			<h4>Please check your connection.</h4>
+		}
+	</div>
+</div>
+
+<div>
+	@if (ViewBag.Err != null)
+	{
+		@*<h4> @ViewBag.Err</h4>*@
+		<script type="text/javascript">
+	        $(document).ready(function () {
+
+                $.notify('@ViewBag.Err', "error");
+                $("#LoginBtn").notify('@ViewBag.Err');
+
+
+
+	        })
+		</script>
+	}
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		if (!'@ViewBag.Companies') {
+			$("#LoginBtn").attr("disabled", "disabled");
+		}
+	});
+</script>
+
+

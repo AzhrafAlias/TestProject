@@ -1,0 +1,598 @@
+﻿@model MySpritzer.Models.PalletSelectionModel
+
+
+@{
+	ViewBag.Title = "ProductScanning";
+	int PalletNum;
+	PalletNum = (int)Session["PalletNum"];
+
+	string isFirstLoad = "true";
+
+	if (!string.IsNullOrEmpty(Request.QueryString["fl"]))
+	{
+		isFirstLoad = "false";
+	}
+	else
+	{
+		isFirstLoad = "true";
+	}
+}
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+<div class="container-fluid">
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Loose Picking - Product Scanning
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				<fieldset>
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="SONum">SO Num: @Html.DisplayFor(model => model.SONum)</label>
+							<br />
+							<label class="control-label" for="Pallet">Pallet: @Html.DisplayFor(model => model.PalletNum)</label>
+							@*<input type="text" class="form-control" name="SONum" id="SONum" readonly value="SO Num: SO1234567890">*@
+						</div>
+					</div>
+				</fieldset>
+				<hr />
+
+				@using (Html.BeginForm("UpdateProductScanning", "LoosePicking", FormMethod.Post, new { id = "ProductScanningForm" }))
+				{
+					@Html.HiddenFor(model => model.Id, new { id = "Id" })
+					@Html.HiddenFor(model => model.UD108Key1, new { id = "UD108Key1" })
+					@Html.HiddenFor(model => model.SysRowId, new { id = "SysRowId" })
+					@Html.HiddenFor(model => model.Company, new { id = "Company" })
+					@Html.HiddenFor(model => model.Plant, new { id = "Plant" })
+					@Html.HiddenFor(model => model.SONum, new { id = "SONum" })
+					@Html.HiddenFor(model => model.ShipByDate, new { id = "ShipByDate" })
+					//@Html.HiddenFor(model => model.PartNum, new { id = "PartNum" })
+					//@Html.HiddenFor(model => model.PartDesc, new { id = "PartDesc" })
+					@Html.HiddenFor(model => model.ActQty, new { id = "ActQty" })
+					@Html.HiddenFor(model => model.PrevQty, new { id = "PrevQty" })
+					@Html.HiddenFor(model => model.PalletNum, new { id = "PalletNum" })
+					//@Html.HiddenFor(model => model.LotNum, new { id = "LotNum" })
+					//@Html.HiddenFor(model => model.PalletQty, new { id = "PalletQty" })
+					@Html.HiddenFor(model => model.PalletQty, new { id = "h_PalletQty" }) //From prev list
+					@Html.HiddenFor(model => model.UomCode, new { id = "UomCode" })
+					@Html.HiddenFor(model => model.FromWareHouse, new { id = "FromWareHouse" })
+					@Html.HiddenFor(model => model.FromBinNum, new { id = "FromBinNum" })
+					@Html.HiddenFor(model => model.ToWareHouse, new { id = "ToWareHouse" })
+					@Html.HiddenFor(model => model.ToBinNum, new { id = "ToBinNum" })
+					@Html.HiddenFor(model => model.VerifyStatus, new { id = "VerifyStatus" })
+					@Html.HiddenFor(model => model.Remark, new { id = "Remark" })
+					@Html.HiddenFor(model => model.LoosePickStatus, new { id = "LoosePickStatus" })
+					@Html.HiddenFor(model => model.UserId, new { id = "UserId" })
+					@Html.HiddenFor(model => model.RowMod, new { id = "RowMod" })
+					@Html.HiddenFor(model => model.DPNum, new { id = "DPNum" })
+
+					@Html.HiddenFor(model => model.PalletQty, new { id = "h_LotPalletQty" }) //After they scan lot, this value will set according to scanned lot
+
+
+					<fieldset>
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="LotNum">Lot Num: </label>
+								<div class="input-group">
+									<input type="text" class="form-control" name="LotNum" id="LotNum" value='@Html.DisplayFor(model=>model.LotNum)'>
+									<div class="input-group-btn">
+										<button class="btn btn-primary" type="button" data-toggle="modal" data-target="#lotNumSuggestionModal">
+											<i class="glyphicon glyphicon-info-sign"></i>
+										</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="PalletQty">Qty: </label>
+								<input type="number" class="form-control" style="text-align: right" name="PalletQty" id="PalletQty" value='@Html.DisplayFor(model => model.PalletQty)'>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="RemainQty">Remain Qty: </label>
+								<input type="text" class="form-control" name="RemainQty" id="RemainQty" readonly>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="PartNum">Part Num: </label>
+								<input type="text" class="form-control" name="PartNum" id="PartNum" readonly value='@Html.DisplayFor(model => model.PartNum)'>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="PartDesc">Description:</label>
+								<textarea class="form-control" name="PartDesc" id="PartDesc" readonly rows="5">@Html.DisplayFor(model => model.PartDesc)</textarea>
+							</div>
+						</div>
+					</fieldset>
+				}
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-danger" id="CloseScanningBtn">Close</button>
+				<button type="button" class="btn btn-primary pull-right" id="ProductScanningSaveButton" form="ProductScanningForm">Save</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Lot Num Suggestion Modal -->
+
+	<div class="modal fade" id="lotNumSuggestionModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">Lot Num Suggestion</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body" style="height: 450px; overflow-y: auto">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Lot Num</th>
+								<th>OnHand Qty</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (TempData["LotNums"] != null)
+							{
+								List<LotNumSuggestion> lns = new List<LotNumSuggestion>();
+								lns = (List<LotNumSuggestion>)TempData["LotNums"];
+								foreach (var l in lns)
+								{
+									<tr>
+										<td>@l.LotNum</td>
+										<td>@l.OnHandQty</td>
+									</tr>
+								}
+							}
+
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!--Lot Num Suggestion Modal//-->
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+	<!-- WEB API RESPONSE MODAL -->
+	<div class="modal fade" id="responseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- WEB API RESPONSE MODAL//-->
+	<!-- refreshPageModal -->
+	<div class="modal fade" id="refreshPageModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="RefreshPageBtn">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--refreshPageModal//-->
+	<!-- backtoPalletModal -->
+	<div class="modal fade" id="backtoPalletModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="backtoPalletBtn">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--backtoPalletModal//-->
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function ()
+	{
+		CheckIfFirstLoad();
+		//Check if first time load, show lotNumSuggestionModal, else manually show by btn
+		function CheckIfFirstLoad() {
+			var isFirstTimeLoad = '@isFirstLoad';
+			if (isFirstTimeLoad == "true")
+			{
+				$("#lotNumSuggestionModal").modal();
+			}
+		}
+
+		$('#RefreshPageBtn').click(function () {
+			RefreshPage();
+		});
+
+		function RefreshPage() {
+			var palletNum = '@PalletNum';
+			var url = '@Url.Action("ProductScanning", "LoosePicking")' + "?id=" + palletNum + "&fl=false";
+			window.location.href = url;
+		}
+
+		$('#CloseScanningBtn').click(function () {
+			backToPalletSelection();
+		});
+
+		function backToPalletSelection() {
+			var url = '@Url.Action("PalletSelection", "LoosePicking")';
+			window.location.href = url;
+		}
+
+		//Update Product Scanning by POST Method
+		$('#ProductScanningSaveButton').click(function ()
+		{
+			var obj = new Object();
+			obj.Id = $('#Id').val();
+			obj.UD108Key1 = $('#UD108Key1').val();
+			obj.SysRowId = $('#SysRowId').val();
+			obj.Company = $('#Company').val();
+			obj.Plant = $('#Plant').val();
+			obj.SONum = $('#SONum').val();
+			obj.ShipByDate = $('#ShipByDate').val();
+			//alert(obj.ShipByDate);
+			obj.PartNum = $('#PartNum').val();
+			obj.PartDesc = $('#PartDesc').val();
+			obj.ActQty = $('#ActQty').val();
+			obj.PrevQty = $('#PrevQty').val();
+			obj.PalletNum = $('#PalletNum').val();
+			obj.LotNum = $('#LotNum').val();
+			obj.PalletQty = $('#PalletQty').val();
+			obj.UomCode = $('#UomCode').val();
+			obj.FromWareHouse = $('#FromWareHouse').val();
+			obj.FromBinNum = $('#FromBinNum').val();
+			obj.ToWareHouse = $('#ToWareHouse').val();
+			obj.ToBinNum = $('#ToBinNum').val();
+			obj.VerifyStatus = $('#VerifyStatus').val();
+			obj.Remark = $('#Remark').val();
+			obj.LoosePickStatus = $('#LoosePickStatus').val();
+			obj.UserId = $('#UserId').val();
+			obj.RowMod = $('#RowMod').val();
+			obj.DPNum = $('#DPNum').val();
+
+			obj.Qty = $('#Qty').val();
+
+			ShowLoader();
+
+			$.ajax(
+			{
+				url: '@(Url.Action("UpdateProductScanning", "LoosePicking"))',
+				//url: "http://10.0.10.29/SpritzerAPI/api/LPPalletSelection",
+				data: JSON.stringify(obj),
+				dataType: "json",
+				type: "POST",
+				contentType: 'application/json; charset=utf-8',
+				success: function (data)
+				{
+					HideLoader();
+					if (data)
+					{
+						if (data.Status == "Success") {
+							RefreshPage();
+							//var msg = data.Message;
+							//var modal = $('#refreshPageModal').modal();
+							//modal.find('.modal-header').text("Response Message");
+							//modal.find('.modal-body').text(msg);
+						} else {
+							var msg = data.Message;
+							var modal = $('#responseModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						}
+					}
+				},
+				failure: function (response)
+				{
+					HideLoader();
+					var modal = $('#responseModal').modal();
+					var msg = response.responseText;
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				},
+				error: function (response)
+				{
+					HideLoader();
+
+					var msg = response.responseText;
+					
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				}
+			});
+		});
+
+		//Check LotNum by GET Method
+		$('#LotNum').focus();
+		
+		$('#LotNum').change(function ()
+		{
+			var CompanyVal = $('#Company').val();
+			var PartNumVal = $('#PartNum').val();
+			var LotNumVal = $('#LotNum').val();
+
+			if (LotNumVal != "") {
+				ShowLoader();
+				//alert("LotNum is not empty!");
+				$.ajax({
+					type: "GET",
+					url: '@(Url.Action("CheckProductScanningLotNum", "LoosePicking"))',
+					//url: "http://10.0.10.29/SpritzerAPI/api/LPLotNum",
+					//url: "http://localhost:65458/api/LPLotNum?Company={Company}&PartNum={PartNum}&LotNum={LotNum}",
+					data: { Company: CompanyVal, PartNum: PartNumVal, LotNum: LotNumVal },
+					success: function (data) {
+						HideLoader();
+						if (data) {
+							//$("#").removeAttr("disabled");
+							if (data.Message != "Valid") {
+								$('#LotNum').val("");
+								$('#LotNum').focus();
+
+								var msg = data.Message;
+
+								//$.notify(msg, "error");
+
+								var model = $('#responseModal').modal();
+								model.find('.modal-title').text("Response Message");
+								model.find('.modal-body').text(msg);
+
+								$("#ProductScanningSaveButton").attr("disabled", "disabled");
+							} else {
+
+								if (data.Warning) {
+									var msg = data.Warning;
+
+									//$("#LotNum").notify(msg, "warn");
+
+									var model = $('#alertModal').modal();
+									model.find('.modal-title').text("Warning!");
+									model.find('.modal-body').text(msg);
+								}
+
+								var pQty = parseFloat($("#h_PalletQty").val());
+
+								$("#h_LotPalletQty").val(data.PalletQty);
+
+								if (data.PalletQty >= pQty) {
+									var h_PalletQty = parseFloat($('#h_PalletQty').val());
+									$('#PalletQty').val(h_PalletQty); //Set as default Qty
+									$('#PalletQty').select();
+									$("#ProductScanningSaveButton").removeAttr("disabled");
+								} else {
+									//Lot Qty < Request Qty then default Lot Qty
+									$('#PalletQty').val(data.PalletQty);//Automatically change according to response value because its less than req qty
+									$('#PalletQty').select();
+									$("#ProductScanningSaveButton").removeAttr("disabled");
+
+									//$('#LotNum').val("");
+									//$('#LotNum').focus();
+
+									//var msg = "Qty (" + data.PalletQty + ") is not enough.";
+
+									//var model = $('#responseModal').modal();
+									//model.find('.modal-title').text("Response Message");
+									//model.find('.modal-body').text(msg);
+									//$("#ProductScanningSaveButton").attr("disabled", "disabled");
+								}
+								CalculateRemainQty();
+
+							}
+						}
+						else {
+							//$("#PODtlSubmit").attr("disabled", "disabled");
+							var msg = data.Message;
+
+							//$.notify(msg, "error");
+
+							var model = $('#responseModal').modal();
+							model.find('.modal-title').text("Response Message");
+							model.find('.modal-body').text(msg);
+						}
+					},
+					error: function (response) {
+						HideLoader();
+
+						var msg = response.responseText;
+
+						var modal = $('#responseModal').modal();
+						modal.find('.modal-header').text("Response Message");
+						modal.find('.modal-body').text(msg);
+					}
+				});
+			} else {
+				$("#ProductScanningSaveButton").attr("disabled", "disabled");
+			}
+		});
+
+
+		//Remaining Qty Calculation
+
+		CheckQtyFinish();
+		CalculateRemainQty();
+
+		$('#PalletQty').keyup(function () {
+			var _PalletQty = $('#PalletQty').val();
+			if (_PalletQty) {
+				CalculateRemainQty();
+			} else {
+				var msg = "Please insert a qty.";
+				var modal = $('#alertModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+				$('#PalletQty').val(0);
+				$("#ProductScanningSaveButton").attr("disabled", "disabled");
+			}
+		});
+
+		function CalculateRemainQty() {
+			var h_PalletQty = parseFloat($('#h_PalletQty').val());
+			var PalletQty = parseFloat($('#PalletQty').val());
+			var RemainQty = h_PalletQty - PalletQty;
+			RemainQty = parseFloat(RemainQty);
+
+			$('#RemainQty').val(RemainQty);
+
+			//Restrict user from key in more than available qty
+			if (PalletQty > h_PalletQty) {
+				var msg = "Key in Qty is more than the available Qty.";
+
+				//$.notify(msg, "error");
+
+				var modal = $('#alertModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+
+				$("#ProductScanningSaveButton").attr("disabled", "disabled");
+			} else if (PalletQty <= 0) {
+				var msg = "Qty cannot be less than 0.";
+				var modal = $('#alertModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+				$("#ProductScanningSaveButton").attr("disabled", "disabled");
+			}
+			else {
+				$("#ProductScanningSaveButton").removeAttr("disabled");
+			}
+
+			//Counter Check Qty with Lot Pallet Qty
+			var h_LotPalletQty = parseFloat($('#h_LotPalletQty').val());
+			if (PalletQty > h_LotPalletQty) {
+				var msg = "Key in Qty is more than the available scanned Lot Qty.";
+
+				//$.notify(msg, "error");
+
+				var modal = $('#alertModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+
+				$("#ProductScanningSaveButton").attr("disabled", "disabled");
+			}
+
+			CheckQtyFinish();
+
+		}
+
+		function CheckQtyFinish() {
+			//Disable save when qty is finished scan
+			var h_PalletQty = parseFloat($('#h_PalletQty').val());
+			var PalletQty = parseFloat($('#PalletQty').val());
+			var RemainQty = h_PalletQty - PalletQty;
+			RemainQty = parseFloat(RemainQty);
+			if (RemainQty == 0 && PalletQty == 0) {
+				$("#ProductScanningSaveButton").attr("disabled", "disabled");
+
+				backToPalletSelection();
+
+				//var msg = "All items are already finish scanned.";
+
+				////$.notify(msg, "error");
+
+				//var modal = $('#backtoPalletModal').modal();
+				//modal.find('.modal-header').text("Alert Message");
+				//modal.find('.modal-body').text(msg);
+			}
+		}
+
+		$("#backtoPalletBtn").click(function () {
+			backToPalletSelection();
+		});
+
+		//function Replace_h_PalletQty() {
+		//	var _PalletQty = parseFloat($('#PalletQty').val());
+		//	$('#h_PalletQty').val(_PalletQty);
+		//}
+
+		$("#ProductScanningSaveButton").attr("disabled", "disabled");
+	});
+</script>
+
+
+

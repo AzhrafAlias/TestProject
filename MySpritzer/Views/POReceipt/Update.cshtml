@@ -1,0 +1,45 @@
+﻿@model MySpritzer.Models.POHeaderModel
+
+@{
+//ViewBag.Title = "Update";
+}
+
+@*<h2>Update</h2>*@
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		var model = $('#FinishModal').modal({
+			backdrop: 'static',
+			keyboard: false
+		});
+	});
+</script>
+
+@*<h5>@TempData["RespondMessage"]</h5>*@
+
+@*<input type="submit" value="Go to Index Page" class="btn btn-default" onclick="location.href='@Url.Action("Index", "POReceipt" )'" />*@
+
+<!-- The Modal -->
+<div class="modal fade" id="FinishModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			@*Modal Header*@
+			<div class="modal-header">
+				<h4 class="modal-title">Submit Response</h4>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+				<h4>@TempData["RespondMessage"]</h4>
+			</div>
+
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Index", "POReceipt", new {search = @TempData["PONum"], DONum = @TempData["DONum"], company = @TempData["Company"]})'">Finish</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!--MODAL//-->

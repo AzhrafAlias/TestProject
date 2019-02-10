@@ -1,0 +1,672 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{86DBFAC5-CB09-4505-9B8A-BFB6B7B1DF5C}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySpritzer</RootNamespace>
+    <AssemblyName>MySpritzer</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.4\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.4\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.4\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.4\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.4\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.4\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.4\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.4\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.4\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Diagnostics.DiagnosticSource">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.4.1\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.TelemetryCorrelation">
+      <HintPath>..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.0\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.5.1\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.Agent.Intercept">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.4.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.DependencyCollector">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.5.1\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.PerfCounterCollector">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.5.1\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.5.1\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.WindowsServer">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.5.1\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.Web">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.5.1\lib\net45\Microsoft.AI.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
+    <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
+    <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
+    <Compile Include="Areas\HelpPage\HelpPageAreaRegistration.cs" />
+    <Compile Include="Areas\HelpPage\HelpPageConfigurationExtensions.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\CollectionModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ComplexTypeModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\DictionaryModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\EnumTypeModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\EnumValueDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\IModelDocumentationProvider.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\KeyValuePairModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ModelDescriptionGenerator.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ModelNameAttribute.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ModelNameHelper.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ParameterAnnotation.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ParameterDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\SimpleTypeModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\Models\HelpPageApiModel.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\HelpPageSampleGenerator.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\HelpPageSampleKey.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\ImageSample.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\InvalidSample.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\ObjectGenerator.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
+    <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\InterCoRcvController.cs" />
+    <Compile Include="Controllers\Prod\IssueMaterialMachineController.cs" />
+    <Compile Include="Controllers\Prod\MaterialReturnController.cs" />
+    <Compile Include="Controllers\Prod\MatRetnVerifyController.cs" />
+    <Compile Include="Controllers\Prod\PMCReceipientVerifyController.cs" />
+    <Compile Include="Controllers\Prod\PMCTransferController.cs" />
+    <Compile Include="Controllers\WI\FGController.cs" />
+    <Compile Include="Controllers\WI\FGReduceController.cs" />
+    <Compile Include="Controllers\WI\FGTopUpController.cs" />
+    <Compile Include="Controllers\WI\PickRawMtrlController.cs" />
+    <Compile Include="Controllers\WI\UrgentIssueController.cs" />
+    <Compile Include="Controllers\WO\FinishGoodsController.cs" />
+    <Compile Include="Controllers\WO\FullPickingController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\WO\LoosePickingController.cs" />
+    <Compile Include="Controllers\PO\POReceiptController.cs" />
+    <Compile Include="Controllers\PO\POValidationController.cs" />
+    <Compile Include="Controllers\Prod\IssueMaterialController.cs" />
+    <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="GlobalVariables.cs" />
+    <Compile Include="LotNumSuggestion.cs" />
+    <Compile Include="Menu.cs" />
+    <Compile Include="Models\CompanyModel.cs" />
+    <Compile Include="Models\CsvModel.cs" />
+    <Compile Include="Models\DMRReason.cs" />
+    <Compile Include="Models\EpiUserModel.cs" />
+    <Compile Include="Models\FGLotNumResponseModel.cs" />
+    <Compile Include="Models\FGModel.cs" />
+    <Compile Include="Models\FGReduceModel.cs" />
+    <Compile Include="Models\FGShipToModel.cs" />
+    <Compile Include="Models\FGTopUpInvTransListModel.cs" />
+    <Compile Include="Models\FGTopUpModel.cs" />
+    <Compile Include="Models\FGUpdateLooseModel.cs" />
+    <Compile Include="Models\FGUpdateModel.cs" />
+    <Compile Include="Models\FinishGoodModel.cs" />
+    <Compile Include="Models\InspectionCriteriaModel.cs" />
+    <Compile Include="Models\InterCoRcvDtlModel.cs" />
+    <Compile Include="Models\InterCoRcvModel.cs" />
+    <Compile Include="Models\IssueMaterialMachineModel.cs" />
+    <Compile Include="Models\IssueMaterialModel.cs" />
+    <Compile Include="Models\LoosePickingDetailModel.cs" />
+    <Compile Include="Models\LoosePickingHeaderModel.cs" />
+    <Compile Include="Models\LotAttributeModel.cs" />
+    <Compile Include="Models\MaterialReturnModel.cs" />
+    <Compile Include="Models\MaterialReturnWEBAPI.cs" />
+    <Compile Include="Models\MatRetnVerifyModel.cs" />
+    <Compile Include="Models\PalletModel.cs" />
+    <Compile Include="Models\PalletPart.cs" />
+    <Compile Include="Models\PalletSelectionModel.cs" />
+    <Compile Include="Models\PalletTypeModel.cs" />
+    <Compile Include="Models\PickRawMtrlModel.cs" />
+    <Compile Include="Models\PickRawMtrlTuIdModel.cs" />
+    <Compile Include="Models\PilotAndLoadingBayModel.cs" />
+    <Compile Include="Models\PilotModel.cs" />
+    <Compile Include="Models\PilotToTruckModel.cs" />
+    <Compile Include="Models\PMCReceipientVerificationModel.cs" />
+    <Compile Include="Models\PMCTransferModel.cs" />
+    <Compile Include="Models\PODetailModel.cs" />
+    <Compile Include="Models\POHeaderModel.cs" />
+    <Compile Include="Models\PrintTagModel.cs" />
+    <Compile Include="Models\ProdInTruckAddModel.cs" />
+    <Compile Include="Models\ProdInTruckConModel.cs" />
+    <Compile Include="Models\ProductInTruckModel.cs" />
+    <Compile Include="Models\QAApprovalModel.cs" />
+    <Compile Include="Models\ReasonModel.cs" />
+    <Compile Include="Models\RetrieveModel.cs" />
+    <Compile Include="Models\TruckArriveModel.cs" />
+    <Compile Include="Models\TruckUserModel.cs" />
+    <Compile Include="Models\UserValidationModel.cs" />
+    <Compile Include="Models\UpdateInspectionModel.cs" />
+    <Compile Include="Models\UrgentIssueModel.cs" />
+    <Compile Include="Models\WarehseModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\images\logo.png" />
+    <Content Include="Content\Mobile\images\ajax-loader.gif" />
+    <Content Include="Content\Mobile\images\icons-png\action-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\action-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\alert-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\alert-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-d-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-d-l-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-d-l-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-d-r-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-d-r-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-d-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-l-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-l-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-r-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-r-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-u-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-u-l-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-u-l-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-u-r-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-u-r-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\arrow-u-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\audio-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\audio-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\back-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\back-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\bars-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\bars-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\bullets-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\bullets-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\calendar-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\calendar-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\camera-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\camera-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\carat-d-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\carat-d-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\carat-l-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\carat-l-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\carat-r-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\carat-r-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\carat-u-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\carat-u-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\check-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\check-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\clock-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\clock-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\cloud-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\cloud-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\comment-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\comment-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\delete-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\delete-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\edit-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\edit-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\eye-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\eye-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\forbidden-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\forbidden-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\forward-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\forward-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\gear-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\gear-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\grid-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\grid-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\heart-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\heart-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\home-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\home-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\info-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\info-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\location-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\location-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\lock-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\lock-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\mail-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\mail-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\minus-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\minus-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\navigation-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\navigation-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\phone-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\phone-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\plus-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\plus-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\power-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\power-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\recycle-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\recycle-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\refresh-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\refresh-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\search-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\search-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\shop-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\shop-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\star-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\star-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\tag-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\tag-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\user-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\user-white.png" />
+    <Content Include="Content\Mobile\images\icons-png\video-black.png" />
+    <Content Include="Content\Mobile\images\icons-png\video-white.png" />
+    <Content Include="Content\Mobile\images\icons-svg\action-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\action-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\alert-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\alert-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-d-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-d-l-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-d-l-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-d-r-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-d-r-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-d-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-l-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-l-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-r-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-r-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-u-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-u-l-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-u-l-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-u-r-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-u-r-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\arrow-u-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\audio-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\audio-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\back-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\back-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\bars-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\bars-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\bullets-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\bullets-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\calendar-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\calendar-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\camera-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\camera-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\carat-d-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\carat-d-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\carat-l-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\carat-l-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\carat-r-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\carat-r-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\carat-u-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\carat-u-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\check-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\check-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\clock-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\clock-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\cloud-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\cloud-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\comment-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\comment-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\delete-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\delete-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\edit-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\edit-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\eye-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\eye-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\forbidden-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\forbidden-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\forward-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\forward-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\gear-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\gear-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\grid-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\grid-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\heart-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\heart-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\home-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\home-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\info-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\info-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\location-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\location-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\lock-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\lock-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\mail-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\mail-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\minus-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\minus-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\navigation-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\navigation-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\phone-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\phone-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\plus-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\plus-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\power-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\power-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\recycle-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\recycle-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\refresh-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\refresh-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\search-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\search-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\shop-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\shop-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\star-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\star-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\tag-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\tag-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\user-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\user-white.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\video-black.svg" />
+    <Content Include="Content\Mobile\images\icons-svg\video-white.svg" />
+    <Content Include="Content\Mobile\jquery.mobile-1.4.5.min.css" />
+    <Content Include="Content\my\bootstrap.min.css" />
+    <Content Include="Content\my\data-table\jquery.dataTables.min.css" />
+    <Content Include="Content\my\Loader.css" />
+    <Content Include="Content\my\Loader2.css" />
+    <Content Include="Content\my\loading.gif" />
+    <Content Include="Content\my\sign\signature-pad.css" />
+    <Content Include="favicon.ico" />
+    <Content Include="Global.asax" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Areas\HelpPage\Views\Web.config" />
+    <Content Include="Areas\HelpPage\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\ResourceModel.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\Index.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\TextSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\SimpleTypeModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\Samples.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\Parameters.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ModelDescriptionLink.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\KeyValuePairModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\InvalidSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ImageSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\HelpPageApiModel.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\EnumTypeModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\DictionaryModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ComplexTypeModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
+    <Content Include="ApplicationInsights.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Scripts\jquery-3.3.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.3.1.js" />
+    <Content Include="Scripts\jquery-3.3.1.min.js" />
+    <Content Include="Scripts\jquery-3.3.1.slim.js" />
+    <Content Include="Scripts\jquery-3.3.1.slim.min.js" />
+    <Content Include="Scripts\Mobile\jquery.mobile-1.4.5.min.js" />
+    <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\my\bootstrap.min.js" />
+    <Content Include="Scripts\my\data-table\jquery.dataTables.min.js" />
+    <Content Include="Scripts\my\jquery.min.js" />
+    <Content Include="Scripts\my\Loader.js" />
+    <Content Include="Scripts\my\my-data-table.js" />
+    <Content Include="Scripts\my\my-modal.js" />
+    <Content Include="Scripts\my\my-script.js" />
+    <Content Include="Scripts\my\notify.js" />
+    <Content Include="Scripts\my\sign\app.js" />
+    <Content Include="Scripts\my\sign\signature_pad.js" />
+    <Content Include="Scripts\Scanner\CHANGELOG.txt" />
+    <Content Include="Scripts\Scanner\jquery.scannerdetection.compatibility.js" />
+    <Content Include="Scripts\Scanner\jquery.scannerdetection.js" />
+    <Content Include="Scripts\Scanner\reference.txt" />
+    <Content Include="Scripts\Signature\excanvas.js" />
+    <Content Include="Scripts\Signature\flashcanvas.min.js" />
+    <Content Include="Scripts\Signature\flashcanvas.swf" />
+    <Content Include="Scripts\Signature\html5-canvas-drawing-app.js" />
+    <Content Include="Scripts\Signature\jSignature.min.noconflict.js" />
+    <Content Include="Web.config" />
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Areas\HelpPage\Views\_ViewStart.cshtml" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\POReceipt\Index.cshtml" />
+    <Content Include="Views\POReceipt\Details.cshtml" />
+    <Content Include="Views\POReceipt\LotAttribute.cshtml" />
+    <Content Include="Views\POReceipt\PrintTag.cshtml" />
+    <Content Include="Views\POReceipt\Update.cshtml" />
+    <Content Include="Views\Error\NotFound.cshtml" />
+    <Content Include="Views\Shared\AlertModal.cshtml" />
+    <Content Include="Views\LoosePicking\Index.cshtml" />
+    <Content Include="Views\LoosePicking\Details.cshtml" />
+    <Content Include="Views\LoosePicking\PalletSelection.cshtml" />
+    <Content Include="Views\FullPicking\Index.cshtml" />
+    <Content Include="Views\LoosePicking\ProductScanning.cshtml" />
+    <Content Include="Views\LoosePicking\Verification.cshtml" />
+    <Content Include="Views\LoosePicking\Retrieve.cshtml" />
+    <Content Include="Views\FullPicking\QaApproval.cshtml" />
+    <Content Include="Views\FullPicking\PilotAssignment.cshtml" />
+    <Content Include="Views\FullPicking\FinishGoods.cshtml" />
+    <Content Include="Views\FullPicking\QaApprovalDriver.cshtml" />
+    <Content Include="Views\FullPicking\Login.cshtml" />
+    <Content Include="Views\Home\Login.cshtml" />
+    <Content Include="Views\FullPicking\FinishGoodsPickProcess.cshtml" />
+    <Content Include="Views\FullPicking\ProductInTruck.cshtml" />
+    <Content Include="Views\FGReduce\Index.cshtml" />
+    <Content Include="Views\IssueMaterial\Index.cshtml" />
+    <Content Include="Views\MaterialReturn\Index.cshtml" />
+    <Content Include="Views\MatRetnVerify\Index.cshtml" />
+    <Content Include="Views\MatRetnVerify\Detail.cshtml" />
+    <Content Include="Views\FG\Index.cshtml" />
+    <Content Include="Views\UrgentIssue\UI.cshtml" />
+    <Content Include="Views\FGTopUp\TopUp.cshtml" />
+    <Content Include="Views\FGTopUp\RemoveLot.cshtml" />
+    <Content Include="Views\PickRawMtrl\Index.cshtml" />
+    <Content Include="Views\PickRawMtrl\Pick.cshtml" />
+    <Content Include="Views\PickRawMtrl\GetWarehseLst.cshtml" />
+    <Content Include="Views\PMCReceipientVerify\Index.cshtml" />
+    <Content Include="Views\PMCReceipientVerify\PMCReceipientVerify.cshtml" />
+    <Content Include="Views\PMCTransfer\Index.cshtml" />
+    <Content Include="Views\InterCoRcv\Index.cshtml" />
+    <Content Include="Views\POReceipt\ManualUpdate.cshtml" />
+    <Content Include="Scripts\Scanner\.gitignore" />
+    <Content Include="Scripts\Scanner\README.md" />
+    <Content Include="Scripts\Scanner\scannerdetection.jquery.json" />
+    <Content Include="Views\FullPicking\FinishGoodsPickProcessLoose.cshtml" />
+    <Content Include="Views\IssueMaterialMachine\Index.cshtml" />
+    <Content Include="Views\FullPicking\FinishGoodsShipTo.cshtml" />
+    <Content Include="Views\FullPicking\ProductInTruckShipTo.cshtml" />
+    <Content Include="Views\FinishGoods\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="Views\FullPickingShipTo\" />
+    <Folder Include="Views\IssueMaterialController\" />
+    <Folder Include="Views\POValidation\" />
+    <Folder Include="Views\SettingEnvironment\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.woff2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap.min.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap-theme.css.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="Scripts\jquery-3.3.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.3.1.min.map" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>52260</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:52260/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

@@ -1,0 +1,418 @@
+﻿@model MySpritzer.Models.LotAttributeModel
+
+@{
+	ViewBag.Title = "Lot Attribute";
+}
+
+@{
+	//enable only If AttBatch is 'M' or 'T' , If M- user must enter value , if Tr - User Choice to enter or not
+	//else display only
+	//If M = required
+	//Else if T = not required
+	//else = readonly
+
+	//BATCH
+	var batchInput = "";
+
+	if (!string.IsNullOrEmpty(Model.AttBatch))
+	{
+		if (Model.AttBatch == "M")
+		{
+			batchInput = "required";
+		}
+		else if (Model.AttBatch == "T")
+		{
+			batchInput = "";
+		}
+		else
+		{
+			batchInput = "readonly";
+		}
+	}
+	else
+	{
+		batchInput = "readonly";
+	}
+
+	//MFG BATCH
+	var mBatchInput = "";
+
+	if (!string.IsNullOrEmpty(Model.AttMfgBatch))
+	{
+		if (Model.AttMfgBatch == "M")
+		{
+			mBatchInput = "required";
+		}
+		else if (Model.AttMfgBatch == "T")
+		{
+			mBatchInput = "";
+		}
+		else
+		{
+			mBatchInput = "readonly";
+		}
+	}
+	else
+	{
+		mBatchInput = "readonly";
+	}
+
+	//MFG LOT
+	var mLotInput = "";
+
+	if (!string.IsNullOrEmpty(Model.AttMfgLot))
+	{
+		if (Model.AttMfgLot == "M")
+		{
+			mLotInput = "required";
+		}
+		else if (Model.AttMfgLot == "T")
+		{
+			mLotInput = "";
+		}
+		else
+		{
+			mLotInput = "readonly";
+		}
+	}
+	else
+	{
+		mLotInput = "readonly";
+	}
+
+	//HEAT
+	var heatInput = "";
+
+	if (!string.IsNullOrEmpty(Model.AttHeat))
+	{
+		if (Model.AttHeat == "M")
+		{
+			heatInput = "required";
+		}
+		else if (Model.AttHeat == "T")
+		{
+			heatInput = "";
+		}
+		else
+		{
+			heatInput = "readonly";
+		}
+	}
+	else
+	{
+		heatInput = "readonly";
+	}
+
+	//FIRM
+	var firmInput = "";
+	if (!string.IsNullOrEmpty(Model.AttFirmware))
+	{
+		if (Model.AttFirmware == "M")
+		{
+			firmInput = "required";
+		}
+		else if (Model.AttFirmware == "T")
+		{
+			firmInput = "";
+		}
+		else
+		{
+			firmInput = "readonly";
+		}
+	}
+	else
+	{
+		firmInput = "readonly";
+	}
+
+	//BEST BEFORE
+	var bestBeforeInput = "";
+	if (!string.IsNullOrEmpty(Model.AttBeforeDt))
+	{
+		if (Model.AttBeforeDt == "M")
+		{
+			bestBeforeInput = "required";
+		}
+		else if (Model.AttBeforeDt == "T")
+		{
+			bestBeforeInput = "";
+		}
+		else
+		{
+			bestBeforeInput = "readonly";
+		}
+	}
+	else
+	{
+		bestBeforeInput = "readonly";
+	}
+
+	//ORIGMFG
+	var origMfgInput = "";
+	if (!string.IsNullOrEmpty(Model.AttMfgDt))
+	{
+		if (Model.AttMfgDt == "M")
+		{
+			origMfgInput = "required";
+		}
+		else if (Model.AttMfgDt == "T")
+		{
+			origMfgInput = "";
+		}
+		else
+		{
+			origMfgInput = "readonly";
+		}
+	}
+	else
+	{
+		origMfgInput = "readonly";
+	}
+
+	//CURE
+	var cureInput = "";
+	if (!string.IsNullOrEmpty(Model.AttCureDt))
+	{
+		if (Model.AttCureDt == "M")
+		{
+			cureInput = "required";
+		}
+		else if (Model.AttCureDt == "T")
+		{
+			cureInput = "";
+		}
+		else
+		{
+			cureInput = "readonly";
+		}
+	}
+	else
+	{
+		cureInput = "readonly";
+	}
+
+	//EXPIRE
+	var expireInput = "";
+	if (!string.IsNullOrEmpty(Model.AttExpDt))
+	{
+		if (Model.AttExpDt == "M")
+		{
+			expireInput = "required";
+		}
+		else if (Model.AttExpDt == "T")
+		{
+			expireInput = "";
+		}
+		else
+		{
+			expireInput = "readonly";
+		}
+	}
+	else
+	{
+		expireInput = "readonly";
+	}
+
+}
+
+
+<div class="container-fluid">
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Lot Attribute
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				<form action="PrintTag" id="LotAttributeForm">
+					<input type="hidden" name="Id" value="@Html.DisplayFor(model => model.Id)">
+					<input type="hidden" name="Company" value="@Html.DisplayFor(model => model.Company)">
+					<input type="hidden" name="PONum" value="@Html.DisplayFor(model => model.PONum)">
+					<input type="hidden" name="POLine" value="@Html.DisplayFor(model => model.POLine)">
+
+					<input type="hidden" id="AttBatch" name="AttBatch" value="@Html.DisplayFor(model => model.AttBatch)">
+					<input type="hidden" id="AttMfgBatch" name="AttMfgBatch" value="@Html.DisplayFor(model => model.AttMfgBatch)">
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="Batch">Batch:</label>
+							<input type="text" class="form-control" name="Batch" value="@Html.DisplayFor(model => model.Batch)" @batchInput>
+						</div>
+					</div>
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="MBatch">Mfg Batch:</label>
+							<input type="text" class="form-control" name="MBatch" value="@Html.DisplayFor(model => model.MBatch)" @mBatchInput>
+						</div>
+					</div>
+
+					<input type="hidden" id="AttMfgLot" name="AttMfgLot" value="@Html.DisplayFor(model => model.AttMfgLot)">
+					<input type="hidden" id="AttHeat" name="AttHeat" value="@Html.DisplayFor(model => model.AttHeat)">
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="MLot">Mfg Lot:</label>
+							<input type="text" class="form-control" name="MLot" value="@Html.DisplayFor(model => model.MLot)" @mLotInput>
+						</div>
+					</div>
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="Heat">Heat:</label>
+							<input type="text" class="form-control" name="Heat" value="@Html.DisplayFor(model => model.Heat)" @heatInput>
+						</div>
+					</div>
+
+					<input type="hidden" id="AttFirmWare" name="AttFirmWare" value="@Html.DisplayFor(model => model.AttFirmware)">
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="Firm">Firm:</label>
+							<input type="text" class="form-control" name="Firm" value="@Html.DisplayFor(model => model.Firm)" @firmInput>
+						</div>
+					</div>
+
+					<div class="col-xs-6"></div>
+
+					<input type="hidden" id="AttBeforeDt" name="AttBeforeDt" value="@Html.DisplayFor(model => model.AttBeforeDt)">
+					<input type="hidden" id="AttMfgDt" name="AttMfgDt" value="@Html.DisplayFor(model => model.AttMfgDt)">
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="BestBefore">Before Date:</label>
+							<input type="Date" class="form-control" name="BestBefore" id="BestBeforeDt" value="@Html.DisplayFor(model => model.BestBefore)" @bestBeforeInput>
+						</div>
+					</div>
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="OrigMfg">Mfg Date:</label>
+							<input type="Date" class="form-control" name="OrigMfg" id="OrigMfg" value="@Html.DisplayFor(model => model.OrigMfg)" @origMfgInput>
+						</div>
+					</div>
+
+					<input type="hidden" id="AttCureDt" name="AttCureDt" value="@Html.DisplayFor(model => model.AttCureDt)">
+					<input type="hidden" id="AttExpDt" name="AttExpDt" value="@Html.DisplayFor(model => model.AttExpDt)">
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="Cure">Cure Date:</label>
+							<input type="Date" class="form-control" name="Cure" id="CureDt" value="@Html.DisplayFor(model => model.Cure)" @cureInput>
+						</div>
+					</div>
+
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label" for="Expire">Expiry Date:</label>
+							<input type="Date" class="form-control" name="Expire" id="ExpireDt" value="@Html.DisplayFor(model => model.Expire)" @expireInput>
+						</div>
+					</div>
+
+				</form>
+			</div>
+
+			<div class="panel-footer">
+				@*<button type="submit" class="btn btn-primary pull-right" form="LotAttributeForm" onclick="onSaveButtonClick();">Submit</button>*@
+				<button type="submit" class="btn btn-primary pull-right" form="LotAttributeForm">Submit</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">Modal Heading</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4>Please insert DO Number.</h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+</div>
+
+<script type="text/javascript">
+		//Show message if user refresh page or close the browser
+		//var changesSaved = false;
+
+		//function onSaveButtonClick() {
+		//	changesSaved = true;
+		//}
+
+		//window.onbeforeunload = function () {
+		//	if (!changesSaved) {
+		//		return "You haven't saved your changes";
+
+		//	}
+		//};
+
+	//$("#OrigMfg").change(function () {
+	//	var date = $("#OrigMfg").val();
+	//	$("#OrigMfg").val(DateChecker(date));
+	//});
+
+	//$("#BestBeforeDt").change(function () {
+	//	var date = $("#BestBeforeDt").val();
+	//	$("#BestBeforeDt").val(DateChecker(date));
+	//});
+
+	//$("#CureDt").change(function () {
+	//	var date = $("#CureDt").val();
+	//	$("#CureDt").val(DateChecker(date));
+	//});
+
+	$("#ExpireDt").change(function () {
+		var date = $("#ExpireDt").val();
+		$("#ExpireDt").val(DateChecker(date));
+	});
+
+	function DateChecker(dateToCheck) {
+		var date = dateToCheck;
+
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth() + 1; //January is 0!
+		var yyyy = today.getFullYear();
+
+		if (dd < 10) {
+			dd = '0' + dd
+		}
+
+		if (mm < 10) {
+			mm = '0' + mm
+		}
+
+		today = yyyy + '-' + mm + '-' + dd;
+
+		if (date < today) {
+			var msg = "Expiry Date cannot be less than today date.";
+			var model = $('#alertModal').modal();
+			model.find('.modal-title').text("Alert Message");
+			model.find('.modal-body').text(msg);
+			date = today;
+		} else {
+			date = date;
+		}
+
+		return date;
+	}
+
+
+</script>

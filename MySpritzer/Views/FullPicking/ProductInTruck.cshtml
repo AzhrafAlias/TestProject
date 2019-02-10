@@ -1,0 +1,819 @@
+﻿@model List<MySpritzer.Models.ProductInTruckModel>
+@{
+	ViewBag.Title = "Product In Truck";
+
+	decimal totalQty = 0;
+	if (ViewBag.TotalQty != null)
+	{
+		totalQty = ViewBag.TotalQty;
+	}
+
+	string sealNo = "-";
+	if (!string.IsNullOrEmpty(ViewBag.SealNo))
+	{
+		sealNo = ViewBag.SealNo;
+	}
+
+	string truckNo = "-";
+	if (!string.IsNullOrEmpty(ViewBag.TruckNo))
+	{
+		truckNo = ViewBag.TruckNo;
+	}
+
+	string dpNo = "";
+	if (ViewBag.DPNo != null)
+	{
+		dpNo = ViewBag.DPNo;
+	}
+
+	string company = "";
+	if (ViewBag.Company != null)
+	{
+		company = ViewBag.Company;
+	}
+
+	string key2 = "";
+	if (ViewBag.Key2 != null)
+	{
+		key2 = ViewBag.Key2;
+	}
+
+	//simply use string instead of boolean because js got some issue when try to read boolean
+	string showCustPallet = "";
+	if (ViewBag.CustomerPallet != null)
+	{
+		if ((bool)ViewBag.CustomerPallet == true)
+		{
+			showCustPallet = "true";
+		}
+		else
+		{
+			showCustPallet = "false";
+		}
+	}
+}
+
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<input type="hidden" id="totalQty" value='@totalQty' />
+<input type="hidden" id="fixTotalQty" value='@totalQty' />
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Product In Truck
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				<fieldset>
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="TruckNo">Truck No: @truckNo</label>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="SONum">Seal No: @sealNo</label>
+						</div>
+					</div>
+				</fieldset>
+				<hr />
+				<fieldset>
+					<div>
+						<table id="ReviewProductTbl" class="table table-responsive table-condensed" style="width:100%">
+							<thead>
+								<tr>
+									<th>Add On</th>
+									<th>Remove</th>
+									<th>Part Num</th>
+									<th>Description</th>
+									<th>Qty (Ctn)</th>
+									@*<th>Qty (Pallet)</th>*@
+									<th>Lot Num</th>
+									<th>Comment</th>
+								</tr>
+							</thead>
+							<tbody>
+								@{
+									if (Model == null)
+									{
+										<tr>
+											<td valign="top" colspan="8" class="dataTables_empty">No data available in table</td>
+										</tr>
+									}
+									else
+									{
+										int index = 0;
+										foreach (var m in Model)
+										{
+											<tr>
+												<td>
+													<button type="button" class="btn btn-primary AddBtn" value='@index'><i class="glyphicon glyphicon-plus-sign"></i></button> <!--Add On-->
+													<input type="hidden" id='hParamsToAdd_@index' value="Company=@m.Company&DPNo=@m.Key2&PartNo=@m.PartNum&PartDesc=@m.Description&Ud108Key1=@m.Key1" />
+													<input type="hidden" id='hPalletType_@index' value="@m.PalletType" />
+													<input type="hidden" id='hPartNum_@index' value="@m.PartNum" />
+													<input type="hidden" class='@m.PartNum' value="@m.QtyCtn" />
+												</td>
+												<td>
+													<input type="hidden" id='hParams_@index' value="Company=@m.Company&Key1=@m.Key1&Key2=@m.Key2&Key3=@m.Key3&ChildKey1=@m.ChildKey1&ChildKey2=@m.ChildKey2&ChildKey3=@m.ChildKey3&Reason=" />
+													<button type="button" class="btn btn-danger RemoveBtn" value='@index'><i class="glyphicon glyphicon-trash"></i></button> <!--Remove-->
+												</td>
+												<td>
+													@m.PartNum
+												</td>
+												<td>@m.Description</td>
+												<td>@m.QtyCtn</td>
+												@*<td>@m.QtyPallet</td>*@
+												<td>@m.LotNum</td>
+												<td>@m.Comment</td>
+											</tr>
+											index++;
+										}
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				</fieldset>
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-danger" id="CloseBtn">Close</button>
+				<button type="button" class="btn btn-danger" id="RemoveAllBtn">All Return</button>
+				<button type="button" class="btn btn-primary pull-right" id="ConfirmReviewBtn">Confirm</button>
+				@*<button type="button" class="btn btn-primary pull-right" id="TestLoader">TestLoader</button>*@
+			</div>
+
+		</div>
+
+	</div>
+
+
+
+	<!-- removeProductModal Modal -->
+	<div class="modal fade" id="removeProductModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="ConfirmRemoveBtn">Remove</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- removeProductModal Modal// -->
+	<!-- removeAllProductModal Modal -->
+	<div class="modal fade" id="removeAllProductModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="ConfirmRemoveAllBtn">Remove</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- removeAllProductModal Modal// -->
+	<!-- palletTypeConfirmationModal Modal -->
+	<div class="modal fade" id="palletTypeConfirmationModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title">Pallet Type Confirmation</h4>
+				</div>
+
+				<div class="modal-body">
+					<form>
+						<div class="form-group">
+							<input type="text" class="form-control col-xs-4" id="AddedPalletTypeRecord" readonly>
+						</div>
+						<div class="form-group">
+							<label for="PalletType">Pallet Type: </label>
+							<select class="form-control" name="PalletType" id="PalletType">
+								@{
+									if (ViewBag.PalletParts != null)
+									{
+										foreach (var p in ViewBag.PalletParts)
+										{
+											if (p.DefaultPallet)
+											{
+												<option selected>@p.PalletStkCode</option>
+											}
+											else
+											{
+												<option>@p.PalletStkCode</option>
+											}
+										}
+									}
+								}
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="Qty">Qty: </label>
+							<input type="number" class="form-control" step="0.01" name="Qty" id="Qty" value='@totalQty'>
+						</div>
+					</form>
+				</div>
+
+				<div class="modal-footer">
+					@*<button type="button" class="btn btn-primary" id="PrevPalletTypeBtn" value="0">Prev</button>*@
+					<button type="button" class="btn btn-danger" id="ResetPalletTypeBtn">Reset</button>
+					<button type="button" class="btn btn-primary" id="NextPalletTypeBtn">Next</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="ConfirmPalletTypeBtn">Confirm</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- palletTypeConfirmationModal Modal// -->
+	<!-- addProductModal Modal -->
+	<div class="modal fade" id="addProductModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title">Add Product</h4>
+				</div>
+
+				<div class="modal-body">
+					<form>
+						<div class="form-group">
+							<label class="control-label" for="CompanyAdd">Company: </label>
+							<input type="text" class="form-control" name="Company" id="CompanyAdd" value='@company' readonly>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="DPNoAdd">DP No: </label>
+							<input type="text" class="form-control" name="DPNo" id="DPNoAdd" value='@dpNo' readonly>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="TotalPartQty">Total Qty: </label>
+							<input type="number" class="form-control" step="0.01" name="TotalPartQty" id="TotalPartQty" readonly>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="QtyPalletAdd">Qty: </label>
+							<input type="number" class="form-control" step="0.01" name="QtyPallet" id="QtyPalletAdd" required autofocus>
+						</div>
+					</form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="ConfirmAddProductBtn">Confirm</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- addProductModal Modal// -->
+	<!-- Alert Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- Alert Modal// -->
+	<!-- refreshPageModal -->
+	<div class="modal fade" id="refreshPageModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="RefreshPageBtn">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		//$("#TestLoader").click(function () {
+		//	ShowLoader();
+		//});
+
+		if ('@showCustPallet' == "true") {
+			$("#PalletType").removeAttr("disabled");
+			$("#Qty").removeAttr("disabled");
+		} else {
+			$("#PalletType").attr("disabled", "true");
+			$("#Qty").attr("disabled", "true");
+		}
+
+		$('#ReviewProductTbl').DataTable({
+			//"dom": '<"top"iflp<"clear">>rt<"bottom"iflp<"clear">>',
+			//"dom": '<"top"iflp<"clear">>',
+			//bLengthChange: false,
+			//scrollX: true,
+			//searching: false,
+			//iDisplayLength: 5,
+			//aLengthMenu: [[5], [5]]
+
+			//Ramesh
+			paging: true,
+			sort: true,
+			searching: false,
+			pageLength: 5,
+			bLengthChange: false,
+			dom: '<"top"i>rt<"bottom"flp><"clear">'
+		});
+
+		$('#CloseBtn').click(function () {
+			backToMain();
+		});
+
+		function backToMain() {
+			var url = '@Url.Action("Index", "FullPicking")' + "?Company=" + '@company';
+			window.location.href = url;
+		}
+
+		$('#ConfirmReviewBtn').click(function ()
+        {
+            if ('@ViewBag.FS_NoIncludePallet_c' == '0')
+            {
+
+                $('#palletTypeConfirmationModal').modal();
+            }
+            else //if 1 so no need confirmation
+            {
+                ConfirmSubmitPalletType();
+            }
+
+		});
+
+		//added Index
+		var addedPalletType = 0;
+
+		function AddedPalletTypeIndex() {
+			if (addedPalletType == 0) {
+				$('#NextPalletTypeBtn').removeAttr("disabled");
+				$('#PrevPalletTypeBtn').attr("disabled", "disabled");
+			} else {
+				$('#NextPalletTypeBtn').attr("disabled", "disabled");
+				$('#PrevPalletTypeBtn').removeAttr("disabled");
+			}
+		}
+
+		$('#PrevPalletTypeBtn').click(function () {
+			var obj = new Object();
+			obj.Index = 0;
+
+			$.ajax({
+				url: '@(Url.Action("ProdInTruckPalletTypeCheck", "FullPicking"))',
+				//url: "http://10.0.10.29/SpritzerAPI/api/LPPalletSelection",
+				data: JSON.stringify(obj),
+				dataType: "json",
+				type: "post",
+				contentType: 'application/json; charset=utf-8',
+				success: function (data) {
+					if (data) {
+						if (data.PalletType && data.PalletQty) {
+							var palletType = data.PalletType;
+							var palletQty = data.PalletQty;
+							$('#PalletType').val(palletType);
+							$('#Qty').val(palletQty);
+
+							$('#totalQty').val(fixTotalQty);
+						}
+					}
+				}
+			});
+		});
+
+		$('#AddedPalletTypeRecord').val('0');
+        var addedCount = 0;
+
+        function ConfirmSubmitPalletType() {
+            var Company = '@company';
+			var DPNo = '@dpNo';
+			var UD110Key2 = '@key2';
+			var CustomerPallet = true;
+			if (Company != "" && DPNo != "")
+			{
+				ShowLoader();
+				var obj = new Object();
+				obj.Company = Company;
+				obj.DPNo = DPNo;
+				obj.UD110Key2 = UD110Key2;
+				obj.CustomerPallet = CustomerPallet;
+
+				$.ajax(
+					{
+						url: '@(Url.Action("ProdInTruckCon", "FullPicking"))',
+						data: JSON.stringify(obj),
+						dataType: "json",
+						type: "post",
+						contentType: 'application/json; charset=utf-8',
+						success: function (data) {
+							HideLoader();
+							if (data) {
+								if (data.Status == "Success") {
+									backToMain();
+									//var msg = data.Message;
+									//var modal = $('#alertModal').modal();
+									//modal.find('.modal-header').text("Response Message");
+									//modal.find('.modal-body').text(msg);
+								} else {
+									var msg = "Status Code: Fail. " + data.Message;
+									var modal = $('#alertModal').modal();
+									modal.find('.modal-header').text("Response Message");
+									modal.find('.modal-body').text(msg);
+								}
+							}
+						},
+						error: function (data) {
+							HideLoader();
+							var msg = data.responseText;
+							//var msg "Something wrong happen when requesting to the Server.";
+
+							//$.notify(msg, "error");
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Error");
+							model.find('.modal-body').text(msg);
+						}
+					});
+				//addedPalletType = addedPalletType + 1;
+			}
+        }
+
+
+		$('#NextPalletTypeBtn').click(function () {
+			//$('#PalletType').val("");
+			//$('#Qty').val("");
+
+
+			var palletType = $('#PalletType').val();
+			var qty = $('#Qty').val();
+			var totalQty = $('#totalQty').val();
+			if (palletType != "" && qty != "")
+			{
+				var obj = new Object();
+				obj.Index = addedPalletType;
+				obj.PalletType = palletType;
+				obj.PalletQty = qty;
+				obj.TotalQty = totalQty;
+
+				$.ajax(
+					{
+						url: '@(Url.Action("ProdInTruckAddPalletType", "FullPicking"))',
+						//url: "http://10.0.10.29/SpritzerAPI/api/LPPalletSelection",
+						data: JSON.stringify(obj),
+						dataType: "json",
+						type: "post",
+						contentType: 'application/json; charset=utf-8',
+						success: function (data) {
+							if (data) {
+								//alert(data.Message);
+								totalQty = totalQty - qty;
+								$('#totalQty').val(totalQty);
+								$('#Qty').val(totalQty);
+								$('#Qty').attr("disabled", "disabled");
+								if (totalQty == 0) {
+									$('#ConfirmPalletTypeBtn').removeAttr("disabled");
+									$('#NextPalletTypeBtn').attr("disabled", "disabled");
+									if (addedCount = 0) {
+										$('#AddedPalletTypeRecord').val(data.PreviousAssigned);
+									} else {
+										$('#AddedPalletTypeRecord').val(data.PreviousAssigned);
+									}
+
+								} else {
+									$('#ConfirmPalletTypeBtn').attr("disabled", "disabled");
+									$('#NextPalletTypeBtn').removeAttr("disabled");
+									$('#AddedPalletTypeRecord').val(data.PreviousAssigned);
+								}
+								addedCount = addedCount + 1;
+
+							}
+						}
+					});
+				addedPalletType = addedPalletType + 1;
+			}
+		});
+
+
+		$('#ConfirmPalletTypeBtn').attr("disabled", "disabled");
+        $('#ConfirmPalletTypeBtn').click(function ()
+        {
+            ConfirmSubmitPalletType();
+		});
+
+
+		$('#ResetPalletTypeBtn').click(function () {
+			RefreshPage();
+		});
+
+		var indexToRemove;
+		var paramsToRemove;
+
+		$('#ReviewProductTbl').on('click', '.RemoveBtn', function () {
+			indexToRemove = $(this).val();
+			paramsToRemove = $('#hParams_' + indexToRemove).val();
+
+			var msg = "Are you sure to remove this product?";
+			var modal = $('#removeProductModal').modal();
+			modal.find('.modal-title').text("Remove Product");
+			modal.find('.modal-body').text(msg);
+		});
+
+		$('#ConfirmRemoveBtn').click(function () {
+			//alert(paramsToRemove);
+			ShowLoader();
+			$.ajax(
+			{
+				url: '@(Url.Action("ProdInTruckDelete", "FullPicking"))',
+				data: paramsToRemove,
+				success: function (data) {
+					HideLoader();
+					if (data) {
+						if (data.Status) {
+							if (data.Status == "Success") {
+								RefreshPage();
+								//var modal = $('#refreshPageModal').modal();
+								//var msg = data.Message;
+								//modal.find('.modal-header').text("Response Message");
+								//modal.find('.modal-body').text(msg);
+							} else {
+								var modal = $('#alertModal').modal();
+								var msg = data.Message;
+								modal.find('.modal-header').text("Response Message");
+								modal.find('.modal-body').text(msg);
+							}
+						}
+					}
+				},
+				error: function (jqXHR, exception) {
+					HideLoader();
+					var msg = '';
+					if (jqXHR.status === 0) {
+						msg = 'Not connect.\n Verify Network.';
+					} else if (jqXHR.status == 404) {
+						msg = 'Requested page not found. [404]';
+					} else if (jqXHR.status == 500) {
+						msg = 'Internal Server Error [500].';
+					} else if (exception === 'parsererror') {
+						msg = 'Requested JSON parse failed.';
+					} else if (exception === 'timeout') {
+						msg = 'Time out error.';
+					} else if (exception === 'abort') {
+						msg = 'Ajax request aborted.';
+					} else {
+						msg = 'Uncaught Error.\n' + jqXHR.responseText;
+					}
+					var modal = $('#alertModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+					//reference-https://stackoverflow.com/questions/6792878/jquery-ajax-error-function
+				}
+				//failure: function (response) {
+				//	HideLoader();
+				//	var modal = $('#alertModal').modal();
+				//	var msg = response.responseText;
+				//	modal.find('.modal-header').text("Response Message");
+				//	modal.find('.modal-body').text(msg);
+				//},
+				//error: function (response) {
+				//var msg = response.responseText;
+				//HideLoader();
+				//var modal = $('#alertModal').modal();
+				//modal.find('.modal-header').text("Response Message");
+				//modal.find('.modal-body').text(msg);
+				//}
+			});
+		});
+
+
+		var indexToAdd;
+
+		var paramsToAdd;
+
+		var palletType;
+
+		$('#ReviewProductTbl').on('click', '.AddBtn', function () {
+			indexToAdd = $(this).val();
+			paramsToAdd = $('#hParamsToAdd_' + indexToAdd).val();
+			palletType = $('#hPalletType_' + indexToAdd).val();
+
+			if (palletType == "L") {
+				var modal = $('#alertModal').modal();
+				var msg = "Loose pallet type not allow to add product.";
+				modal.find('.modal-header').text("Response Message");
+				modal.find('.modal-body').text(msg);
+			}
+			else {
+				var partNum;
+				var totalQtyPartNum;
+
+				partNum = $('#hPartNum_' + indexToAdd).val();//hPartNum_
+
+				totalQtyPartNum = CalculateTotalPartQty(partNum);
+				$("#TotalPartQty").val(totalQtyPartNum);
+
+				var modal = $('#addProductModal').modal();
+				modal.find('.modal-title').text("Add Product");
+			}
+		});
+
+		function CalculateTotalPartQty(partNum) {
+			var totalQty = 0;
+			var partNumClass = "." + partNum;
+	
+			// iterate through each td based on class and add the values
+			$(partNumClass).each(function () {
+
+				var value = $(this).val();
+				// add only if the value is number
+				if (!isNaN(value) && value.length != 0) {
+					totalQty += parseFloat(value);
+				}
+			});
+
+			return totalQty;
+		}
+
+		$('#ConfirmAddProductBtn').click(function () {
+			//var company = $('#CompanyAdd').val();
+			//var dpNo = $('#DPNoAdd').val();
+			var qty = $('#QtyPalletAdd').val();
+
+			if (qty)
+			{
+				//params = "Company=" + company + "&DPNo=" + dpNo + "&QtyPallet=" + qty;
+				var params = paramsToAdd + "&QtyPallet=" + qty;
+
+				ShowLoader();
+				$.ajax(
+				{
+					url: '@(Url.Action("ProdInTruckAdd", "FullPicking"))',
+					data: params,
+					success: function (data) {
+						HideLoader();
+						if (data) {
+							if (data.Status) {
+								if (data.Status == "Success") {
+									RefreshPage();
+									//var modal = $('#refreshPageModal').modal();
+									//var msg = data.Message;
+									//modal.find('.modal-header').text("Response Message");
+									//modal.find('.modal-body').text(msg);
+								} else {
+									var modal = $('#alertModal').modal();
+									var msg = data.Message;
+									modal.find('.modal-header').text("Response Message");
+									modal.find('.modal-body').text(msg);
+								}
+							}
+						}
+					},
+					failure: function (response) {
+						HideLoader();
+						var modal = $('#alertModal').modal();
+						var msg = response.responseText;
+						modal.find('.modal-header').text("Response Message");
+						modal.find('.modal-body').text(msg);
+					},
+					error: function (response) {
+					var msg = response.responseText;
+					HideLoader();
+					var modal = $('#alertModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+					}
+				});
+
+			}
+			else
+			{
+				var msg = "Fail to add. Qty is required.";
+				$.notify(msg, "error");
+			}
+
+
+
+		});
+
+
+		$('#RefreshPageBtn').click(function () {
+			RefreshPage();
+		});
+
+		function RefreshPage() {
+			var url = '@Url.Action("ProductInTruck", "FullPicking")' + "?Company=" + '@company' + "&DPNum=" + '@dpNo' + "&SealNo=" + '@sealNo' + "&Key2=" + '@key2' + "&TruckNo=" + '@truckNo';
+			window.location.href = url;
+		}
+
+		$('#RemoveAllBtn').click(function () {
+			indexToAdd = $(this).val();
+			//paramsToAdd = $('#hParamsAdd_' + indexToAdd).val();
+			var modal = $('#removeAllProductModal').modal();
+			modal.find('.modal-title').text("Remove All Products");
+		})
+
+		$('#ConfirmRemoveAllBtn').click(function () {
+			ShowLoader();
+			@*var key2 = '@key2';*@
+			var key2 = '@dpNo';
+			var company = '@company';
+			var reason = '';
+			@*window.location.href = "ProdInTruckDeleteAll?Company=" + @company + "&Key2=" + @key2 + "&Reason=";*@
+
+			var obj = new Object();
+			obj.Company = company;
+			obj.Key2 = key2;
+			obj.Reason = "";
+
+			$.ajax(
+				{
+					url: '@(Url.Action("ProdInTruckDeleteAll", "FullPicking"))',
+					//url: "http://10.0.10.29/SpritzerAPI/api/LPPalletSelection",
+					data: JSON.stringify(obj),
+					dataType: "json",
+					type: "POST",
+					contentType: 'application/json; charset=utf-8',
+					success: function (data) {
+						HideLoader();
+						if (data) {
+							if (data.Status == "Success") {
+								backToMain();
+							} else {
+								var modal = $('#alertModal').modal();
+								var msg = data.Message;
+								modal.find('.modal-header').text("Response Message");
+								modal.find('.modal-body').text(msg);
+							}
+						}
+					},
+					error: function (response) {
+						HideLoader();
+						var msg = response.responseText;
+						var modal = $('#alertModal').modal();
+						modal.find('.modal-header').text("Response Message");
+						modal.find('.modal-body').text(msg);
+					}
+				});
+		});
+
+
+	});
+
+
+
+</script>

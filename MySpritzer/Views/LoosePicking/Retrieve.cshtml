@@ -1,0 +1,302 @@
+﻿@model MySpritzer.Models.RetrieveModel
+
+@{
+	ViewBag.Title = "Retrieve";
+}
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+<div class="container-fluid">
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Retrieve From Storage
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				@using (Html.BeginForm("", "WOLoosePicking", FormMethod.Get, new { id = "RetrieveForm" }))
+				{
+					<fieldset>
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="LotNum">Lot Num: </label>
+								<input type="text" class="form-control" name="LotNum" id="LotNum" value=@Html.DisplayFor(m=>m.LotNum)>
+								@*<div class="input-group">
+										<input type="text" class="form-control" name="LotNum" id="LotNum" autofocus value=@Html.DisplayFor(m=>m.LotNum)>
+										<div class="input-group-btn">
+											<button class="btn btn-primary" type="button" data-toggle="modal" data-target="#LotExpiryListModal">
+												<i class="glyphicon glyphicon-info-sign"></i>
+											</button>
+										</div>
+									</div>*@
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="PartNum">Part Num: </label>
+								<input type="text" class="form-control" name="PartNum" id="PartNum" readonly value=@Html.DisplayFor(m=>m.PartNum)>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="Description">Description:</label>
+								<textarea class="form-control" name="Description" id="Description" readonly rows="5">@Html.DisplayFor(m=>m.PartDesc)</textarea>
+							</div>
+						</div>
+					</fieldset>
+				}
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-danger" id="CloseRetrieve">Close</button>
+				@*<button type="button" class="btn btn-danger" onclick="location.href = '/LoosePicking/Details?Company=CSTP&SONum=109&ShipByDate=2018-10-06';">Close</button>*@
+				<button type="button" class="btn btn-primary pull-right" id="ConfirmRetrieve" form="RetrieveForm">Confirm</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- RESPONSE MODAL -->
+	<div class="modal fade" id="responseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- RESPONSE MODAL //-->
+	@*<!-- LOT Num Expiry List MODAL -->
+		<div class="modal fade" id="LotExpiryListModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+
+					<!-- Modal Header -->
+					<div class="modal-header">
+						<h4 class="modal-title">Suggested Lot Num</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<!-- Modal body -->
+					<div class="modal-body">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Lot Num</th>
+									<th>Description</th>
+									<th>Expired Date</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><button type="button" class="btn btn-link" value="">LOT001</button></td>
+									<td>Qwertyuiop</td>
+									<td>27/09/2018</td>
+								</tr>
+								<tr>
+									<td><button type="button" class="btn btn-link" value="">LOT002</button></td>
+									<td>Qwertyuiop</td>
+									<td>27/09/2018</td>
+								</tr>
+								<tr>
+									<td><button type="button" class="btn btn-link" value="">LOT003</button></td>
+									<td>Qwertyuiop</td>
+									<td>27/09/2018</td>
+								</tr>
+								<tr>
+									<td><button type="button" class="btn btn-link" value="">LOT004</button></td>
+									<td>Qwertyuiop</td>
+									<td>27/09/2018</td>
+								</tr>
+								<tr>
+									<td><button type="button" class="btn btn-link" value="">LOT005</button></td>
+									<td>Qwertyuiop</td>
+									<td>27/09/2018</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Modal footer -->
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<!--LOT Num Expiry List MODAL//-->*@
+
+
+	<input type="hidden" id="Company" value=@Html.DisplayFor(m=>m.Company) />
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		//Post Retrieve Model through Web API: LPRetrieve (POST)
+		//POST TO Web API LPRetrieve
+		$('#ConfirmRetrieve').click(function ()
+		{
+			var lotnumVal = $('#LotNum').val();
+
+			ShowLoader();
+
+			$.ajax(
+			{
+				url: '@(Url.Action("UpdateRetrieve", "LoosePicking"))',
+				data: { LotNum: lotnumVal},
+				success: function (data)
+				{
+					HideLoader();
+					if (data)
+					{
+						if (data.Success == true)
+						{
+							goToDetailPage();
+						}
+						else
+						{
+							var msg = data.Message;
+
+							//$.notify(msg,"error");
+
+							var modal = $('#responseModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						}
+					}
+
+				},
+				failure: function (response)
+				{
+					HideLoader();
+					var msg = response.responseText;
+
+					//$.notify(msg,"error");
+
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				},
+				error: function (response)
+				{
+					HideLoader();
+
+					var msg = response.responseText;
+
+					//$.notify(msg,"error");
+
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				}
+			});
+		});
+		//End Update
+
+		// Check Lot Num through Web API: LPRetrieve?Company=CSTP&PartNum=2-NMW-SPR-060024-W001&LotNum=1
+		// Not directly access to API cause i need to save the Object to LoosePicking Controller. So, i run this Validation through Controller LoosePicking with Action: CheckLotNum
+		$('#LotNum').focus();
+		$('#ConfirmRetrieve').attr("disabled", "disabled");
+		$('#LotNum').change(function () {
+			var LotNumVal = $('#LotNum').val();
+			var CompanyVal = $('#Company').val();
+			var PartNumVal = $('#PartNum').val();
+			//alert(LotNumVal + CompanyVal + PartNumVal);
+			if (LotNumVal != "") {
+				ShowLoader();
+				$.ajax({
+					type: "GET",
+					url: '@(Url.Action("CheckLotNum", "LoosePicking"))',
+					data: { Company: CompanyVal, LotNum: LotNumVal, PartNum: PartNumVal },
+					success: function (data) {
+						HideLoader();
+						if (data) {
+							if (data.Message != "Valid") {
+								$('#LotNum').val("");
+								$('#LotNum').focus();
+
+								var msg = data.Message;
+
+								//$.notify(msg, "error");
+
+								var modal = $('#responseModal').modal();
+								modal.find('.modal-header').text("Response Message");
+								modal.find('.modal-body').text(msg);
+
+								$('#ConfirmRetrieve').attr("disabled", "disabled");
+							} else {
+								$('#ConfirmRetrieve').removeAttr("disabled");
+							}
+						}
+					},
+					failure: function (response) {
+						HideLoader();
+						var msg = response.responseText;
+
+						//$.notify(msg, "error");
+
+						var modal = $('#responseModal').modal(
+							{
+								backdrop: 'static',
+								keyboard: false
+							}
+						);
+						modal.find('.modal-header').text("Response Message");
+						modal.find('.modal-body').text(msg);
+					},
+					error: function (response) {
+						HideLoader();
+						var msg = response.responseText;
+
+						//$.notify(msg, "error");
+
+						var modal = $('#responseModal').modal(
+							{
+								backdrop: 'static',
+								keyboard: false
+							}
+						);
+						modal.find('.modal-header').text("Response Message");
+						modal.find('.modal-body').text(msg);
+					}
+
+				});
+			}
+		});
+		//End Check Lot Num
+
+		$('#CloseRetrieve').click(function () {
+			//window.location.href = "Details";
+			goToDetailPage();
+			//history.go(-1);
+		});
+
+		function goToDetailPage() {
+			//?Company=CSSA&SONum=19&ShipByDate=2018-11-15
+			var url = '@Url.Action("Details", "LoosePicking")';
+			window.location.href = url;
+		}
+
+	});
+
+</script>
+

@@ -1,0 +1,447 @@
+﻿@model MySpritzer.Models.FinishGoodModel
+
+@{
+	ViewBag.Title = "Finish Goods Pick Process";
+
+	string Status = "";
+	if (ViewBag.Status != null)
+	{
+		Status = ViewBag.Status;
+	}
+}
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+<div class="container-fluid">
+	<input type="hidden" id="pgStatus" data-value='@Status' />
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Finish Goods Pick Process
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				<fieldset>
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="TruckNo">Truck No: @Html.DisplayFor(model => model.TruckNo)</label>
+							<br />
+							<label class="control-label" for="Pallet">Pallet: @Html.DisplayFor(model => model.PickedPalletQty) / @Html.DisplayFor(model => model.PalletQty)</label>
+						</div>
+					</div>
+				</fieldset>
+				<hr />
+
+				<fieldset>
+					@*@Html.HiddenFor(model => model.Company, new { id = "Company" })
+						@Html.HiddenFor(model => model.Key1, new { id = "Key1" })
+						@Html.HiddenFor(model => model.Key2, new { id = "Key2" })
+						@Html.HiddenFor(model => model.Key3, new { id = "Key3" })
+
+						@Html.HiddenFor(model => model.PartDesc, new { id = "PartDesc" })
+						@Html.HiddenFor(model => model.PalletQty, new { id = "PalletQty" })
+						@Html.HiddenFor(model => model.PickedPalletQty, new { id = "PickedPalletQty" })
+
+						@Html.HiddenFor(model => model.PickedPalletQty, new { id = "PickedPalletQty" })*@
+
+					<input type="hidden" id="Company" value='@Html.DisplayFor(model => model.Company)' />
+					<input type="hidden" id="Key1" value='@Html.DisplayFor(model => model.Key1)' />
+					<input type="hidden" id="Key2" value='@Html.DisplayFor(model => model.Key2)' />
+					<input type="hidden" id="Key3" value='@Html.DisplayFor(model => model.Key3)' />
+
+					<input type="hidden" id="PartDesc" value='@Html.DisplayFor(model => model.PartDesc)' />
+					<input type="hidden" id="PalletQty" value='@Html.DisplayFor(model => model.PalletQty)' />
+					<input type="hidden" id="PickedPalletQty" value='@Html.DisplayFor(model => model.PickedPalletQty)' />
+
+					<input type="hidden" id="PickedQty" value='@Html.DisplayFor(model => model.PickedQty)' />
+					<input type="hidden" id="PalletType" value='@Html.DisplayFor(model => model.PalletType)' />
+					<input type="hidden" id="Comment" value='@Html.DisplayFor(model => model.Comment)' />
+
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="LotNum">Lot Num: </label>
+							<input type="text" class="form-control" name="LotNum" id="LotNum">
+						</div>
+					</div>
+
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="PartNum">Part Num: </label>
+							<input type="text" class="form-control" name="PartNum" id="PartNum" value='@Html.DisplayFor(model => model.PartNum)' readonly>
+						</div>
+					</div>
+
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="Qty">Qty: </label>
+							<div class="input-group">
+								<input type="number" class="form-control" name="Qty" id="Qty" value='@Html.DisplayFor(model => model.Qty)' readonly>
+								<div class="input-group-btn">
+									<button class="btn btn-primary" id="SvEditQtyBtn">
+										<i class="glyphicon glyphicon-edit"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</fieldset>
+
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-danger" id="CloseScanningBtn">Close</button>
+				<button type="button" class="btn btn-primary pull-right" id="ProductScanningSaveButton" form="ProductScanningForm">Save</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- svLoginModal Modal -->
+	<div class="modal fade" id="svLoginModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title">Supervisor Login: </h4>
+				</div>
+
+				<div class="modal-body">
+					<form>
+						<div class="form-group">
+							<label class="control-label" for="SvUsername">Username: </label>
+							<input type="text" class="form-control" name="SvUsername" id="SvUsername" />
+							<label class="control-label" for="SvPassword">Password: </label>
+							<input type="password" class="form-control" name="SvPassword" id="SvPassword" />
+						</div>
+					</form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger CancelLoginBtn">Cancel</button>
+					<button type="button" class="btn btn-primary" id="SvLoginBtn">Login</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- svLoginModal Modal //-->
+	<!-- alertModal Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">Modal Heading</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4>Please insert DO Number.</h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--alertModal Modal//-->
+	<!-- WEB API RESPONSE MODAL -->
+	<div class="modal fade" id="responseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- WEB API RESPONSE MODAL//-->
+	<!-- refreshPageModal -->
+	<div class="modal fade" id="finishModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="BackPrevBtn">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--refreshPageModal//-->
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function ()
+	{
+		function Refresh() {
+			var url = '@Url.Action("FinishGoodsPickProcess", "FullPicking")';
+			window.location.href = url;
+		}
+
+		function BackToPrevPage() {
+			var url = '@Url.Action("FinishGoods", "FullPicking")';
+			window.location.href = url;
+		}
+
+		//if finish all, popup this. Need to be Modal Popup (not notify js currently). If user click "Okay" from this modal popup will navigate to prev page
+		var msg = $("#pgStatus").data("value");
+		if (msg != '') {
+			BackToPrevPage();
+
+			//var model = $('#finishModal').modal();
+			//model.find('.modal-title').text("Alert Message");
+			//model.find('.modal-body').text(msg);
+
+			//$('#LotNum').attr("disabled", "disabled");
+		};
+
+		$('#BackPrevBtn').click(function () {
+			BackToPrevPage();
+		});
+
+		$('#SvEditQtyBtn').click(function () {
+			$('#svLoginModal').modal();
+		});
+
+		$('.CancelLoginBtn').click(function () {
+			$('#svLoginModal').modal("toggle");
+			$('#SvUsername').val("");
+			$('#SvPassword').val("");
+		});
+
+		$('#SvLoginBtn').click(function () {
+			var obj = new Object();
+			obj.Username = $('#SvUsername').val();
+			obj.Password = $('#SvPassword').val();
+
+			if (obj.Username != "" && obj.Password != "") {
+				$.ajax({
+					url: '@(Url.Action("SupervisorLogin", "FullPicking"))',
+					data: JSON.stringify(obj),
+					dataType: "json",
+					type: "POST",
+					contentType: 'application/json; charset=utf-8',
+					success: function (data) {
+						if (data) {
+							//$("#").removeAttr("disabled");
+							if (data.Status == false) {
+								var msg = data.Message;
+								//alert(data.Message);
+
+								$('#SvPassword').notify(msg, "error");
+
+								//var model = $('#responseModal').modal();
+								//model.find('.modal-title').text("Response Message");
+								//model.find('.modal-body').text(msg);
+
+								$("#Qty").attr("readonly", "readonly");
+							} else {
+								//alert(data.Message);
+								$('#svLoginModal').modal("toggle");
+								$('#SvUsername').val("");
+								$('#SvPassword').val("");
+								$("#Qty").removeAttr("readonly");
+							}
+						}
+					},
+					error: function (data) {
+						var msg = data.responseText;
+
+						$('#SvPassword').notify(msg, "error");
+					}
+				});
+			} else {
+				var msg = "Please Enter Username and Password";
+
+				$('#SvPassword').notify(msg, "error");
+
+				//var model = $('#responseModal').modal();
+				//model.find('.modal-title').text("Alert Message");
+				//model.find('.modal-body').text(msg);
+			}
+
+		});
+
+
+		$('#CloseScanningBtn').click(function () {
+			BackToPrevPage();
+		});
+
+		//Check LotNum by GET Method
+		$('#LotNum').focus();
+		$("#ProductScanningSaveButton").attr("disabled", "disabled");
+		$('#LotNum').change(function ()
+		{
+			var CompanyVal = $('#Company').val();
+			var PartNumVal = $('#PartNum').val();
+			var LotNumVal = $('#LotNum').val();
+			var QtyVal = $('#Qty').val();
+
+			if (LotNumVal != "")
+			{
+				//alert("LotNum is not empty!");
+				ShowLoader();
+				$.ajax({
+					type: "GET",
+					url: '@(Url.Action("CheckFinishGoodsLotNum", "FullPicking"))',
+					data: { Company: CompanyVal, PartNum: PartNumVal, LotNum: LotNumVal, Qty: QtyVal },
+					success: function (data) {
+						HideLoader();
+						if (data) {
+							if (data.Message != "Valid") {
+								$('#LotNum').val("");
+								$('#LotNum').focus();
+
+								var msg = data.Message;
+
+								//$.notify(msg, "error");
+
+								var model = $('#responseModal').modal();
+								model.find('.modal-title').text("Response Message");
+								model.find('.modal-body').text(msg);
+
+								$("#ProductScanningSaveButton").attr("disabled", "disabled");
+							} else {
+								$("#ProductScanningSaveButton").removeAttr("disabled");
+							}
+						}
+						else {
+							//$("#PODtlSubmit").attr("disabled", "disabled");
+							var msg = "Something wrong.";
+
+							//$.notify(msg, "error");
+
+							var model = $('#responseModal').modal();
+							model.find('.modal-title').text("Response Message");
+							model.find('.modal-body').text(msg);
+						}
+					},
+					error: function (response) {
+						HideLoader();
+
+						var msg = response.responseText;
+
+						//$.notify(msg, "error");
+
+						var model = $('#responseModal').modal();
+						model.find('.modal-title').text("Response Message");
+						model.find('.modal-body').text(msg);
+					}
+				});
+			}
+		});
+
+		//POST
+		//Update Product Scanning by POST Method
+		$('#ProductScanningSaveButton').click(function ()
+		{
+			var obj = new Object();
+			obj.Company = $('#Company').val();
+			obj.Key1 = $('#Key1').val();
+			obj.Key2 = $('#Key2').val();
+			obj.Key3 = $('#Key3').val();
+			obj.PartNum = $('#PartNum').val();
+			obj.PartDesc = $('#PartDesc').val();
+			obj.PalletQty = $('#PalletQty').val();
+			obj.PickedPalletQty = $('#PickedPalletQty').val();
+			obj.Qty = $('#Qty').val();
+			obj.PickedQty = $('#PickedQty').val();
+			obj.PalletType = $('#PalletType').val();
+			obj.Comment = $('#Comment').val();
+
+			ShowLoader();
+
+			$.ajax(
+			{
+				url: '@(Url.Action("UpdateFinishGoods", "FullPicking"))',
+				//url: "http://10.0.10.29/SpritzerAPI/api/LPPalletSelection",
+				data: JSON.stringify(obj),
+				dataType: "json",
+				type: "POST",
+				contentType: 'application/json; charset=utf-8',
+				success: function (data)
+				{
+					HideLoader();
+					if (data)
+					{
+						if (data.Status == "Success") {
+							Refresh();
+							//var msg = data.Message;
+
+							//var modal = $('#refreshPageModal').modal();
+							//modal.find('.modal-header').text("Response Message");
+							//modal.find('.modal-body').text(msg);
+						} else {
+							var msg = data.Message;
+
+							//$.notify(msg,"error");
+
+							var modal = $('#responseModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						}
+					}
+				},
+				failure: function (response)
+				{
+					HideLoader();
+					var msg = response.responseText;
+
+					//$.notify(msg,"error");
+
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				},
+				error: function (response)
+				{
+					HideLoader();
+					var msg = response.responseText;
+
+					//$.notify(msg,"error");
+
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				}
+			});
+		});
+
+	});
+</script>
+
+
+
+
+

@@ -1,0 +1,382 @@
+﻿@model MySpritzer.Models.PMCReceipientVerificationModel
+
+@{
+	ViewBag.Title = "PMCReceipientVerify";
+	string Status = "";
+	if (ViewBag.Status != null)
+	{
+		Status = ViewBag.Status;
+	}
+	string Company = "";
+	string UserId = "";
+
+	if (!string.IsNullOrEmpty(Session["Company"] as string))
+	{
+		Company = Session["Company"] as string;
+
+	}
+	if (!string.IsNullOrEmpty(Session["User"] as string))
+	{
+
+		UserId = Session["User"].ToString();
+	}
+}
+
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				PMC Receipient Verify Details
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				@using (Html.BeginForm("PMCReceipientVerify", "PMCReceipientVerify", FormMethod.Post, new { id = "DetailForm" }))
+				{
+					@Html.AntiForgeryToken()
+
+
+					@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+					@Html.HiddenFor(model => model.Id)
+					@Html.HiddenFor(model => model.PickRawMtrlFKId)
+					@Html.HiddenFor(model => model.Company)
+					@Html.HiddenFor(model => model.Plant)
+					@Html.HiddenFor(model => model.RequestDate)
+					@Html.HiddenFor(model => model.ActQty)
+
+
+					<input type="hidden" id="pgStatus" data-value="@Status" />
+
+					<fieldset>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.JobNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.JobNum, new { @class = "form-control", @disabled = "true" })
+									@Html.ValidationMessageFor(model => model.JobNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.PartNum, new { @class = "form-control", @disabled = "true" })
+									@Html.ValidationMessageFor(model => model.PartNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartDesc, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.PartDesc, new { @class = "form-control", @disabled = "true" })
+									@Html.ValidationMessageFor(model => model.PartDesc, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.Qty, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.Qty, new { htmlAttributes = new { @class = "form-control", @type = "number", @disabled = "true" } })
+									@Html.ValidationMessageFor(model => model.Qty, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.UOM, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.UOM, new { htmlAttributes = new { @class = "form-control", @disabled = "true" } })
+									@Html.ValidationMessageFor(model => model.UOM, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.LotNo, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.LotNo, new { htmlAttributes = new { @class = "form-control", @disabled = "true" } })
+									@Html.ValidationMessageFor(model => model.LotNo, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.TuId, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.TuId, new { htmlAttributes = new { @class = "form-control", @disabled = "true" } })
+									@Html.ValidationMessageFor(model => model.TuId, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.TranType, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.TranType, new { htmlAttributes = new { @class = "form-control", @disabled = "true" } })
+									@Html.ValidationMessageFor(model => model.TranType, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+					</fieldset>
+
+				}
+			</div>
+
+			<div class="panel-footer">
+				@*@Html.ActionLink("Back to List", "Index", "PMCReceipientVerify", new { Company = Company, UserId = UserId }, new { htmlAttributes = new { @class = "pull-left" } })*@
+
+				<button type="button" class="btn btn-danger" style="margin:3px;" id="btnBack">Close</button>
+				<button type="button" class="btn btn-danger pull-right" style="margin:3px;" id="btnReject">Reject</button>
+				<button type="submit" class="btn btn-primary pull-right" style="margin:3px;" id="btnAccept" form="DetailForm">Accept</button>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!--MODAL Warehouse Suggestion//-->
+<div class="modal fade" tabindex="-1" id="RejectModal"
+	 data-keyboard="false" data-backdrop="static">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					&times;
+				</button>
+				<h4 class="modal-title">Reject Quantity</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						@Html.LabelFor(model => model.ReasonTypes, htmlAttributes: new { @class = "control-label" })
+						<div>
+							@if (ViewBag.ReasonTypes != null)
+							{
+								@Html.DropDownListFor(m => m.ReasonCode, ViewBag.ReasonTypes as SelectList, "--Select--", new { @class = "form-control", @id = "txtReasonCode" })
+
+							}
+							else
+							{
+								@Html.DropDownListFor(m => m.ReasonCode, new SelectList(""), "--Select--", new { @class = "form-control" })
+							}
+
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						@Html.LabelFor(model => model.RejQty, htmlAttributes: new { @class = "control-label" })
+						<div>
+							@Html.EditorFor(model => model.RejQty, new { htmlAttributes = new { @class = "form-control", @type = "number", @value = Model.Qty, @min = "1", @max = Model.Qty, @id = "txtRejQty" } })
+							@Html.ValidationMessageFor(model => model.RejQty, "", new { @class = "text-danger" })
+						</div>
+					</div>
+					<div class="modal-footer">
+						@*<button type="button" class="btn btn-primary" id="btnRejectConfim">Confirm</button>*@
+						@*<button type="button" id="btnHideModal" class="btn btn-success">
+				OK
+			</button>*@
+						<button type="button" class="btn btn-primary" id="btnConfirmReject">
+							Confirm
+						</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">
+							Cancel
+						</button>
+					</div>
+				</form>
+			</div>
+			@*<div class="modal-footer">
+					<button type="submit" class="btn btn-primary">Confirm</button>
+					<button type="button" id="btnHideModal" class="btn btn-primary">
+						Close
+					</button>
+				</div>*@
+		</div>
+	</div>
+</div>
+<!--MODAL Warehouse Suggestion//-->
+<!-- The Modal -->
+<div class="modal fade" id="alertModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			@*Modal Header*@
+			<div class="modal-header">
+				<h4 class="modal-title"></h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+				<h4></h4>
+			</div>
+
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!--MODAL//-->
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#btnBack").click(function () {
+			BackToPrevPage();
+		});
+
+		function BackToPrevPage() {
+			var url = '@Url.Action("Index", "PMCReceipientVerify")' + "?Company=" + '@Company' + "&UserId=" + '@UserId';
+			window.location.href = url;
+		}
+
+        var msg = $("#pgStatus").data("value");
+        if (msg != '') {
+            //alert(msg);
+            var model = $('#alertModal').modal();
+            model.find('.modal-title').text("Alert Message");
+            model.find('.modal-body').text(msg);
+			//$('#btnSubmit').attr("disabled", "true");
+			//BackToPrevPage();
+        };
+
+        //Hide Reject model popup
+  //      $("#btnHideModal").click(function () {
+  //          $("#RejectModal").modal('hide');
+		//});
+
+		$("#btnConfirmReject").click(function () {
+			ConfirmReject();
+		});
+
+        //Open Reject model popup
+        //$("#btnReject").click(function () {
+
+        //});
+
+        //btnRejectConfim
+        //$("#btnRejectConfim").click(function () {
+
+        //    //if ($('#form').valid()) {
+        //    //    //$('#DetailForm').submit();
+        //    //    //$("#btnAccept").trigger("click");
+
+        //    //}
+        //    //else {
+        //    //    //alert('Not Valid');
+        //    //}
+
+        //});
+        //btnReject
+        $("#btnReject").click(function () {
+			$("#RejectModal").modal('show');
+
+
+
+		});
+
+		function ConfirmReject() {
+			var rejQty = parseFloat($('#txtRejQty').val());
+			var reasonCode = $("#txtReasonCode option:selected").text();
+			
+            //alert(rejQty + " " + reasonCode);
+			if (rejQty > 0 && rejQty != "" && reasonCode != "--Select--") {
+				var reasonCodeValue = $("#txtReasonCode").val();
+
+				//$("#RejectModal").modal('hide');
+                var obj = new Object();
+                obj.Company = '@Model.Company';
+                obj.PickRawMtrlFKId = '@Model.PickRawMtrlFKId';
+                obj.RejQty = rejQty;
+				obj.ReasonCode = reasonCodeValue;
+				//alert(obj.Company + obj.PickRawMtrlFKId + obj.RejQty + obj.ReasonCode);
+				//alert(ob.Company + " - " + obj.PickRawMtrlFKId + " - " + obj.RejQty + " - " + obj.ReasonCode);
+                //alert('json');
+
+				ShowLoader();
+
+                $.ajax(
+                    {
+                        url: '@(Url.Action("PMCReceipientVerify", "PMCReceipientVerify"))',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+						success: function (response) {
+							HideLoader();
+                            if (response.success) {
+								//alert(response.responseText);
+								BackToPrevPage();
+                            }
+							else {
+								var msg = response.responseText;
+								var model = $('#alertModal').modal();
+								model.find('.modal-title').text("Alert Message");
+								model.find('.modal-body').text(msg);
+								//alert(response.responseText);
+								//BackToPrevPage();
+                            }
+                        },
+						failure: function (response) {
+							HideLoader();
+							var msg = response.responseText;
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Alert Message");
+							model.find('.modal-body').text(msg);
+                        },
+						error: function (response) {
+							HideLoader();
+							var msg = response.responseText;
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Alert Message");
+							model.find('.modal-body').text(msg);
+                        }
+                    });
+			} else if (reasonCode == "--Select--") {
+				var msg = "Reason Type is required !";
+				$("#btnConfirmReject").notify(msg, { position: "bottom center" });
+				//var model = $('#alertModal').modal();
+				//model.find('.modal-title').text("Alert Message");
+				//model.find('.modal-body').text(msg);
+			}
+			else if (rejQty <= 0 || rejQty == "") {
+
+				var msg = "Valid Reject Qty is required !";
+				$("#btnConfirmReject").notify(msg, { position: "bottom center" });
+				//var model = $('#alertModal').modal();
+				//model.find('.modal-title').text("Alert Message");
+				//model.find('.modal-body').text(msg);
+			}
+			else {
+				var msg = "Reason Type and Reject Qty is required !";
+				$("#btnConfirmReject").notify(msg, { position: "bottom center" });
+				//var model = $('#alertModal').modal();
+				//model.find('.modal-title').text("Alert Message");
+				//model.find('.modal-body').text(msg);
+                //$("#RejectModal").modal('show');
+            }
+		}
+
+        //$("#DetailForm").submit(function (event) {
+        //    if ("correct" == "correct") {
+        //        alert('correct!');
+        //        return;
+        //    }
+
+
+        //    event.preventDefault();
+        //});
+    });
+</script>

@@ -1,0 +1,109 @@
+﻿@model List<MySpritzer.Models.FGShipToModel>
+
+@{
+	ViewBag.Title = "ProductInTruckShipTo";
+}
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Product In Truck - Ship To
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				<fieldset>
+					<div>
+						<table id="FGShipToTble" class="table table-responsive table-condensed" style="width:100%">
+							<thead>
+								<tr>
+									<th>Ship To</th>
+								</tr>
+							</thead>
+							<tbody>
+								@{
+									if (Model == null)
+									{
+										<tr><td valign="top" colspan="1" class="dataTables_empty">No data available in table</td></tr>
+
+									}
+									else
+									{
+										int index = 0;
+										foreach (var m in Model)
+										{
+											<tr>
+												<td>
+													<input type="hidden" id='hParams_@index' value='ShipTo=@m.ShipTo&Status=@m.Status&Company=@m.Company&DPNum=@m.DPNum&SONum=@m.SONum' />
+													<button type="button" class="btn btn-link ShipToBtn" value='@index'>@m.ShipTo</button>
+												</td>
+											</tr>
+											index++;
+										}
+
+									}
+								}
+
+							</tbody>
+						</table>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+
+	</div>
+
+
+	<!-- Alert Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- Alert Modal// -->
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		$('#FGShipToTble').DataTable({
+			paging: true,
+			sort: true,
+			searching: false,
+			pageLength: 5,
+			bLengthChange: false,
+			dom: '<"top"i>rt<"bottom"flp><"clear">'
+		});
+
+		//Go to Inspection.
+		$('#FGShipToTble').on('click', '.ShipToBtn', function () {
+			var index = $(this).val();
+			var hParams_ = $('#hParams_' + index).val();
+			//var FGForm_ = $('FGForm_' + index);
+			var url = '@Url.Action("FinishGoods", "FullPicking")' + "?" + hParams_;
+			window.location.href = url;
+		});
+
+	});
+
+</script>
+

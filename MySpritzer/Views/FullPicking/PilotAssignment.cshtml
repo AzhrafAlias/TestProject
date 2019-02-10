@@ -1,0 +1,268 @@
+﻿@{
+	string Company = "";
+	if (Session["Company"] != null)
+	{
+		Company = (string)Session["Company"];
+	}
+	string TruckNo = "";
+	if (ViewBag.TruckNo != null)
+	{
+		TruckNo = ViewBag.TruckNo;
+	}
+
+	string isViewOnly = "false";
+
+	if (!string.IsNullOrEmpty(Request.QueryString["v"]))
+	{
+		isViewOnly = "false";
+	}
+	else
+	{
+		isViewOnly = "false";
+	}
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Pilot Assignment
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				<fieldset>
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="TruckNo">Truck No: @TruckNo</label>
+						</div>
+						<hr />
+						<div class="form-group">
+							<label class="control-label" for="UD25FS_LoadingBay_c">Loading Bay: </label>
+							<select class="form-control ToDisable" name="UD25FS_LoadingBay_c" id="UD25FS_LoadingBay_c">
+								@{
+									<option value='-'>-</option>
+									if (ViewBag.LoadingBays != null)
+									{
+										foreach (var lb in ViewBag.LoadingBays)
+										{
+											if (lb.selected)
+											{
+												<option selected value='@lb.LoadingBay'>@lb.LoadingBayDesc</option>
+											}
+											else
+											{
+												<option value='@lb.LoadingBay'>@lb.LoadingBayDesc</option>
+											}
+										}
+									}
+								}
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="UD25FS_PilotID_c">Pilot ID: </label>
+							<select class="form-control ToDisable" name="UD25FS_PilotID_c" id="UD25FS_PilotID_c">
+								@{
+									<option value='-'>-</option>
+									if (ViewBag.Pilots != null)
+									{
+										foreach (var p in ViewBag.Pilots)
+										{
+											if (p.selected)
+											{
+												<option selected value='@p.PilotID'>@p.Name</option>
+											}
+											else
+											{
+												<option value='@p.PilotID'>@p.Name</option>
+											}
+										}
+									}
+
+								}
+							</select>
+						</div>
+
+					</div>
+				</fieldset>
+
+
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-danger" id="CloseBtn">Close</button>
+				<button type="button" class="btn btn-primary pull-right ToDisable" id="ConfirmToAssign">Confirm</button>
+			</div>
+
+		</div>
+
+	</div>
+
+	<!-- confirmPilotModal Modal -->
+	<div class="modal fade" id="confirmPilotModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="ConfirmAssign">Confirm</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- removeProductModal Modal// -->
+	<!-- confirmPilotModal Modal -->
+	<div class="modal fade" id="responseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- removeProductModal Modal// -->
+
+
+
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		var selectedpilotName;
+		var selectedloadingBayName;
+		var selectedpilotId;
+		var selectedloadingBayId;
+
+		$('#ConfirmToAssign').click(function () {
+			var pilotName = $('#UD25FS_PilotID_c option:selected');
+			var loadingBayName = $('#UD25FS_LoadingBay_c option:selected');
+			var pilotId = $('#UD25FS_PilotID_c').val();
+			var loadingBayId = $('#UD25FS_LoadingBay_c').val();
+
+			selectedpilotName = pilotName;
+			selectedloadingBayName = loadingBayName;
+			selectedpilotId = pilotId;
+			selectedloadingBayId = loadingBayId;
+
+			SubmitPilotAssign();
+
+
+			//var msg = "Are you sure want to assign the Pilot: " + pilotName.html() + " to Loading Bay: " + loadingBayName.html() + " ?";
+			//var modal = $('#confirmPilotModal').modal();
+			//modal.find('.modal-title').text("Assign Confirmation");
+			//modal.find('.modal-body').text(msg);
+		});
+
+		$('#ConfirmAssign').click(function () {
+			SubmitPilotAssign();
+		});
+
+		function SubmitPilotAssign() {
+			//alert(selectedpilotName + selectedloadingBayName + selectedpilotId + selectedloadingBayId);
+			var obj = new Object();
+			obj.UD25FS_PilotID_c = selectedpilotId;
+			obj.UD25FS_LoadingBay_c = selectedloadingBayId;
+
+			if (selectedpilotId != "-" && selectedloadingBayId != "-") {
+				ShowLoader();
+				$.ajax(
+					{
+						url: '@(Url.Action("UpdatePilotAssignment", "FullPicking"))',
+						data: JSON.stringify(obj),
+						dataType: "json",
+						type: "POST",
+						contentType: 'application/json; charset=utf-8',
+						success: function (data) {
+							HideLoader();
+							if (data) {
+								if (data.Status == "Fail") {
+									var msg = data.Message;
+									var modal = $('#responseModal').modal();
+									modal.find('.modal-header').text("Response Message");
+									modal.find('.modal-body').text(msg);
+								}
+								else {
+									backToMain();
+									//var modal = $('#responseModal').modal();
+									//var msg = data.Message;
+									//modal.find('.modal-header').text("Response Message");
+									//modal.find('.modal-body').text(msg);
+								}
+							}
+						},
+						error: function (response) {
+							HideLoader();
+							var msg = response.responseText;
+
+							var modal = $('#responseModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						}
+					});
+			} else {
+				var msg = "Please select a loading bay and pilot to assign.";
+				var modal = $('#responseModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+			}
+
+
+
+		}
+
+
+		$('#CloseBtn').click(function () {
+			backToMain();
+			@*window.location.href = "Index?Company=" + '@Company';*@
+		});
+
+		function backToMain() {
+			var url = '@Url.Action("Index","FullPicking")' + "?Company=" + '@Company';
+			window.location.href = url;
+		}
+
+		CheckIfViewOnly();
+		function CheckIfViewOnly() {
+			var isViewOnly = '@isViewOnly';
+			if (isViewOnly == "true") {
+				$(".ToDisable").attr("disabled", "true");
+			} else {
+				$(".ToDisable").removeAttr("disabled");
+			}
+		}
+
+
+	});
+
+
+
+</script>
+

@@ -1,0 +1,836 @@
+﻿@model List<MySpritzer.Models.TruckArriveModel>
+@{
+	ViewBag.Title = "Index";
+
+	string UserType = "";
+
+	Session["UserType"] = "Supervisor";
+
+	if (!string.IsNullOrEmpty((string)Session["UserType"]))
+	{
+		UserType = (string)Session["UserType"];
+	}
+
+	string errMsg = "";
+	if (ViewBag.Error != null)
+	{
+		errMsg = ViewBag.Error;
+	}
+}
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<input type="hidden" id="pgError" data-value='@errMsg' />
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Truck Arrived / Container Arrived
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+
+				<fieldset>
+					<div>
+						<table id="TruckTable" class="table table-responsive table-condensed" style="width:100%">
+							<thead>
+								<tr>
+									<th>Action</th>
+									<th>Review</th>
+									<th>Truck / Container No</th>
+									<th>Transporter</th>
+									<th>Time In</th>
+									<th>Seal No</th>
+								</tr>
+							</thead>
+                            <tbody>
+                                @{
+                                    if (UserType == "Supervisor")
+                                    {
+                                        int index = 0;
+                                        foreach (var truck in Model)
+                                        {
+                                            if (truck.TruckStatus == "INSPECTION PASSED")
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <input type="hidden" id='truckCompany_@index' value='@truck.Company' />
+                                                        <input type="hidden" id='truckNo_@index' value='@truck.TruckNo' />
+                                                        <input type="hidden" id='truckTransporter_@index' value='@truck.Transporter' />
+                                                        <input type="hidden" id='truckTimeSlot_@index' value='@truck.TimeSlot' />
+                                                        <input type="hidden" id='truckType_@index' value='@truck.TruckType' />
+                                                        <input type="hidden" id='truckSealNo_@index' value='@truck.SealNo' />
+                                                        <input type="hidden" id='truckStatus_@index' value='@truck.TruckStatus' />
+                                                        <input type="hidden" id='truckDPNum_@index' value='@truck.Key1' />
+                                                        <input type="hidden" id='truckKey2_@index' value='@truck.Key2' />
+                                                        <input type="hidden" id='truckKey3_@index' value='@truck.Key3' />
+                                                        <input type="hidden" id='truckKey4_@index' value='@truck.Key4' />
+                                                        <input type="hidden" id='truckKey5_@index' value='@truck.Key5' />
+                                                        <button type="button" class="btn btn-primary AssignPilotBtn" value='@index'><i class="glyphicon glyphicon-user"></i></button> <!--Assign-->
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-warning" value='@index'><i class="glyphicon glyphicon-ban-circle"></i></button> <!--Review disable-->
+                                                    </td>
+                                                    <td>
+                                                        @truck.TruckNo
+                                                    </td>
+                                                    <td>@truck.Transporter</td>
+                                                    <td>@truck.TimeSlot</td>
+                                                    <td>@truck.SealNo</td>
+                                                </tr>
+                                            }
+                                            else if (truck.TruckStatus == "INSPECTION FAILED")
+                                            {
+                                                //export is a container
+                                                <tr>
+                                                    <td>
+                                                        <input type="hidden" id='truckCompany_@index' value='@truck.Company' />
+                                                        <input type="hidden" id='truckNo_@index' value='@truck.TruckNo' />
+                                                        <input type="hidden" id='truckTransporter_@index' value='@truck.Transporter' />
+                                                        <input type="hidden" id='truckTimeSlot_@index' value='@truck.TimeSlot' />
+                                                        <input type="hidden" id='truckType_@index' value='@truck.TruckType' />
+                                                        <input type="hidden" id='truckSealNo_@index' value='@truck.SealNo' />
+                                                        <input type="hidden" id='truckStatus_@index' value='@truck.TruckStatus' />
+                                                        <input type="hidden" id='truckDPNum_@index' value='@truck.Key1' />
+                                                        <input type="hidden" id='truckKey2_@index' value='@truck.Key2' />
+                                                        <input type="hidden" id='truckKey3_@index' value='@truck.Key3' />
+                                                        <input type="hidden" id='truckKey4_@index' value='@truck.Key4' />
+                                                        <input type="hidden" id='truckKey5_@index' value='@truck.Key5' />
+                                                        <button type="button" class="btn btn-warning QaApproveBtn" value='@index'><i class="glyphicon glyphicon-warning-sign"></i></button> <!--QA Approve-->
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-warning" value='@index'><i class="glyphicon glyphicon-ban-circle"></i></button> <!--disable Review-->
+                                                    </td>
+                                                    <td>
+                                                        @truck.TruckNo
+                                                    </td>
+                                                    <td>@truck.Transporter</td>
+                                                    <td>@truck.TimeSlot</td>
+                                                    <td>@truck.SealNo</td>
+                                                </tr>
+                                            }
+                                            else if (truck.TruckStatus == "PILOT ASSIGNED")
+                                            {
+                                                //export is a container
+                                                <tr>
+                                                    <td>
+                                                        <input type="hidden" id='truckCompany_@index' value='@truck.Company' />
+                                                        <input type="hidden" id='truckNo_@index' value='@truck.TruckNo' />
+                                                        <input type="hidden" id='truckTransporter_@index' value='@truck.Transporter' />
+                                                        <input type="hidden" id='truckTimeSlot_@index' value='@truck.TimeSlot' />
+                                                        <input type="hidden" id='truckType_@index' value='@truck.TruckType' />
+                                                        <input type="hidden" id='truckSealNo_@index' value='@truck.SealNo' />
+                                                        <input type="hidden" id='truckStatus_@index' value='@truck.TruckStatus' />
+                                                        <input type="hidden" id='truckDPNum_@index' value='@truck.Key1' />
+                                                        <input type="hidden" id='truckKey2_@index' value='@truck.Key2' />
+                                                        <input type="hidden" id='truckKey3_@index' value='@truck.Key3' />
+                                                        <input type="hidden" id='truckKey4_@index' value='@truck.Key4' />
+                                                        <input type="hidden" id='truckKey5_@index' value='@truck.Key5' />
+                                                        <button type="button" class="btn btn-primary AssignPilotBtn" value='@index'><i class="glyphicon glyphicon-user"></i></button> <!--QA Approve-->
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-warning" value='@index'><i class="glyphicon glyphicon-ban-circle"></i></button> <!--Disable ReviewProductBtn-->
+                                                    </td>
+                                                    <td>
+                                                        @truck.TruckNo
+                                                    </td>
+                                                    <td>@truck.Transporter</td>
+                                                    <td>@truck.TimeSlot</td>
+                                                    <td>@truck.SealNo</td>
+                                                </tr>
+                                            }
+                                            else if (truck.TruckStatus == "PICKING IN PROGRESS")
+                                            {
+                                                //export is a container
+                                                <tr style="background-color: #FFFF00">
+                                                    <td>
+                                                        <input type="hidden" id='truckCompany_@index' value='@truck.Company' />
+                                                        <input type="hidden" id='truckNo_@index' value='@truck.TruckNo' />
+                                                        <input type="hidden" id='truckTransporter_@index' value='@truck.Transporter' />
+                                                        <input type="hidden" id='truckTimeSlot_@index' value='@truck.TimeSlot' />
+                                                        <input type="hidden" id='truckType_@index' value='@truck.TruckType' />
+                                                        <input type="hidden" id='truckSealNo_@index' value='@truck.SealNo' />
+                                                        <input type="hidden" id='truckStatus_@index' value='@truck.TruckStatus' />
+                                                        <input type="hidden" id='truckDPNum_@index' value='@truck.Key1' />
+                                                        <input type="hidden" id='truckKey2_@index' value='@truck.Key2' />
+                                                        <input type="hidden" id='truckKey3_@index' value='@truck.Key3' />
+                                                        <input type="hidden" id='truckKey4_@index' value='@truck.Key4' />
+                                                        <input type="hidden" id='truckKey5_@index' value='@truck.Key5' />
+                                                        <button type="button" class="btn btn-primary ViewPilotBtn" value='@index'><i class="glyphicon glyphicon-user"></i></button> <!--Just View The Pilot-->
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-primary ReviewProductBtn" value='@index'><i class="glyphicon glyphicon-eye-open"></i></button> <!--Review-->
+                                                    </td>
+                                                    <td>
+                                                        @truck.TruckNo
+                                                    </td>
+                                                    <td>@truck.Transporter</td>
+                                                    <td>@truck.TimeSlot</td>
+                                                    <td>@truck.SealNo</td>
+                                                </tr>
+                                            }
+                                            else if (truck.TruckStatus == "PICKING COMPLETED")
+                                            {
+                                                //export is a container
+                                                <tr style="background-color: #9ACD32">
+                                                    <td>
+                                                        <input type="hidden" id='truckCompany_@index' value='@truck.Company' />
+                                                        <input type="hidden" id='truckNo_@index' value='@truck.TruckNo' />
+                                                        <input type="hidden" id='truckTransporter_@index' value='@truck.Transporter' />
+                                                        <input type="hidden" id='truckTimeSlot_@index' value='@truck.TimeSlot' />
+                                                        <input type="hidden" id='truckType_@index' value='@truck.TruckType' />
+                                                        <input type="hidden" id='truckSealNo_@index' value='@truck.SealNo' />
+                                                        <input type="hidden" id='truckStatus_@index' value='@truck.TruckStatus' />
+                                                        <input type="hidden" id='truckDPNum_@index' value='@truck.Key1' />
+                                                        <input type="hidden" id='truckKey2_@index' value='@truck.Key2' />
+                                                        <input type="hidden" id='truckKey3_@index' value='@truck.Key3' />
+                                                        <input type="hidden" id='truckKey4_@index' value='@truck.Key4' />
+                                                        <input type="hidden" id='truckKey5_@index' value='@truck.Key5' />
+                                                        <button type="button" class="btn btn-primary ViewPilotBtn" value='@index'><i class="glyphicon glyphicon-user"></i></button> <!--Just View The Pilot-->
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-success ReviewProductBtn" value='@index'><i class="glyphicon glyphicon-eye-open"></i></button> <!--Review-->
+                                                    </td>
+                                                    <td>
+                                                        @truck.TruckNo
+                                                    </td>
+                                                    <td>@truck.Transporter</td>
+                                                    <td>@truck.TimeSlot</td>
+                                                    <td>@truck.SealNo</td>
+                                                </tr>
+                                            }
+                                            else if ((truck.TruckStatus == "READY"))
+                                            {
+                                                //READY
+                                                //domestic is a truck
+                                                //export is a container
+                                                <tr>
+                                                    <td>
+                                                        <input type="hidden" id='truckCompany_@index' value='@truck.Company' />
+                                                        <input type="hidden" id='truckNo_@index' value='@truck.TruckNo' />
+                                                        <input type="hidden" id='truckTransporter_@index' value='@truck.Transporter' />
+                                                        <input type="hidden" id='truckTimeSlot_@index' value='@truck.TimeSlot' />
+                                                        <input type="hidden" id='truckType_@index' value='@truck.TruckType' />
+                                                        <input type="hidden" id='truckSealNo_@index' value='@truck.SealNo' />
+                                                        <input type="hidden" id='truckStatus_@index' value='@truck.TruckStatus' />
+                                                        <input type="hidden" id='truckDPNum_@index' value='@truck.Key1' />
+                                                        <input type="hidden" id='truckKey2_@index' value='@truck.Key2' />
+                                                        <input type="hidden" id='truckKey3_@index' value='@truck.Key3' />
+                                                        <input type="hidden" id='truckKey4_@index' value='@truck.Key4' />
+                                                        <input type="hidden" id='truckKey5_@index' value='@truck.Key5' />
+                                                        <button type="button" class="btn btn-primary InspectBtn" value='@index'><i class="glyphicon glyphicon-warning-sign"></i></button> <!--Go Inspect-->
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-warning" value='@index'><i class="glyphicon glyphicon-ban-circle"></i></button> <!--disable Review-->
+                                                    </td>
+                                                    <td>
+                                                        @truck.TruckNo
+                                                    </td>
+                                                    <td>@truck.Transporter</td>
+                                                    <td>@truck.TimeSlot</td>
+                                                    <td>@truck.SealNo</td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                //Unknown Status
+                                                <tr>
+                                                    <td>
+                                                        <input type="hidden" id='truckCompany_@index' value='@truck.Company' />
+                                                        <input type="hidden" id='truckNo_@index' value='@truck.TruckNo' />
+                                                        <input type="hidden" id='truckTransporter_@index' value='@truck.Transporter' />
+                                                        <input type="hidden" id='truckTimeSlot_@index' value='@truck.TimeSlot' />
+                                                        <input type="hidden" id='truckType_@index' value='@truck.TruckType' />
+                                                        <input type="hidden" id='truckSealNo_@index' value='@truck.SealNo' />
+                                                        <input type="hidden" id='truckStatus_@index' value='@truck.TruckStatus' />
+                                                        <input type="hidden" id='truckDPNum_@index' value='@truck.Key1' />
+                                                        <input type="hidden" id='truckKey2_@index' value='@truck.Key2' />
+                                                        <input type="hidden" id='truckKey3_@index' value='@truck.Key3' />
+                                                        <input type="hidden" id='truckKey4_@index' value='@truck.Key4' />
+                                                        <input type="hidden" id='truckKey5_@index' value='@truck.Key5' />
+                                                        <button type="button" class="btn btn-warning" value='@index'><i class="glyphicon glyphicon-ban-circle"></i></button> <!--Disable-->
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-warning" value='@index'><i class="glyphicon glyphicon-ban-circle"></i></button> <!--Disable-->
+                                                    </td>
+                                                    <td>
+                                                        @truck.TruckNo
+                                                    </td>
+                                                    <td>@truck.Transporter</td>
+                                                    <td>@truck.TimeSlot</td>
+                                                    <td>@truck.SealNo</td>
+                                                </tr>
+                                            }
+                                            index++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td valign="top" colspan="6" class="dataTables_empty">No data available in table</td>
+                                        </tr>
+                                    }
+
+                                }
+                            </tbody>
+						</table>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Seal Num Modal -->
+	<div class="modal fade" id="sealNumModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title">Seal No: </h4>
+				</div>
+
+				<div class="modal-body">
+					<form>
+						<div class="form-group">
+							@*<label class="control-label" for="ActQty">Seal No: </label>*@
+							<input type="text" class="form-control" name="SealNum" id="SealNum" />
+						</div>
+					</form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" id="ConfirmSealNumBtn">Confirm</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--Seal Num Modal//-->
+	<!-- truckInspectionModal Modal -->
+	<div class="modal fade" id="truckInspectionModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title">Truck Inspection</h4>
+				</div>
+
+				<div class="modal-body">
+					<form id="TruckInspectionForm">
+						<div class="form-group">
+							<input type="hidden" name="Company" id="h_Company" />
+							<input type="hidden" name="DPNum" id="h_DPNum" />
+							<input type="hidden" name="Key2" id="h_Key2" />
+							<label class="control-label">Truck Type</label>
+							<div class="checkbox">
+								<label><input type="checkbox" class="criteriaCheckBoxOr" name='CriteriaType' value="Canvas">Canvas Type</label>
+							</div>
+							<label class="control-label">Criteria</label>
+							@if (ViewBag.Criterias != null)
+							{
+								foreach (var c in ViewBag.Criterias)
+								{
+									//if (c.Criteria != "Inner Layer Applied")
+									if (c.Criteria != "Canvas")
+									{
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" class="criteriaCheckBox" name='CriteriaType' value='@c.Criteria'>@c.Criteria
+											</label>
+										</div>
+									}
+									@*else
+										{
+											<div class="checkbox">
+												<label><input type="checkbox" class="criteriaCheckBoxOr" name='CriteriaType' value='@c.Criteria'>@c.Criteria</label>
+											</div>
+										}*@
+
+								}
+							}
+						</div>
+					</form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" form="TruckInspectionForm" id="ConfirmInspectionBtn">Submit</button>
+					@*<button type="button" class="btn btn-primary" id="ConfirmInspectionBtn" value="uncheck all">Confirm</button>*@
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--truckInspectionModal Modal//-->
+	<!-- responseModal Modal -->
+	<div class="modal fade" id="responseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger RefreshPageBtn">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- responseModal Modal// -->
+	<!-- Alert Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- Alert Modal// -->
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		var msg = $("#pgError").data("value");
+		if (msg != '') {
+			//alert(msg);
+			var model = $('#alertModal').modal();
+			model.find('.modal-title').text("Response Message");
+			model.find('.modal-body').text(msg);
+		};
+
+
+
+		var selectedTruckIndex = "";
+		var selectedTruckDPNum = "";
+		var selectedTruckKey2 = "";
+		var selectedTruckCompany = "";
+
+		//function doDisableHidden(hiddenObj) {
+		//	if (hiddenObj.checked) {
+		//		document.getElementById(hiddenObj.Id).disabled = true;
+		//	}
+		//}
+
+
+		$('#TruckTable').DataTable({
+			//dom: '<"top"iflp<"clear">>rt<"bottom"iflp<"clear">>',
+
+			//AMIN
+			//dom: '<"top"iflp<"clear">>',
+			//bLengthChange: false,
+			//scrollX: true,
+			//searching: false,
+			//iDisplayLength: 5,
+			//aLengthMenu: [[5], [5]]
+
+			//Ramesh
+			paging: true,
+			sort: true,
+			searching: false,
+			pageLength: 5,
+			bLengthChange: false,
+			dom: '<"top"i>rt<"bottom"flp><"clear">'
+		});
+
+		//Go to Inspection.
+		$('#TruckTable').on('click', '.InspectBtn', function () {
+			var index = $(this).val();
+			var truckDPNumVal = $('#truckDPNum_' + index).val();
+			var truckKey2 = $('#truckKey2_' + index).val();
+			selectedTruckDPNum = truckDPNumVal;
+			selectedTruckKey2 = truckKey2;
+
+			var truckTypeVal = $('#truckType_' + index).val();//$(this).val();
+
+			var truckSealNoVal = $('#truckSealNo_' + index).val();//$(this).val();
+
+			if (truckTypeVal == "DOMESTIC") {
+				$('#truckInspectionModal').modal({
+					backdrop: 'static',
+					keyboard: false});
+			} else if (truckTypeVal == "EXPORT") {
+				$('#SealNum').val(truckSealNoVal);
+				$('#sealNumModal').modal();
+			} else {
+				$('#truckInspectionModal').modal({
+					backdrop: 'static',
+					keyboard: false});
+				//$('#SealNum').val(truckSealNoVal);
+				//$('#sealNumModal').modal();
+			}
+
+			//Set Company, Key1 and Key2 in hidden input Inspect Form
+			var truckCompany = $('#truckCompany_' + index).val();
+			var truckKey2 = $('#truckKey2_' + index).val();
+			if (!truckKey2) {
+				truckKey2 = "";
+			}
+
+			$('#h_Company').val(truckCompany);
+			$('#h_DPNum').val(truckDPNumVal);
+			$('#h_Key2').val(truckKey2);
+		});
+
+
+		//Submit Inspection Form START
+		//http://www.dotnetxp.com/post-form-data-controller-asp-net-mvc-using-ajax/
+		$("#ConfirmInspectionBtn").click(function () {
+			ShowLoader();
+			$.ajax({
+				url: '@(Url.Action("SubmitInspectionForm", "FullPicking"))',
+				type: 'POST',
+				data: JSON.stringify($("#TruckInspectionForm").serializeObject()),
+				contentType: 'application/json; charset=utf-8',
+				dataType: "json",
+				success: function (data) {
+					HideLoader();
+					if (data.Status == "Success") {
+
+						if (data.Message == "INSPECTION PASSED") {
+							ReloadPage();
+						} else {
+							//close the inspection modal
+							$('#truckInspectionModal').modal('toggle');
+
+							var msg = data.Message;
+
+							//$.notify(msg, "success");
+
+							var modal = $('#responseModal').modal({
+								backdrop: 'static',
+								keyboard: false
+							});
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+
+							UncheckAllCheckbox();
+						}
+					} else if (data.Status == "300")
+					{
+						ReloadPage();
+					} else {
+						var msg = data.Message;
+
+						//$.notify(msg, "error");
+
+						var modal = $('#responseModal').modal();
+						modal.find('.modal-header').text("Response Message");
+						modal.find('.modal-body').text(msg);
+					}
+				},
+				error: function (data) {
+					HideLoader();
+					var msg = data.responseText;
+
+					//$.notify(msg, "error");
+
+					var modal = $('#responseModal').modal();
+					modal.find('.modal-header').text("Error");
+					modal.find('.modal-body').text(msg);
+				}
+			});
+		});
+
+		$.fn.serializeObject = function () {
+			var o = {};
+			var a = this.serializeArray();
+			$.each(a, function () {
+				if (o[this.name] !== undefined) {
+					if (!o[this.name].push) {
+						o[this.name] = [o[this.name]];
+					}
+					o[this.name].push(this.value || '');
+				} else {
+					o[this.name] = this.value || '';
+				}
+			});
+			return o;
+		};
+		//Submit Inspection Form END
+
+		//Submit Seal Num START
+		$('#ConfirmSealNumBtn').click(function () {
+			var sealNumVal = $('#SealNum').val();
+
+			if (sealNumVal != "") {
+			ShowLoader();
+			$.ajax(
+				{
+					url: '@(Url.Action("UpdateTruckArrive", "FullPicking"))',
+					data: { DPNum: selectedTruckDPNum, SealNo: sealNumVal, Key2: selectedTruckKey2},
+					type: "post",
+					success: function (data) {
+						HideLoader();
+						if (data) {
+							if (data.Message) {
+								if (data.Status != "Fail") {
+									//success. hide the seal modal and clear the input value
+									//$.notify(data.Message,"success");
+									$('#sealNumModal').modal('toggle');
+									$('#SealNum').val("");
+									//display the inspection form
+									$('#truckInspectionModal').modal({
+										backdrop: 'static',
+										keyboard: false});
+								} else {
+									//FailUpdateSealNo();
+									var msg = data.Message;
+
+									//$.notify(msg,"error");
+
+									var modal = $('#responseModal').modal();
+									modal.find('.modal-header').text("Response Message");
+									modal.find('.modal-body').text(msg);
+								}
+							}
+						}
+					},
+					error: function (data) {
+						HideLoader();
+						var msg = data.responseText;
+
+						//$.notify(msg, "error");
+
+						var modal = $('#responseModal').modal();
+						modal.find('.modal-header').text("Error");
+						modal.find('.modal-body').text(msg);
+					}
+				});
+			}
+			//$('#truckInspectionModal').modal();
+		});
+
+		function FailUpdateSealNo() {
+			var modal = $('#responseModal').modal();
+			var m = "Fail update Seal No. Try Again.";
+			modal.find('.modal-header').text("Response Message");
+			modal.find('.modal-body').text(m);
+		}
+		//Submit Seal Num END
+
+
+
+		//Assign Pilot Check.
+		$('#TruckTable').on('click', '.AssignPilotBtn', function () {
+			var index = $(this).val();
+			selectedTruckIndex = index;
+
+			//alert(selectedTruckIndex);
+
+
+			var truckCompany_ = $('#truckCompany_' + index).val();
+			var truckNo_ = $('#truckNo_' + index).val();
+			var truckTransporter_ = $('#truckTransporter_' + index).val();
+			var truckTimeSlot_ = $('#truckTimeSlot_' + index).val();
+			var truckType_ = $('#truckType_' + index).val();
+			var truckSealNo_ = $('#truckSealNo_' + index).val();
+			var truckStatus_ = $('#truckStatus_' + index).val();
+			var truckDPNum_ = $('#truckDPNum_' + index).val();
+			var truckKey2_ = $('#truckKey2_' + index).val();
+			var truckKey3_ = $('#truckKey3_' + index).val();
+			var truckKey4_ = $('#truckKey4_' + index).val();
+			var truckKey5_ = $('#truckKey5_' + index).val();
+			//alert(truckCompany_ + truckType_ + truckDPNum_);
+
+			var url = '@Url.Action("PilotAssignment", "FullPicking")' + "?UD25Company=" + truckCompany_ + "&UD25Key1=" + truckDPNum_ + "&UD25Key2=" + truckKey2_ + "&TruckNo=" + truckNo_;
+			window.location.href = url;
+			//window.location.href = "FullPicking/PilotAssignment?UD25Company=" + truckCompany_ + "&UD25Key1=" + truckDPNum_ + "&UD25Key2=" + truckKey2_;
+			//$('#pilotReAssignModal').modal();
+			/*
+			var index = $(this).val();
+			selectedTruckIndex = index;
+
+			var truckTypeVal = $('#truckType_' + index).val();//$(this).val();
+			var truckStatusVal = $('#truckStatus_' + index).val();//$(this).val();
+			alert(truckTypeVal + truckStatusVal + selectedTruckIndex);
+
+			var truckDPNumVal = $('#truckDPNum_' + index).val();
+			selectedTruckDPNum = truckDPNumVal;
+			alert("dp num: " + selectedTruckDPNum);
+			//set seal num
+			var truckSealNumVal = $('#truckSealNo_' + index).val();
+			//alert("seal num:" + truckSealNumVal);
+			$('#SealNum').val(truckSealNumVal);
+			$('#sealNumModal').modal();
+
+
+			if (truckTypeVal == "DOMESTIC") {
+				if (truckStatusVal == "FIRMx") {
+
+				} else {
+					$('#sealNumModal').modal();
+				}
+			} else if (truckTypeVal == "EXPORT") {
+				$('#pilotReAssignModal').modal();
+			} else {
+				if (truckStatusVal == "FIRMx") {
+					$('#pilotReAssignModal').modal();
+				} else {
+					$('#sealNumModal').modal();
+				}
+			}*/
+		});
+
+		//Assign Pilot Check.
+		$('#TruckTable').on('click', '.ViewPilotBtn', function () {
+			var index = $(this).val();
+			selectedTruckIndex = index;
+
+			//alert(selectedTruckIndex);
+
+
+			var truckCompany_ = $('#truckCompany_' + index).val();
+			var truckNo_ = $('#truckNo_' + index).val();
+			var truckTransporter_ = $('#truckTransporter_' + index).val();
+			var truckTimeSlot_ = $('#truckTimeSlot_' + index).val();
+			var truckType_ = $('#truckType_' + index).val();
+			var truckSealNo_ = $('#truckSealNo_' + index).val();
+			var truckStatus_ = $('#truckStatus_' + index).val();
+			var truckDPNum_ = $('#truckDPNum_' + index).val();
+			var truckKey2_ = $('#truckKey2_' + index).val();
+			var truckKey3_ = $('#truckKey3_' + index).val();
+			var truckKey4_ = $('#truckKey4_' + index).val();
+			var truckKey5_ = $('#truckKey5_' + index).val();
+			//alert(truckCompany_ + truckType_ + truckDPNum_);
+
+			var url = '@Url.Action("PilotAssignment", "FullPicking")' + "?UD25Company=" + truckCompany_ + "&UD25Key1=" + truckDPNum_ + "&UD25Key2=" + truckKey2_ + "&TruckNo=" + truckNo_ + "&v=true";
+			window.location.href = url;
+		});
+
+
+		$('#TruckTable').on('click', '.QaApproveBtn', function () {
+			var index = $(this).val();
+			var truckDPNumVal = $('#truckDPNum_' + index).val();
+			var truckKey2Val = $('#truckKey2_' + index).val();
+			var truckCompany = $('#truckCompany_' + index).val();
+			selectedTruckIndex = index;
+			selectedTruckDPNum = truckDPNumVal;
+			selectedTruckKey2 = truckKey2Val;
+			selectedTruckCompany = truckCompany;
+
+			@*$.ajax(
+				{
+					url: '@(Url.Action("QaApproval", "FullPicking"))',
+					data: { Company: selectedTruckCompany, DPNum: selectedTruckDPNum, Key2: selectedTruckKey2},
+					type: "get",
+					success: function (data) {
+						if (data) {
+							if (data.Message) {
+								if (data.Message != "fail") {
+
+								} else {
+
+								}
+							}
+						}
+					}
+				});*@
+			var url = '@Url.Action("QaApproval", "FullPicking")' + "?Company=" + selectedTruckCompany + "&DPNum=" + selectedTruckDPNum + "&Key2=" + selectedTruckKey2;
+			window.location.href = url;
+			//window.location.href = "../FullPicking/QaApproval?Company=" + selectedTruckCompany + "&DPNum=" + selectedTruckDPNum + "&Key2=" + selectedTruckKey2;
+		});
+
+		$('#TruckTable').on('click', '.ReviewProductBtn', function () {
+			var index = $(this).val();
+			var truckDPNum_ = $('#truckDPNum_' + index).val();
+			var truckCompany_ = $('#truckCompany_' + index).val();
+			var truckSealNo_ = $('#truckSealNo_' + index).val();
+			var truckKey2_ = $('#truckKey2_' + index).val();
+			var truckNo_ = $('#truckNo_' + index).val();
+
+			var url = '@Url.Action("ProductInTruck","FullPicking")' + "?Company=" + truckCompany_ + "&DPNum=" + truckDPNum_ + "&SealNo=" + truckSealNo_ + "&Key2=" + truckKey2_ + "&TruckNo=" + truckNo_;
+			window.location.href = url;
+			//window.location.href = "../FullPicking/ProductInTruck?Company=" + truckCompany_ + "&DPNum=" + truckDPNum_ + "&SealNo=" + truckSealNo_ + "&Key2=" + truckKey2_;
+		});
+
+		//Check CheckBox Criterias. All selected or not
+		var inspectionResultCanvasType = "pass";
+		var inspectionResultOther = "fail";
+		//$("#ConfirmInspectionBtn").attr("disabled", "disabled"); 07/11/18
+		$(".criteriaCheckBox").change(CheckInspectionForm);
+		$(".criteriaCheckBoxOr").change(CheckCanvasType);
+
+		function CheckCanvasType() {
+			//var totalCheck = $('.criteriaCheckBoxOr:checked').length;
+			if ($('.criteriaCheckBoxOr:checked').length == 2) {
+				//alert(totalCheck + "canvas type. pass.");
+				inspectionResultCanvasType = "pass";
+			} else if ($('.criteriaCheckBoxOr:checked').length == 0) {
+				//alert(totalCheck + "not canvas type and pass");
+				inspectionResultCanvasType = "pass";
+			} else {
+				//alert(totalCheck + "fail");
+				inspectionResultCanvasType = "fail";
+			}
+			//ToggleConfirmInspectionBtn(); // 07/11/18
+		}
+
+		function CheckInspectionForm() {
+
+			//if ($('.criteriaCheckBox:checked').length == $('.criteriaCheckBox').length) {
+			//	//do something
+			//	inspectionResultOther = "pass";
+			//} else {
+			//	inspectionResultOther = "fail";
+			//}
+
+			//ToggleConfirmInspectionBtn();  // 07/11/18
+		}
+
+		 // 07/11/18
+		//function ToggleConfirmInspectionBtn() {
+		//	if (inspectionResultOther == "pass" && inspectionResultCanvasType == "pass") {
+		//		$("#ConfirmInspectionBtn").removeAttr("disabled");
+		//	} else {
+		//		$("#ConfirmInspectionBtn").attr("disabled", "disabled");
+		//	}
+		//}
+
+		//UNCHECK All Checkbox. Clear checkboxes after submit success.
+		//https://www.dotnetcurry.com/jquery/1272/select-deselect-multiple-checkbox-using-jquery
+		function UncheckAllCheckbox() {
+			$(".criteriaCheckBox").prop("checked", false);
+			$(".criteriaCheckBoxOr").prop("checked", false);
+		}
+
+		$('.RefreshPageBtn').click(function () {
+			ReloadPage();
+		});
+
+		function ReloadPage() {
+			location.reload();
+		}
+
+	});
+
+
+
+</script>

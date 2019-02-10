@@ -1,0 +1,488 @@
+﻿@model MySpritzer.Models.FGTopUpModel
+
+@{
+	ViewBag.Title = "TopUp";
+	string Status = "";
+	if (ViewBag.Status != null)
+	{
+		Status = ViewBag.Status;
+	}
+	string Company = "";
+	string UserId = "";
+
+	if (!string.IsNullOrEmpty(Session["Company"] as string))
+	{
+		Company = Session["Company"] as string;
+
+	}
+	if (!string.IsNullOrEmpty(Session["User"] as string))
+	{
+
+		UserId = Session["User"].ToString();
+	}
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				FG TopUp Process
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				@using (Html.BeginForm("TopUp", "FGTopUp", FormMethod.Post, new { id = "DetailForm" }))
+				{
+					@Html.AntiForgeryToken()
+					@Html.HiddenFor(model => model.Company, new { @id = "txtCompany" })
+					<input type="hidden" id="pgStatus" data-value="@Status" />
+
+					<input type="hidden" id="txtQtyHidden" />
+
+					<fieldset>
+						<div class="col-xs-7">
+							<div class="form-group">
+								@Html.LabelFor(model => model.LotNo, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.LotNo, new { @class = "form-control", @id = "txtLotNo" })
+									@Html.ValidationMessageFor(model => model.LotNo, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-5">
+							<div class="form-group">
+								@Html.LabelFor(model => model.Qty, htmlAttributes: new { @class = "control-label" })
+								<div class="input-group">
+									@Html.EditorFor(model => model.Qty, new { htmlAttributes = new { @class = "form-control", @id = "txtQty", @type = "number", @style = "text-align:right" } })
+
+									@Html.ValidationMessageFor(model => model.Qty, "", new { @class = "text-danger" })
+									<div class="input-group-btn">
+										<button class="btn btn-primary" type="button" id="btnOK">
+											<i class="glyphicon glyphicon-ok"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartDescription, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.PartDescription, new { @class = "form-control", @id = "PartDescription", @readonly = "Yes" })
+									@Html.ValidationMessageFor(model => model.LotNo, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+					</fieldset>
+					<p id="showData">
+
+					</p>
+				}
+			</div>
+			<div class="panel-footer">
+				<button type="button" class="btn btn-danger" id="HomeBtn">Close</button>
+				<button type="reset" class="btn btn-primary" id="btnReset" onclick="EmptyGrd()" form="DetailForm">Clear</button>
+				<button type="button" class="btn btn-primary pull-right" id="btnConfirm" onclick="PostGrd()" form="DetailForm">Confirm</button>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- The Modal -->
+<div class="modal fade" id="alertModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			@*Modal Header*@
+			<div class="modal-header">
+				<h4 class="modal-title">Modal Heading</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+				<h4>Please insert text.</h4>
+			</div>
+
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!--MODAL//-->
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#HomeBtn").click(function () {
+			var url = '@Url.Action("Index", "Home")';
+			window.location.href = url;
+		});
+
+		//alert("ready doc");
+		$('#txtLotNo').focus();
+
+		$('#txtLotNo').change(function () {
+
+			if ($('#txtLotNo').val() != "") {
+				ShowLoader();
+                $.ajax({
+
+                    type: 'GET',
+                    url: '@Url.Action("GetData", "FGTopUp")',
+					data: { Company: '@Company', LotNum: $('#txtLotNo').val()},
+					success: function (response) {
+						HideLoader();
+						if (response.success) {
+                            $('#txtQty').val(response.responseText.Qty);
+
+                            $('#PartDescription').val(response.responseText.PartDescription);
+
+							//Save inside a hidden field. For comparing Qty editable input value with response data Qty
+							$('#txtQtyHidden').val(response.responseText.Qty);
+
+							$('#txtQty').select();
+
+							//alert(response.responseText.PartNum);
+                        }
+                        else {
+							//alert(response.responseText);
+							var msg = response.responseText;
+
+							//$.notify(msg, "error");
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Info");
+							model.find('.modal-body').text(msg);
+
+							$('#txtLotNo').focus();
+
+							$('#txtLotNo').val("");
+							$('#txtQty').val(0);
+							$('#PartDescription').val("");
+						}
+					},
+					error: function (response) {
+						HideLoader();
+						//alert("Something wrong");
+						var msg = response.responseText;
+
+						//$.notify(msg, "error");
+
+						var model = $('#alertModal').modal();
+						model.find('.modal-title').text("Error");
+						model.find('.modal-body').text(msg);
+					}
+
+				});
+            }
+
+        });
+
+        var msg = $("#pgStatus").data("value");
+		if (msg != '') {
+			//$.notify(msg, "info");
+
+            var model = $('#alertModal').modal();
+            model.find('.modal-title').text("Info");
+			model.find('.modal-body').text(msg);
+
+           //$('#btnSubmit').attr("disabled", "true");
+        };
+
+        $('#btnOK').click(function () {
+            //alert("Clicked OK!");
+            if ($('#txtLotNo').val() != "" && parseFloat($('#txtQty').val()) > 0) {
+				var Qty = parseFloat($('#txtQty').val());
+				var QtyHidden = parseFloat($('#txtQtyHidden').val());
+
+				if (Qty > QtyHidden) {
+					//display error msg showing qty > ohq
+					var msg = "Modified Qty (" + Qty + ") is more than OnHandQty (" + QtyHidden + ")";
+
+					//$.notify(msg, "error");
+
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Error");
+					model.find('.modal-body').text(msg);
+				} else {
+					//do post
+					ShowLoader();
+					$.ajax({
+
+						type: 'GET',
+						url: '@Url.Action("FGTopUpGrid", "FGTopUp")',
+						data: { Company: '@Company', LotNum: $('#txtLotNo').val(), Qty: parseFloat($('#txtQty').val())},
+						success: function (response) {
+							HideLoader();
+							//var divContainer = document.getElementById("showData");
+							//divContainer.innerHTML = "";
+							//divContainer.innerHTML = response;
+							if (response.success) {
+								var divContainer = document.getElementById("showData");
+								divContainer.innerHTML = "";
+								divContainer.innerHTML = response.responseText;
+								$('#txtLotNo').val("");
+								$('#txtQty').val(0);
+								$('#PartDescription').val("");
+
+								//divContainer.appendChild(response);
+								//addDataFromJson(response.responseText);
+
+								//alert(response.responseText.PartNum);
+							}
+							else {
+								//alert(response.responseText);
+								var msg = response.responseText;
+
+								//$.notify(msg, "error");
+
+								var model = $('#alertModal').modal();
+								model.find('.modal-title').text("Info");
+								model.find('.modal-body').text(msg);
+							}
+						},
+						error: function (response) {
+							HideLoader();
+							//alert("Something wrong");
+							var msg = response.responseText;
+
+							//$.notify(msg, "error");
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Error");
+							model.find('.modal-body').text(msg);
+						}
+
+					});
+				}
+
+
+            }
+            else {
+                if ($('#txtLotNo').val() == "") {
+                    //alert("Lot is Empty");
+					var msg = "Lot is Empty";
+
+					//$.notify(msg, "error");
+
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Info");
+					model.find('.modal-body').text(msg);
+                }
+                else {
+                    //alert("Qty Should be >= 1 !");
+					var msg = "Qty Should be >= 1 !";
+
+					//$.notify(msg, "error");
+
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Info");
+					model.find('.modal-body').text(msg);
+                }
+            }
+        });
+
+
+
+        function addDataFromJson(json) {
+            // EXTRACT VALUE FOR HTML HEADER.
+            var col = [];
+            for (var i = 0; i < json.length; i++) {
+                for (var key in json[i]) {
+                    if (col.indexOf(key) === -1) {
+                        col.push(key);
+                    }
+                }
+            }
+
+            // CREATE DYNAMIC TABLE.
+            var table = document.createElement("table");
+
+            // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+
+            var tr = table.insertRow(-1);                   // TABLE ROW.
+
+            for (var i = 0; i < col.length; i++) {
+                var th = document.createElement("th");      // TABLE HEADER.
+                th.innerHTML = col[i];
+                tr.appendChild(th);
+            }
+
+            // ADD JSON DATA TO THE TABLE AS ROWS.
+            for (var i = 0; i < json.length; i++) {
+
+                tr = table.insertRow(-1);
+
+                for (var j = 0; j < col.length; j++) {
+                    var tabCell = tr.insertCell(-1);
+                    tabCell.innerHTML = json[i][col[j]];
+                }
+            }
+
+            // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+            var divContainer = document.getElementById("showData");
+            divContainer.innerHTML = "";
+            divContainer.appendChild(table);
+
+            $('table').attr('id', 'FGTopUpTbl');
+            $("#FGTopUpTbl").addClass('display');
+            $("#FGTopUpTbl").DataTable(
+                {
+                    paging: true,
+                    sort: true,
+                    searching: false,
+                    //"pageLength": 5,
+                    "bLengthChange": false,
+                    "dom": '<"top"i>rt<"bottom"flp><"clear">'
+                    //scrollY: 200
+
+                }
+            );
+        };
+    });
+	var DeleteLot = function (LotNum) {
+		ShowLoader();
+        $.ajax({
+
+            type: 'GET',
+            url: '@Url.Action("RemoveLot", "FGTopUp")',
+            data: { Company: '@Company', LotNum: LotNum},
+			success: function (response) {
+				HideLoader();
+                //var divContainer = document.getElementById("showData");
+                //divContainer.innerHTML = "";
+                //divContainer.innerHTML = response;
+                if (response.success) {
+                    var divContainer = document.getElementById("showData");
+                    divContainer.innerHTML = "";
+                    divContainer.innerHTML = response.responseText;
+                    $('#txtLotNo').val("");
+					$('#txtQty').val(0);
+					$('#PartDescription').val("");
+                }
+                else {
+                    //alert(response.responseText);
+					var msg = response.responseText;
+
+					//$.notify(msg, "error");
+
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Info");
+					model.find('.modal-body').text(msg);
+                }
+            },
+			error: function (response) {
+				HideLoader();
+				//alert("Something wrong");
+				var msg = response.responseText;
+
+				//$.notify(msg, "error");
+
+				var model = $('#alertModal').modal();
+				model.find('.modal-title').text("Error");
+				model.find('.modal-body').text(msg);
+            }
+
+        });
+    };
+
+	var EmptyGrd = function () {
+		ShowLoader();
+        $.ajax({
+
+			type: 'GET',
+			url: '@Url.Action("EmptyData", "FGTopUp")',
+
+			success: function (response) {
+				HideLoader();
+                //var divContainer = document.getElementById("showData");
+                //divContainer.innerHTML = "";
+                //divContainer.innerHTML = response;
+                if (response.success) {
+                    var divContainer = document.getElementById("showData");
+                    divContainer.innerHTML = "";
+                    divContainer.innerHTML = response.responseText;
+                    $('#txtLotNo').val("");
+					$('#txtQty').val(0);
+					$('#PartDescription').val("");
+                }
+                else {
+                    //alert(response.responseText);
+					var msg = response.responseText;
+
+					//$.notify(msg, "error");
+
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Info");
+					model.find('.modal-body').text(msg);
+                }
+            },
+			error: function (response) {
+				HideLoader();
+				//alert("Something wrong");
+				var msg = response.responseText;
+
+				//$.notify(msg, "error");
+
+				var model = $('#alertModal').modal();
+				model.find('.modal-title').text("Error");
+				model.find('.modal-body').text(msg);
+            }
+
+        });
+    };
+	var PostGrd = function () {
+		ShowLoader();
+        $.ajax({
+
+            type: 'POST',
+            url: '@Url.Action("TopUp", "FGTopUp")',
+			success: function (response) {
+				HideLoader();
+                //var divContainer = document.getElementById("showData");
+                //divContainer.innerHTML = "";
+                //divContainer.innerHTML = response;
+                if (response.success) {
+                    var divContainer = document.getElementById("showData");
+                    divContainer.innerHTML = "";
+                    divContainer.innerHTML = response.responseText;
+                    $('#txtLotNo').val("");
+					$('#txtQty').val(0);
+					$('#PartDescription').val("");
+                }
+                else {
+                    //alert(response.responseText);
+					var msg = response.responseText;
+
+					//$.notify(msg, "error");
+
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Info");
+					model.find('.modal-body').text(msg);
+                }
+            },
+			error: function (response) {
+				HideLoader();
+				//alert("Something wrong");
+				var msg = response.responseText;
+
+				//$.notify(msg, "error");
+
+				var model = $('#alertModal').modal();
+				model.find('.modal-title').text("Error");
+				model.find('.modal-body').text(msg);
+            }
+
+        });
+    };
+</script>
+

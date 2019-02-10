@@ -1,0 +1,1104 @@
+﻿@model MySpritzer.Models.PickRawMtrlModel
+
+@{
+	ViewBag.Title = "Pick";
+}
+
+
+<!--Bootstrap alert to display any validation errors-->
+@{
+	string Status = "";
+	if (ViewBag.Status != null)
+	{
+		Status = ViewBag.Status;
+	}
+	string Company = "";
+	string UserId = "";
+
+	if (!string.IsNullOrEmpty(Session["Company"] as string))
+	{
+		Company = Session["Company"] as string;
+
+	}
+	if (!string.IsNullOrEmpty(Session["User"] as string))
+	{
+
+		UserId = Session["User"].ToString();
+	}
+
+	int ScanCount = 0;
+
+	if (ViewBag.ScanListCount != null)
+	{
+		ScanCount = (int)ViewBag.ScanListCount;
+	}
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+	<div id="loader" style="display:none"></div>
+	<div id="overlay" style="display:none"></div>
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Picking Item Details
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				@using (Html.BeginForm("Pick", "PickRawMtrl", FormMethod.Post, new { id = "DetailForm" }))
+				{
+					@Html.AntiForgeryToken()
+					<hr />
+					@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+					@Html.HiddenFor(model => model.Id)
+					@*@Html.HiddenFor(model => model.ActQty)*@
+					@Html.HiddenFor(model => model.SysRowId)
+
+					@Html.HiddenFor(model => model.Company)
+					@Html.HiddenFor(model => model.JobNum)
+					@Html.HiddenFor(model => model.Plant)
+					@Html.HiddenFor(model => model.UserId)
+					@Html.HiddenFor(model => model.isFinish)
+
+					//
+					@*@Html.HiddenFor(model => model.ConvFactor, new { @id = "ConvFactorFix" })*@
+					@*<input type="hidden" id="ConvFactorFix" name="ConvFactorFix" value='@Model.ConvFactor' />
+						<input type="hidden" id="UOMFix" name="UOMFix" value='@Model.UOM' />
+						<input type="hidden" id="PickUOMFix" name="PickUOMFix" value='@Model.PickUOM' />*@
+					@*@Html.HiddenFor(model => model.UOM, new { @id = "UOMFix" })
+						@Html.HiddenFor(model => model.PickUOM, new { @id = "PickUOMFix" })*@
+					@Html.HiddenFor(model => model.DynamicPick)
+					@*@Html.HiddenFor(model => model.Qty, new { @id = "RemainQty" })*@ /*The remaining qty need to pick. Get from; RemainQty = RemainQty - Qty(Input Field)*/
+
+					<input type="hidden" id="pgStatus" data-value="@Status" />
+
+					@*<input type="hidden" id="QtyFix" name="QtyFix" value='@Model.ActQty' />
+						<input type="hidden" id="QtyBal" name="QtyBal" value='@Model.ActQty' />*@
+					@*@Html.HiddenFor(model => model.Qty, new { @id = "QtyFix" })
+						@Html.HiddenFor(model => model.Qty, new { @id = "QtyBal" })*@
+
+					<input type="hidden" id="QtyBal" name="QtyBal" value='@Model.Qty' />
+
+					<fieldset>
+
+						<div class="col-xs-10">
+							<div class="form-group">
+								@Html.LabelFor(model => model.RequestDate, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.TextBoxFor(m => m.RequestDate, "{0:yyyy-MM-ddThh:mm:ss}", new { @class = "form-control", type = "datetime-local", @readonly = "readonly" })
+									@Html.ValidationMessageFor(model => model.RequestDate, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.PartNum, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @id = "txtPartNum" } })
+									@Html.ValidationMessageFor(model => model.PartNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartDesc, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@*@{ string PartDesc = "";}
+										@Html.TextArea("PartDesc", PartDesc, new { @class = "form-control" })*@
+									@Html.EditorFor(model => model.PartDesc, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @rows = "3" } })
+									@Html.ValidationMessageFor(model => model.PartDesc, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.LotNo, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.LotNo, new { htmlAttributes = new { @class = "form-control", @id = "txtLotNo" } })
+									@Html.ValidationMessageFor(model => model.LotNo, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.TuId, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.TuId, new { htmlAttributes = new { @class = "form-control" } })
+									@Html.ValidationMessageFor(model => model.TuId, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.ActQty, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.ActQty, new { htmlAttributes = new { @class = "form-control", @type = "number", @step = "any", @style = "text-align:right", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.ActQty, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.ConvFactor, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.ConvFactor, new { htmlAttributes = new { @class = "form-control", @type = "number", @step = "any", @style = "text-align:right" } })
+									@Html.ValidationMessageFor(model => model.ConvFactor, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.Qty, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.Qty, new { htmlAttributes = new { @id = "Qty", @class = "form-control", @type = "number", @step = "any", @style = "text-align:right" } })
+									@Html.ValidationMessageFor(model => model.Qty, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+
+
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.UOM, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.UOM, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.UOM, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PickQty, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.PickQty, new { htmlAttributes = new { @class = "form-control", @type = "number", @step = "any", @style = "text-align:right" } })
+									@*@Html.ValidationMessageFor(model => model.PickQty, "", new { @class = "text-danger" })*@
+								</div>
+							</div>
+						</div>
+
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PickUOM, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.PickUOM, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.PickUOM, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label></label>
+								<div>
+									<label><input type="checkbox" class="isDynamic" name='isDynamic' value="true">Dynamic Pick</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.FromBinNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.FromBinNum, new { htmlAttributes = new { @class = "form-control", @id = "FromBinNum" } })
+
+									@Html.ValidationMessageFor(model => model.FromBinNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.FromWarehse, htmlAttributes: new { @class = "control-label" })
+								<div class="input-group">
+									@Html.EditorFor(model => model.FromWarehse, new { htmlAttributes = new { @class = "form-control", @id = "FromWarehse" } })
+									@Html.ValidationMessageFor(model => model.FromWarehse, "", new { @class = "text-danger" })
+									<div class="input-group-btn">
+										<button class="btn btn-primary" type="button" id="btnOpenWarehseModal">
+											<i class="glyphicon glyphicon-search"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.ToBinNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.ToBinNum, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+									@Html.ValidationMessageFor(model => model.ToBinNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.ToWarehse, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.ToWarehse, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+									@Html.ValidationMessageFor(model => model.ToWarehse, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PalletType, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@if (ViewBag.PalletTypeInfo != null)
+									{
+										@Html.DropDownListFor(m => m.PalletType, ViewBag.PalletTypeInfo as SelectList, "-- Select --", new { @class = "form-control" })
+
+									}
+									else
+									{
+										@Html.DropDownListFor(m => m.PalletType, new SelectList(""), "-- Select --", new { @class = "form-control" })
+									}
+
+									@*@Html.EditorFor(model => model.PalletType, new { htmlAttributes = new { @class = "form-control" } })
+										@Html.ValidationMessageFor(model => model.PalletType, "", new { @class = "text-danger" })*@
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PalletQty, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.PalletQty, new { htmlAttributes = new { @class = "form-control", @type = "number", @step = "any", @style = "text-align:right" } })
+									@Html.ValidationMessageFor(model => model.PalletQty, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+					</fieldset>
+				}
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-danger" id="btnBack">Close</button>
+				@*<button type="button" class="btn btn-danger" id="btnTestLoader">Test Loader</button>
+					<button type="button" class="btn btn-danger" id="btnTestLoaderOff">Test Loader Off</button>*@
+				@*@Html.ActionLink("Back to List", "Index", "PickRawMtrl", new { Company = @Model.Company, UserId = @Model.UserId }, new { htmlAttributes = new { @class = "pull-left" } })*@
+
+				<button type="button" class="btn btn-primary pull-right" id="btnSubmit">Submit</button>
+			</div>
+		</div>
+	</div>
+
+
+
+</div>
+
+
+@*
+	<div class="modal fade" id="lotNumSuggestionModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+	<div class="modal fade" tabindex="-1" id="warehseModal"
+	 data-keyboard="false" data-backdrop="static">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+
+*@
+
+<!--MODAL Warehouse Suggestion//-->
+<div class="modal fade" tabindex="-1" id="warehseModal"
+	 data-keyboard="false" data-backdrop="static">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					&times;
+				</button>
+				<h4 class="modal-title">Warehouse Suggestion</h4>
+			</div>
+			<div class="modal-body" style="height: 450px; overflow-y: auto">
+				<form>
+					@*<div class="form-group">
+							<label for="inputUserName">Username</label>
+							<input class="form-control" type="text"
+								   placeholder="Login Username" id="inputUserName" />
+						</div>
+						<div class="form-group">
+							<label for="inputPassword">Password</label>
+							<input class="form-control" placeholder="Login Password"
+								   type="password" id="inputPassword" />
+						</div>*@
+
+					<div class="form-group">
+						@Html.LabelFor(model => model.PartNum, htmlAttributes: new { @class = "control-label" })
+						<div>
+							@Html.EditorFor(model => model.PartNum, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+							@Html.ValidationMessageFor(model => model.PartNum, "", new { @class = "text-danger" })
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						@Html.LabelFor(model => model.LotNo, htmlAttributes: new { @class = "control-label" })
+						<div>
+							@Html.EditorFor(model => model.LotNo, new { htmlAttributes = new { @class = "form-control" } })
+							@Html.ValidationMessageFor(model => model.LotNo, "", new { @class = "text-danger" })
+						</div>
+					</div>
+					<div class="form-group">
+						<table id="warehseTable" class="table table-bordered">
+							<thead>
+								<tr>
+									<td>Whse</td>
+									<td>Bin</td>
+									<td>Supp</td>
+									<td>Qty</td>
+									<td>Expiry Date</td>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+
+				</form>
+			</div>
+			<div class="modal-footer">
+				@*<button type="submit" class="btn btn-primary">Login</button>*@
+				<button type="button" id="btnHideModal" class="btn btn-primary">
+					Close
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--MODAL Warehouse Suggestion//-->
+<!-- The Modal -->
+<div class="modal fade" id="alertModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			@*Modal Header*@
+			<div class="modal-header">
+				<h4 class="modal-title">Modal Heading</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+				<h4>Please insert DO Number.</h4>
+			</div>
+
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!--MODAL//-->
+<!-- The Modal -->
+<div class="modal fade" id="exitModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			@*Modal Header*@
+			<div class="modal-header">
+				<h4 class="modal-title"></h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+				<h4></h4>
+			</div>
+
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal" id="ConfirmExitBtn">Yes</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!--MODAL//-->
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		$("#btnReload").click(function () {
+			ReloadPage();
+		});
+
+		$("#txtLotNo").change(function () {
+			var part = $("#txtPartNum").val();
+			var lot = $("#txtLotNo").val();
+			if (lot != "")
+			{
+				ShowLoader();
+				$.ajax({
+					type: 'GET',
+					url: '@Url.Action("ValidateLot", "PickRawMtrl")',
+					data: { Company: '@Company', PartNum: part, LotNum: lot },
+					success: function (data) {
+						HideLoader();
+						if (data.Success == false) {
+							$("#txtLotNo").val("");
+							$("#TuId").val("");
+							$("#txtLotNo").focus();
+
+							var msg = data.Message;
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Error");
+							model.find('.modal-body').text(msg);
+						}
+					},
+					error: function (response) {
+						HideLoader();
+						var msg = response.responseText;
+						//var msg "Something wrong happen when requesting to the Server.";
+
+						//$.notify(msg, "error");
+
+						var model = $('#alertModal').modal();
+						model.find('.modal-title').text("Error");
+						model.find('.modal-body').text(msg);
+					}
+				});
+			}
+		});
+
+
+		$("#FromWarehse").change(function () {
+			var WH = $("#FromWarehse").val();
+			var BinNum = $("#FromBinNum").val();
+			var part = $("#txtPartNum").val();
+			//var OHQ = $("#Qty").val();
+			if (WH != "" && BinNum != "" && part != "")
+			{
+				ShowLoader();
+				$.ajax({
+					type: 'GET',
+					url: '@Url.Action("ValidateWHBin", "PickRawMtrl")', 
+					data: { Company: '@Company', FromWarehse: WH, FromBinNum: BinNum, PartNum: part },
+					success: function (data) {
+						HideLoader();
+						if (data.Success == false) {
+							$("#FromWarehse").val("");
+							$("#FromBinNum").val("");
+							$("#FromBinNum").focus();
+
+							var msg = data.Message;
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Error");
+							model.find('.modal-body').text(msg);
+						} else {
+							CheckOnHandQty();
+						}
+					},
+					error: function (response) {
+						HideLoader();
+						var msg = response.responseText;
+						//var msg "Something wrong happen when requesting to the Server.";
+
+						//$.notify(msg, "error");
+
+						var model = $('#alertModal').modal();
+						model.find('.modal-title').text("Error");
+						model.find('.modal-body').text(msg);
+					}
+				});
+			}
+
+
+		});
+
+		function CheckOnHandQty()
+		{
+			var OHQ = $("#Qty").val();
+			var WH = $("#FromWarehse").val();
+			var BinNum = $("#FromBinNum").val();
+			var part = $("#txtPartNum").val();
+			var lot = $("#txtLotNo").val();
+
+			if (OHQ != "") {
+
+				var qty = parseFloat($("#Qty").val());
+
+				if (qty <= 0) {
+					var msg = "Qty cannot be less than 0 !";
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Error");
+					model.find('.modal-body').text(msg);
+				}
+
+				else {
+					CalculatePickQty();
+
+					if (OHQ != "" && WH != "" && BinNum != "" && part != "" && lot != "") {
+
+						ShowLoader();
+						$.ajax({
+							type: 'GET',
+							url: '@Url.Action("GetOnHandQty", "PickRawMtrl")',
+							data: { Company: '@Company', PartNum: part, LotNo: lot, FromWarehse: WH, FromBinNum: BinNum, Qty: OHQ },
+							success: function (data) {
+								HideLoader();
+								if (data.Success == false) {
+									$("#Qty").val(0);
+									$("#PickQty").val(0);
+									$("#Qty").focus();
+									$("#Qty").select();
+
+									var msg = data.Message;
+
+									var model = $('#alertModal').modal();
+									model.find('.modal-title').text("Error");
+									model.find('.modal-body').text(msg);
+								}
+							},
+							error: function (response) {
+								HideLoader();
+								var msg = response.responseText;
+								//var msg "Something wrong happen when requesting to the Server.";
+
+								//$.notify(msg, "error");
+
+								var model = $('#alertModal').modal();
+								model.find('.modal-title').text("Error");
+								model.find('.modal-body').text(msg);
+							}
+						});
+					}
+				}
+			} else {
+
+				$("#Qty").val(0);
+				CalculatePickQty();
+				//var msg = "Please key in a valid Qty.";
+				//var model = $('#alertModal').modal();
+				//model.find('.modal-title').text("Error");
+				//model.find('.modal-body').text(msg);
+			}
+
+		}
+
+		//public ActionResult GetOnHandQty(string Company, string PartNum, string LotNo, string FromWarehse, string FromBinNum, decimal Qty)
+		$("#Qty").change(function () {
+			CheckOnHandQty();
+		});
+
+
+		//$("#btnSubmit").click(function () {
+		//	$('#DetailForm').submit();
+		//});
+
+		$("#btnSubmit").click(function () {
+			var OHQ = $("#Qty").val();
+			var WH = $("#FromWarehse").val();
+			var BinNum = $("#FromBinNum").val();
+			var part = $("#txtPartNum").val();
+			var lot = $("#txtLotNo").val();
+
+			if (OHQ != "" && WH != "" && BinNum != "" && part != "" && lot != "") {
+				ShowLoader();
+				var form = $("#DetailForm");
+				$.ajax({
+					url: '@Url.Action("Pick", "PickRawMtrl")',
+					data: form.serialize(),
+					type: 'POST',
+					success: function (data) {
+						if (data.Message != "") {
+							var msg = data.Message;
+							var modal = $('#alertModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						}
+						else {
+							if (data.Success == false) {
+								ReloadPage();
+							}
+							else {
+								backToMain();
+							}
+						}
+
+						$("#isFinish").val(data.isFinish);
+
+						HideLoader();
+					}
+				});
+
+			}
+			else if (part == "") {
+				DisplaySubmitErrorMsg("Part is required!");
+			}
+			else if (lot == "") {
+				DisplaySubmitErrorMsg("Lot Num is required!");
+			}
+			else if (OHQ == "") {
+				DisplaySubmitErrorMsg("Qty is required!");
+			}
+			else if (BinNum == "") {
+				DisplaySubmitErrorMsg("FromBin is required!");
+			}
+			else if (WH == "") {
+				DisplaySubmitErrorMsg("FromWarehouse is required!");
+			}
+			else {
+				DisplaySubmitErrorMsg("Qty, Lot Num, FromWH and FromBin is required!");
+			}
+
+		});
+
+		function DisplaySubmitErrorMsg (msg){
+			var modal = $('#alertModal').modal();
+			modal.find('.modal-header').text("Alert Message");
+			modal.find('.modal-body').text(msg);
+		}
+
+		function ReloadPage() {
+			var url = '@Url.Action("Pick", "PickRawMtrl")' + "?id=" + '@Model.SysRowId';
+			window.location.href = url;
+		}
+
+		//$("#PickQty").attr("disabled", "true");
+
+		//var isDynamic = true;
+		//$(".isDynamic").attr("checked", "true");
+
+		$(".isDynamic").change(function () {
+			if ($('.isDynamic:checked').length > 0) {
+				EnableDynamicPick();
+				CalculateQty();
+				//isDynamic = true;
+				//$("#DynamicPick").val(true);
+
+				//var _ConvFactor = 1;
+				//$('#ConvFactor').val(_ConvFactor);
+				//$('#PickUOM').val($('#UOMFix').val());
+
+				//$("#PickQty").removeAttr("disabled");
+
+				//CalculatePickQty();
+			} else {
+				DisableDynamicPick();
+				CalculatePickQty();
+				//isDynamic = false;
+				//$("#DynamicPick").val(false);
+
+				//var _ConvFactor = $('#ConvFactorFix').val();
+				//$('#ConvFactor').val(_ConvFactor);
+				//$('#PickUOM').val($('#PickUOMFix').val());
+
+				//$("#PickQty").attr("disabled", "true");
+
+				//CalculatePickQty();
+				//RoundUpPickQty();
+			}
+
+		});
+
+
+		$("#txtLotNo").focus();
+
+		$("#txtLotNo").change(function () {
+			$("#TuId").focus();
+		});
+
+		$("#TuId").change(function () {
+			//$("#Qty").select();
+			//CheckTuId();
+			if ($("#TuId").val()!="") {
+				GetTuConv();
+			}
+
+
+		});
+
+function GetTuConv() {
+			//Company, partNum, LotNum, TuID
+			//PickRawFIFOController
+            var part = $("#txtPartNum").val();
+			var lot = $("#txtLotNo").val();
+			var tuid = $("#TuId").val();
+	if (tuid && part && lot) {
+		ShowLoader();
+				$.ajax({
+					type: 'GET',
+					url: '@Url.Action("GetTuConv", "PickRawMtrl")',
+					data: { Company: '@Company', PartNum: part, LotNum: lot, TuId: tuid },
+					success: function (data) {
+						HideLoader();
+						if (data.Success == true) {
+							$("#ConvFactor").val(data.TuConv);
+							//$('#ConvFactorFix').val(data.TuConv);
+
+							$("#PickUOM").val(data.UOMCode);
+
+							var _QtyBal = parseFloat($("#QtyBal").val());
+							$("#Qty").val(_QtyBal);
+
+							if (isDynamicGlobal == true) {
+								var _PickQty = _QtyBal / data.TuConv;
+								$("#PickQty").val(_PickQty);
+								RoundUpPickQty();
+								//CalculateQty();
+							} else {
+								var _PickQty = _QtyBal / data.TuConv;
+								$("#PickQty").val(_PickQty);
+								RoundUpPickQty();
+							}
+
+						} else {
+
+							$("#TuId").val("");
+							$("#TuId").focus();
+
+							var msg = data.Message;
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Error");
+							model.find('.modal-body').text(msg);
+
+						}
+					},
+					error: function (response) {
+						HideLoader();
+						var msg = response.responseText;
+						//var msg "Something wrong happen when requesting to the Server.";
+
+						//$.notify(msg, "error");
+
+						var model = $('#alertModal').modal();
+						model.find('.modal-title').text("Error");
+						model.find('.modal-body').text(msg);
+					}
+
+				});
+			}
+			else {
+				var msg = "PartNum, LotNum and TuId are required.";
+				//var msg "Something wrong happen when requesting to the Server.";
+
+				//$.notify(msg, "error");
+
+				var model = $('#alertModal').modal();
+				model.find('.modal-title').text("Alert Message");
+				model.find('.modal-body').text(msg);
+
+				$("#TuId").val("");
+				$("#txtLotNo").val("");
+				$("#txtLotNo").focus();
+			}
+
+		}
+
+		//$("#Qty").change(function () {
+		//	CalculatePickQty();
+		//	//$("#PickQty").select();
+		//	//CalculateQtyBal();
+		//	//CalculatePickQty();
+		//	//RoundUpPickQty();
+		//});
+
+		$("#PickQty").change(function () {
+			if ($("#PickQty").val() == "") {
+				var ModelPickQty = '@Model.PickQty';
+				$("#PickQty").val(ModelPickQty);
+			}
+			CalculateQty();
+			//$("#FromWarehse").focus();
+		});
+
+		$("#PickQty").keyup(function () {
+			CalculateQty();
+			//$("#FromWarehse").focus();
+		});
+
+		$("#FromBinNum").change(function () {
+			var binCode = $("#FromBinNum").val();
+			if (binCode != "") {
+				var whCode = TrimBinCode(binCode);
+				$("#FromWarehse").val(whCode);
+				$('#FromWarehse').focus();
+			}
+		});
+
+		$("#FromWarehse").change(function () {
+			$("#PalletType").focus();
+			//$("#ToBinNum").focus();
+		});
+
+		$("#ToBinNum").change(function () {
+			$("#ToWarehse").focus();
+		});
+
+		$("#ToWarehse").change(function () {
+			$("#PalletType").focus();
+		});
+
+		$("#PalletQty").attr("disabled", "disabled");
+		$("#PalletType").change(function () {
+			if ($("#PalletType option:selected").text() != "-- Select --") {
+				$("#PalletQty").removeAttr("disabled");
+				$("#PalletQty").select();
+			}
+			else {
+				$("#PalletQty").attr("disabled","disabled");
+			}
+		});
+
+		$("#PalletQty").keyup(function () {
+			if ($("#PalletQty").val() == "") {
+				alert("Please insert Qty.");
+				return;
+			}
+
+			var pQty = parseFloat($("#PalletQty").val());
+			if (pQty <= 0) {
+				alert("Please insert Qty.");
+			}
+		});
+
+        var msg = $("#pgStatus").data("value");
+        if (msg != '') {
+            //alert(msg);
+            var model = $('#alertModal').modal();
+            model.find('.modal-title').text("Info");
+            model.find('.modal-body').text(msg);
+            //$('#btnSubmit').attr("disabled", "true");
+        };
+        //When open warehse popup then getting data from controler and binding to popup model by partial view
+        $("#btnOpenWarehseModal").click(function () {
+            $(".modal-body").html('');
+            var part = $("#txtPartNum").val();
+			var lot = $("#txtLotNo").val();
+			ShowLoader();
+            $.ajax({
+
+                    type: 'GET',
+                    url: '@Url.Action("GetWarehseLst", "PickRawMtrl")',
+                    //data: { type: $(this).attr("data-type") },string Company,string PartNum,string LotNum
+                data: { Company: '@Company', PartNum: part, LotNum: lot},
+                    //, new { Company= "CSTP", PartNum = "Part01", LotNum = "Lot123" }
+				success: function (response) {
+					HideLoader();
+                        $(".modal-body").html(response);
+                        //$("#exampleModal").modal('show');
+                        $("#warehseModal").modal('show');
+                    },
+				error: function () {
+					HideLoader();
+                        alert("Something wrong");
+                    }
+
+                });
+
+
+        });
+
+        //Hide model popu
+        $("#btnHideModal").click(function () {
+            $("#warehseModal").modal('hide');
+        });
+
+        //Get selected item data from warehse model popup
+        $("body").on("click", ".select", function () {
+            var row = $(this).closest("tr");
+            //var message = "Selected Row:";
+            //message += "\n\nCustomer Id: " + row.find("td").eq(0).html();
+            //message += "\nContact Name: " + row.find("td").eq(1).html();
+            //message += "\nCity: " + row.find("td").eq(2).html();
+            //message += "\nCountry: " + row.find("td").eq(3).html();
+            //alert(message);
+
+            var wh = $.trim(row.find("td").eq(1).html());
+            var bin = $.trim(row.find("td").eq(2).html());
+            $("#FromWarehse").val(wh);
+            $("#FromBinNum").val(bin);
+			$("#warehseModal").modal('hide');
+
+			CheckOnHandQty();
+
+            return false;
+        });
+
+        $("#textareaid").bind("paste", function (e) {
+            // access the clipboard using the api
+            var pastedData = e.originalEvent.clipboardData.getData('text');
+            alert(pastedData);
+        });
+
+        //$(".test").click(function () {
+        //    var index = $(this).val();
+        //    var wrhs = $('#warehse_' + index).val();
+        //    var bin = $('#bin_' + index).val();
+        //    alert(wrhs + bin);
+        //});
+
+        //$(".warehse").click(function () {
+        //    var value = $(this).val();
+        //    alert(value);
+        //});
+        //$(".bin").click(function () {
+        //    var value = $(this).val();
+        //    alert(value);
+        //});
+
+
+
+		$("#Qty").keyup(function () {
+			CalculatePickQty();
+			//if ($("#Qty").val() != "") {
+			//	CalculateQtyBal();
+			//	CalculatePickQty();
+			//	RoundUpPickQty();
+			//} else {
+			//	$('#Qty').val(0);
+			//	$('#Qty').select();
+			//}
+		});
+
+		$("#ConvFactor").change(function () {
+			//if ($("#ConvFactor").val() != "") {
+			//	if (isDynamic == true) {
+			//		$("#PickQty").select();
+			//	} else {
+			//		$("#Qty").select();
+			//	}
+			//	//CalculatePickQty();
+			//	//RoundUpPickQty();
+			//} else {
+			//	$('#ConvFactor').val(0);
+			//	$('#ConvFactor').select();
+			//}
+		});
+
+		//************
+		//Keep Qty Before Pick / Scan (Onpage load)
+		// Qty - As QtyFix
+
+		//QtyFix - ScanQty or Keyup Qty as QtyBal - To use for Pick Qty calculation (QtyBal / conv factor)
+		//SetQtyBalAndQtyFix();
+		//***************
+
+		//***************START
+		var isDynamicGlobal = true;
+		CalculatePickQty();
+		EnableDynamicPick();
+		function EnableDynamicPick() {
+			//Enable PickQty
+			$("#PickQty").removeAttr("disabled");
+
+			//Disable Qty
+			//$("#Qty").attr("disabled", "true"); //Temporary Comment this. Because qty doesnt pass through the submit if not comment
+
+			//Calculation when PickQty Keyup, Qty = PickQty * ConvFactor
+			//CalculateQty(); -- Cannot put calculation inside this function
+
+			//Check Box = true
+			$(".isDynamic").attr("checked", "true");
+
+			//Dynamic value = true
+			isDynamicGlobal = true;
+			$("#DynamicPick").val(true);
+		}
+
+		function DisableDynamicPick() {
+			//Disable PickQty
+			$("#PickQty").attr("disabled", "true");
+			//Enable Qty
+			$("#Qty").removeAttr("disabled");
+
+			//Calculation when Qty Keyup, PickQty = Qty / ConvFactor
+			//CalculatePickQty(); -- Cannot put calculation inside this function
+
+			//Check Box = true
+			$(".isDynamic").removeAttr("checked");
+
+			//Dynamic value = false
+			isDynamicGlobal = false;
+			$("#DynamicPick").val(false);
+		}
+
+		function CalculatePickQty() {
+			if ($("#Qty").val() && $("#PickQty").val()) {
+				var _Qty = parseFloat($("#Qty").val());
+				var _ConvFactor = parseFloat($("#ConvFactor").val());
+
+				var _PickQty = _Qty / _ConvFactor;
+
+				//alert(_Qty + "/" + _ConvFactor + "/" + _PickQty);
+
+				$("#PickQty").val(_PickQty);
+
+				RoundUpPickQty();
+			}
+			//else {
+			//	alert("Need Qty");
+			//}
+		}
+
+		function CalculateQty() {
+			if ($("#PickQty").val() && $("#Qty").val()) {
+				var _PickQty = parseFloat($("#PickQty").val());
+
+				var _ConvFactor = parseFloat($("#ConvFactor").val());
+
+				var _Qty = _PickQty * _ConvFactor;
+
+				$("#Qty").val(_Qty);
+			}
+			//else {
+			//	alert("Need Qty");
+			//}
+		}
+
+		function RoundUpPickQty() {
+			var _PickQty = parseFloat($("#PickQty").val());
+			_PickQty = Math.ceil(_PickQty);
+			$("#PickQty").val(_PickQty);
+		}
+		//***************END
+
+		$("#btnBack").click(function () {
+			if ('@ScanCount' > 0) {
+				var msg = "Your picking task will be aborted if you close. Still want to close?";
+
+				var model = $('#exitModal').modal();
+				model.find('.modal-title').text("Alert Message");
+				model.find('.modal-body').text(msg);
+			} else {
+				backToMain();
+			}
+
+		});
+
+		$("#ConfirmExitBtn").click(function () {
+			backToMain();
+		});
+
+		function backToMain() {
+			var url = '@Url.Action("Index", "PickRawMtrl")' + "?Company=" + '@Model.Company' + "&UserId=" + '@Model.UserId';
+			window.location.href = url;
+		}
+
+    });
+</script>

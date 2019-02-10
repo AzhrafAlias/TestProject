@@ -1,0 +1,762 @@
+﻿@model MySpritzer.Models.MaterialReturnModel
+@{
+    string Company = "";
+    string UserId = "";
+
+    if (!string.IsNullOrEmpty(Session["Company"] as string))
+    {
+        Company = Session["Company"] as string;
+
+    }
+    if (!string.IsNullOrEmpty(Session["User"] as string))
+    {
+
+        UserId = Session["User"].ToString();
+    }
+
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+    <div>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Material Return
+            </div>
+            <div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    <hr />
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        @Html.HiddenFor(model => model.Company, new { Company = "Company" })
+                        @Html.HiddenFor(model => model.ActPartNum, new { ActualPart = "ActPartNum" })
+                        @Html.HiddenFor(model => model.BalQty, new { BalQty = "BalQty" })
+                        @Html.HiddenFor(model => model.TranStatus, new { TranStatus = "TranStatus" })
+                        @Html.HiddenFor(model => model.SupplierPart, new { TranStatus = "SupplierPart" })
+                        @Html.HiddenFor(model => model.CreatedBy, new { CreatedBy = "CreatedBy" })
+                    </div>
+                    <fieldset>
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label class="control-label" for="FromBin">FromBin </label>
+                                @*@Html.LabelFor(model => model.FromBin, htmlAttributes: new { @class = "control-label" })*@
+                                @Html.EditorFor(model => model.FromBin, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.FromBin, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label class="control-label" for="FromWH">FromWH </label>
+                                @*@Html.LabelFor(model => model.FromWH, htmlAttributes: new { @class = "control-label" })*@
+                                @Html.EditorFor(model => model.FromWH, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.FromWH, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ToBin, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.ToBin, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.ToBin, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ToWH, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.ToWH, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.ToWH, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.PartNum, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.PartNum, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.PartNum, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Desc, htmlAttributes: new { @class = "control-label" })
+                                @Html.TextAreaFor(model => model.Desc, 5, 30, new { @readonly = "readonly", @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.Desc, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Lot, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.Lot, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.Lot, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Qty, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.Qty, new { htmlAttributes = new { @type = "number", @style = "text-align:right", @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.Qty, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.UOM, htmlAttributes: new { @class = "control-label" })
+                                @Html.TextBoxFor(model => model.UOM, new { @readonly = "readonly", @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.UOM, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Reason, htmlAttributes: new { @class = "control-label" })
+                                @Html.DropDownListFor(x => Model.Reason, new SelectList(Model.ReasonList, "Value", "Text"), htmlAttributes: new { @class = "form-control", id = "Reason" })
+                                <!-- @Html.EditorFor(model => model.Reason, new { htmlAttributes = new { @class = "form-control" } }) -->
+                                @Html.ValidationMessageFor(model => model.Reason, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                @Html.Label("Condition", htmlAttributes: new { @class = "control-label" })
+
+
+                                <label>
+                                    @*@Html.RadioButtonFor(m => m.RetReason, "Normal", new { htmlAttributes = new { @class = "form-control" } })*@
+                                    <!-- @Html.Label("Normal", htmlAttributes: new { @class = "control-label col-md-2" }) -->
+                                    @Html.RadioButtonFor(m => m.RetReason, "Normal")
+                                    Normal
+                                </label>
+
+
+
+                                <label>
+                                    @*@Html.RadioButtonFor(m => m.RetReason, "Quality", new { htmlAttributes = new { @class = "form-control" } })*@
+                                    <!-- @Html.Label("Quality", htmlAttributes: new { @class = "control-label col-md-2" }) -->
+                                    @Html.RadioButtonFor(m => m.RetReason, "Quality")
+                                    Quality
+                                </label>
+
+                            </div>
+                        </div>
+
+                    </fieldset>
+
+                    @Html.Hidden("RedirectTo", Url.Action("Index", "Home"));
+
+                    <!-- WEB API RESPONSE MODAL -->
+                    <div class="modal fade" id="responseModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h4 class="modal-title"></h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <h4></h4>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- WEB API RESPONSE MODAL//-->
+                }
+
+            </div>
+            <div class="panel-footer">
+                <div class="btn-toolbar">
+                    <button type="button" class="btn btn-primary pull-right" btn-lg btn-block id="SaveRecord">Submit</button>
+                    <button type="button" class="btn btn-primary" btn-lg btn-block id="clear">Clear</button>
+                    @*<button type="button" class="btn btn-primary pull-right" btn-lg btn-block id="goback">Close</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div class="modal fade" id="alertModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                @*Modal Header*@
+                <div class="modal-header">
+                    <h4 class="modal-title"></h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <h4></h4>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--MODAL//-->
+
+
+</div>
+
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		$("#FromBin").focus();
+        $("#FromBin").change(function ()
+        { 
+            var binCode = $("#FromBin").val();
+            if (binCode != "")
+            {
+                var type = 'From';
+                var whCode = TrimBinCode(binCode);
+                if (whCode == "")
+                {
+                    $("#FromWH").focus();
+
+                } else
+                {
+					$("#ToBin").focus();
+				}
+                $("#FromWH").val(whCode);
+                WHBinCheck(whCode, binCode , type);
+            }
+            
+		});
+
+        $("#FromWH").change(function ()
+        {
+            var WH = $("#FromWH").val();
+            var BinNum = $("#FromBin").val();
+            var type = 'From';
+			//var OHQ = $("#Qty").val();
+            WHBinCheck(WH, BinNum, type);			
+        });
+
+
+        $("#FromBin").change(function () {
+            var WH = $("#FromWH").val();
+            var BinNum = $("#FromBin").val();
+            var type = 'From';
+            //var OHQ = $("#Qty").val();
+            WHBinCheck(WH, BinNum, type);
+        });
+
+        
+
+        $("#ToBin").change(function ()
+        {
+			var binCode = $("#ToBin").val();
+            if (binCode != "")
+            {
+                var type = 'To';
+                var whCode = TrimBinCode(binCode);
+                if (whCode == "")
+                {
+					$("#ToWH").focus();
+                } else
+                {
+					$("#PartNum").focus();
+				}
+                $("#ToWH").val(whCode);
+                WHBinCheck(whCode, binCode , type);
+			}
+		});
+
+        $("#ToWH").change(function ()
+        {
+            var WH = $("#ToWH").val();
+            var BinNum = $("#ToBin").val();
+            var type = 'To';
+            WHBinCheck(WH, BinNum, type);	
+            $("#PartNum").focus();
+        });
+
+        $("#ToBin").change(function () {
+            var WH = $("#ToWH").val();
+            var BinNum = $("#ToBin").val();
+            var type = 'To';
+            WHBinCheck(WH, BinNum, type);
+            $("#PartNum").focus();
+        });
+
+        function WHBinCheck(WH, BinNum, type)
+        {
+            if (WH != "" && BinNum != "")
+			{
+				ShowLoader();
+				$.ajax({
+					type: 'GET',
+					url: '@Url.Action("ValidateWHBin", "MaterialReturn")', //(Action , Controller Name)
+                    data: { Company: '@Company', Warehouse: WH, BinNum: BinNum},
+                    success: function (data)
+                    {
+						HideLoader();
+                        if (data.Success == false)
+                        {
+                            if (type == 'From')
+                            {
+                                $("#FromWH").val("");
+                                $("#FromBin").val("");
+                                $("#FromBin").focus();
+                            }
+                            else
+                            if (type == 'To')
+                            {
+                                $("#ToWH").val("");
+                                $("#ToBin").val("");
+                                $("#ToBin").focus();
+                            }                           
+
+							var msg = data.Message;
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Error");
+							model.find('.modal-body').text(msg);
+						} 
+					},
+                    error: function (response)
+                    {
+						HideLoader();
+						var msg = response.responseText;
+						//var msg "Something wrong happen when requesting to the Server.";
+
+						//$.notify(msg, "error");
+
+						var model = $('#alertModal').modal();
+						model.find('.modal-title').text("Error");
+						model.find('.modal-body').text(msg);
+					}
+				});
+			}
+        }
+
+		$('#PartNum').change(function () {
+            if ($.trim($("#PartNum").val()) != '') {
+                var msg = 'OK';
+                if ($.trim($("#FromWH").val()) === '') {
+                    msg = 'From WH cannot be blank';
+                }
+                if ($.trim($("#FromBin").val()) === '') {
+                    msg = 'From Bin cannot be blank';
+                }
+                if (msg != 'OK') {
+                    var modal = $('#responseModal').modal(
+                        {
+                            backdrop: 'static',
+                            keyboard: false
+                        }
+                    );
+                    modal.find('.modal-header').text("Data Entry Validation");
+                    modal.find('.modal-body').text(msg);
+                    return;
+                }
+                var obj = new Object();
+                obj.Company = $("#Company").val();
+                obj.PartNum = $("#PartNum").val();
+                obj.ActPartNum = $("#ActPartNum").val();
+                obj.SupplierPart = $("#SupplierPart").val();
+                obj.FromWH = $("#FromWH").val();
+                obj.FromBin = $("#FromBin").val();
+                obj.Desc = $("#Desc").val();
+                obj.UOM = $("#UOM").val();
+                obj.BalQty = $("#BalQty").val();
+                obj.Lot = $("#Lot").val();
+                obj.Qty = $("#Qty").val();
+                obj.Reason = $("#Reason").val();
+                obj.RetReason = $("#RetReason").val();
+                obj.TranStatus = $("#TranStatus").val();
+				obj.CreatedBy = $("#CreatedBy").val();
+
+				ShowLoader();
+
+                $.ajax(
+                    {
+                        url: '@(Url.Action("ValidatePart", "MaterialReturn"))',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+						success: function (data) {
+							HideLoader();
+                            if (data) {
+                                if (data.Message)
+                                {
+                                    //document.getElementById("Part").focus;
+                                    
+                                    $('#PartNum').val("");
+                                    $('#Desc').val("");
+                                    $('#PartNum').focus();
+                                    var modal = $('#responseModal').modal(
+                                        {
+                                            backdrop: 'static',
+                                            keyboard: false
+                                        }
+                                    );
+                                    var msg = data.Message;
+                                    modal.find('.modal-header').text("Response Status");
+                                    modal.find('.modal-body').text(msg);
+
+
+                                }
+                                else
+                                {
+                                    var dataReturn = data.Data;
+                                    $('#UOM').val(dataReturn.UOM);
+                                    $('#Desc').val(dataReturn.Desc);
+                                    $('#ActPartNum').val(dataReturn.ActPartNum);
+                                    document.getElementById("Lot").focus();
+                                }
+                            }
+                        },
+						failure: function (response) {
+							HideLoader();
+							$('#PartNum').val("");
+							$('#PartNum').focus();
+                            var modal = $('#responseModal').modal(
+                                {
+                                    backdrop: 'static',
+                                    keyboard: false
+                                }
+                            );
+                            var msg = response.responseText;
+                            modal.find('.modal-header').text("Response Status");
+                            modal.find('.modal-body').text(msg);
+                        },
+						error: function (response) {
+							HideLoader();
+							$('#PartNum').val("");
+							$('#PartNum').focus();
+                            var modal = $('#responseModal').modal(
+                                {
+                                    backdrop: 'static',
+                                    keyboard: false
+                                }
+                            );
+                            var msg = response.responseText;
+                            modal.find('.modal-header').text("Response Status");
+                            modal.find('.modal-body').text(msg);
+                        }
+                    });
+            }
+        });
+        // end for change #Part
+
+		$('#Lot').change(function () {
+            if ($.trim($("#Lot").val()) != '') {
+                var msg = 'OK';
+                if ($.trim($("#FromWH").val()) === '') {
+                    msg = 'From WH cannot be blank';
+                }
+                if ($.trim($("#FromBin").val()) === '') {
+                    msg = 'From Bin cannot be blank';
+                }
+                if ($.trim($("#PartNum").val()) === '') {
+                    msg = 'Part cannot be blank';
+                }
+                if (msg != 'OK') {
+                    var modal = $('#responseModal').modal(
+                        {
+                            backdrop: 'static',
+                            keyboard: false
+                        }
+                    );
+                    modal.find('.modal-header').text("Data Entry Validation");
+                    modal.find('.modal-body').text(msg);
+                    return;
+                }
+                var obj = new Object();
+                obj.Company = $("#Company").val();
+                obj.PartNum = $("#PartNum").val();
+                obj.ActPartNum = $("#ActPartNum").val();
+                obj.SupplierPart = $("#SupplierPart").val();
+                obj.FromWH = $("#FromWH").val();
+                obj.FromBin = $("#FromBin").val();
+                obj.Desc = $("#Desc").val();
+                obj.UOM = $("#UOM").val();
+                obj.BalQty = $("#BalQty").val();
+                obj.Lot = $("#Lot").val();
+                obj.Qty = $("#Qty").val();
+                obj.Reason = $("#Reason").val();
+                obj.RetReason = $("#RetReason").val();
+                obj.TranStatus = $("#TranStatus").val();
+				obj.CreatedBy = $("#CreatedBy").val();
+
+
+				ShowLoader();
+
+                $.ajax(
+                    {
+                        url: '@(Url.Action("ValidateLot", "MaterialReturn"))',
+                        data: JSON.stringify(obj),
+                        dataType: "json",
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+						success: function (data) {
+
+							HideLoader();
+
+                            if (data) {
+                                if (data.Message) {
+                                    //document.getElementById("Part").focus;
+                                    $('#Lot').val("");
+                                    $('#Lot').focus();
+                                    var modal = $('#responseModal').modal(
+                                        {
+                                            backdrop: 'static',
+                                            keyboard: false
+                                        }
+                                    );
+                                    var msg = data.Message;
+                                    modal.find('.modal-header').text("Response Status");
+                                    modal.find('.modal-body').text(msg);
+
+
+                                }
+                                else {
+                                    var dataReturn = data.Data;
+
+                                    $('#BalQty').val(dataReturn.BalQty);
+                                    document.getElementById("Qty").select();
+
+                                }
+                            }
+                        },
+						failure: function (response) {
+
+							HideLoader();
+
+							$('#Lot').val("");
+							$('#Lot').focus();
+                            var modal = $('#responseModal').modal(
+                                {
+                                    backdrop: 'static',
+                                    keyboard: false
+                                }
+                            );
+                            var msg = response.responseText;
+                            modal.find('.modal-header').text("Response Status");
+                            modal.find('.modal-body').text(msg);
+                        },
+						error: function (response) {
+
+							HideLoader();
+
+							$('#Lot').val("");
+							$('#Lot').focus();
+                            var modal = $('#responseModal').modal(
+                                {
+                                    backdrop: 'static',
+                                    keyboard: false
+                                }
+							);
+							var msg = response.responseText;
+                            modal.find('.modal-header').text("Response Status");
+                            modal.find('.modal-body').text(msg);
+                        }
+                    });
+            }
+        });
+        // end for change #LotNum
+
+		$('#Qty').change(function () {
+
+            var BalQty = Number($("#BalQty").val());
+            var Qty = Number($("#Qty").val());
+			if (Qty > BalQty && Qty != 0) {
+				var modal = $('#responseModal').modal(
+					{
+						backdrop: 'static',
+						keyboard: false
+					}
+				);
+				var msg = "Insufficient Qty";
+				modal.find('.modal-header').text("Response Status");
+				modal.find('.modal-body').text(msg);
+				$('#Qty').val("0.00");
+				$('#Qty').select();
+			}
+        });
+
+        //Update data by POST Method
+        $('#SaveRecord').click(function ()
+        {
+            //alert($("#RetReason").val());
+            //alert(document.querySelector('input[name="RetReason"]:checked').value);
+
+            var msg = 'OK';
+            if ($.trim($("#FromWH").val()) === '') {
+                msg = 'From WH cannot be blank';
+            }
+            if ($.trim($("#FromBin").val()) === '') {
+                msg = 'From Bin cannot be blank';
+            }
+            if ($.trim($("#ToWH").val()) === '') {
+                msg = 'To WH cannot be blank';
+            }
+            if ($.trim($("#ToBin").val()) === '') {
+                msg = 'To Bin cannot be blank';
+            }
+            if ($.trim($("#PartNum").val()) === '') {
+                msg = 'Part cannot be blank';
+            }
+            if ($("#Qty").val() <= 0) {
+                msg = 'Qty must be greater than 0';
+            }
+            if ($.trim($("#RetReason").val()) === '') {
+                msg = 'Please select condition';
+            }
+
+            if (msg != 'OK') {
+                var modal = $('#responseModal').modal(
+                    {
+                        backdrop: 'static',
+                        keyboard: false
+                    }
+                );
+                modal.find('.modal-header').text("Data Entry Validation");
+                modal.find('.modal-body').text(msg);
+                return;
+			}
+
+
+            var obj = new Object();
+            obj.Company = $("#Company").val();
+            obj.PartNum = $("#PartNum").val();
+            obj.ActPartNum = $("#ActPartNum").val();
+            obj.SupplierPart = $("#SupplierPart").val();
+            obj.FromWH = $("#FromWH").val();
+			obj.FromBin = $("#FromBin").val();
+			obj.ToWH = $("#ToWH").val();
+			obj.ToBin = $("#ToBin").val();
+            obj.Desc = $("#Desc").val();
+            obj.UOM = $("#UOM").val();
+            obj.BalQty = $("#BalQty").val();
+            obj.Lot = $("#Lot").val();
+            obj.Qty = $("#Qty").val();
+            obj.Reason = $("#Reason").val();
+            obj.RetReason = document.querySelector('input[name="RetReason"]:checked').value;//$("#RetReason").val();
+            obj.TranStatus = $("#TranStatus").val();
+			obj.CreatedBy = $("#CreatedBy").val();
+
+			ShowLoader();
+
+            $.ajax(
+                {
+                    url: '@(Url.Action("Save", "MaterialReturn"))',
+                    data: JSON.stringify(obj),
+                    dataType: "json",
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+					success: function (data) {
+						HideLoader();
+                        if (data) {
+                            if (data.Message) {
+                                //document.getElementById("Part").focus;
+
+                                $('#Qty').focus();
+                                var modal = $('#responseModal').modal(
+                                    {
+                                        backdrop: 'static',
+                                        keyboard: false
+                                    }
+                                );
+                                var msg = data.Message;
+                                modal.find('.modal-header').text("Response Status");
+                                modal.find('.modal-body').text(msg);
+
+
+                            }
+                            else {
+                                var dataReturn = data.Data;
+                                //if (dataReturn.TranStatus)
+                                $('#BalQty').val("0.00");
+                                $('#Qty').val("0.00");
+                                $('#Lot').val('');
+                                $('#PartNum').val('');
+                                $('#ActPartNum').val('');
+                                $('#Desc').val('');
+
+                                document.getElementById("Part").focus();
+                            }
+                        }
+                    },
+					failure: function (response) {
+
+						HideLoader();
+
+                        var modal = $('#responseModal').modal(
+                            {
+                                backdrop: 'static',
+                                keyboard: false
+                            }
+                        );
+                        var msg = response.responseText;
+                        modal.find('.modal-header').text("Response Status");
+                        modal.find('.modal-body').text(msg);
+                    },
+					error: function (response) {
+
+						HideLoader();
+
+                        var modal = $('#responseModal').modal(
+                            {
+                                backdrop: 'static',
+                                keyboard: false
+                            }
+						);
+						var msg = response.responseText;
+                        modal.find('.modal-header').text("Response Status");
+                        modal.find('.modal-body').text(msg);
+                    }
+                });
+        });
+
+        $('#goback').click(function () {
+            //window.history.back();
+            var url = $("#RedirectTo").val();
+            location.href = url;
+        });
+
+        $('#clear').click(function () {
+            $('#BalQty').val("0.00");
+            $('#Qty').val("0.00");
+            $('#Lot').val('');
+            $('#PartNum').val('');
+            $('#ActPartNum').val('');
+            $('#Desc').val('');
+            $('#FromWH').val('');
+			$('#FromBin').val('');
+			$('#ToWH').val('');
+			$('#ToBin').val('');
+            //$('#RetReason').val('');
+            //$('#Reason').val('');
+            $('#TranStatus').val('');
+			document.getElementById("FromBin").focus();
+        });
+    });
+</script>

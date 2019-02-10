@@ -1,0 +1,142 @@
+﻿@model List<MySpritzer.Models.LoosePickingHeaderModel>
+@{
+	ViewBag.Title = "Index";
+
+	string Status = "";
+	if (ViewBag.Status != null)
+	{
+		Status = ViewBag.Status;
+	}
+}
+
+<input type="hidden" id="pgStatus" data-value='@Status' />
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Loose Picking
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+
+				<fieldset>
+					<div>
+						<table id="WOLPSOTable" class="table table-responsive table-condensed" style="width:100%">
+							<thead>
+								<tr>
+									<th>SO Num</th>
+									<th>Ship By Date</th>
+									<th>Time Slot</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (Model == null)
+								{
+									<tr>
+										<td valign="top" colspan="8" class="dataTables_empty">No data available in table</td>
+									</tr>
+								}
+								else
+								{
+									foreach (var lph in Model)
+									{
+										string rowColor = "";
+										if (lph.PickingStatus == "New")
+										{
+											rowColor = "";
+										}
+										else
+										{
+											rowColor = "#FFFF00";
+										}
+
+										//If currently processing, row color will be yellow, else is just normal color (white)
+
+										<tr style="background-color: @rowColor">
+											<td>
+												<button type="button" class="btn btn-link SOButton" value="Company=@lph.Company&SONum=@lph.SONum&ShipByDate=@lph.ShipByDate.ToString("yyyy-MM-dd")">@lph.SONum</button>
+											</td>
+											<td>
+												@lph.ShipByDate.ToString("yyyy-MM-dd")
+											</td>
+											<td>
+												@lph.TimeSlot
+											</td>
+										</tr>
+
+									}
+								}
+
+
+							</tbody>
+						</table>
+					</div>
+				</fieldset>
+
+
+			</div>
+
+			@*<div class="panel-footer">
+					<button type="button" class="btn btn-primary pull-right">Confirm</button>
+				</div>*@
+
+		</div>
+
+	</div>
+
+	@*<a href="#" class="previous pull-left">&laquo; Previous</a>
+		<a href="#" class="next pull-right">Next &raquo;</a>*@
+
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		var msg = $("#pgStatus").data("value");
+		if (msg != '') {
+			//alert(msg);
+			var model = $('#alertModal').modal();
+			model.find('.modal-title').text("Error");
+			model.find('.modal-body').text(msg);
+		};
+
+
+		//https://www.gyrocode.com/articles/jquery-datatables-why-click-event-handler-does-not-work/
+		$('#WOLPSOTable').on('click', '.SOButton', function () {
+			var params = $(this).val();
+			//window.location.href = "WOLoosePicking/Details?id=" + soNum;
+			//alert(params);
+			var url = '@Url.Action("Details", "LoosePicking")' + "?" +params;
+			window.location.href = url;
+			//window.location.href = "../LoosePicking/Details?" + params;
+		});
+
+	});
+</script>

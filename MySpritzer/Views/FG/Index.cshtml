@@ -1,0 +1,333 @@
+﻿@model MySpritzer.Models.FGModel
+
+@{
+	ViewBag.Title = "Index";
+}
+
+@{
+	string Status = "";
+	if (ViewBag.Status != null)
+	{
+		Status = ViewBag.Status;
+	}
+	string Err = "";
+	if (ViewBag.Error != null)
+	{
+		Err = ViewBag.Error;
+	}
+	string Company = "";
+	string UserId = "";
+
+	if (!string.IsNullOrEmpty(Session["Company"] as string))
+	{
+		Company = Session["Company"] as string;
+
+	}
+	if (!string.IsNullOrEmpty(Session["User"] as string))
+	{
+
+		UserId = Session["User"].ToString();
+	}
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Receiving FG Product
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				@using (Html.BeginForm("Index", "FG", FormMethod.Post, new { id = "DetailForm" }))
+				{
+					@Html.AntiForgeryToken()
+					<hr />
+					@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+					@Html.HiddenFor(model => model.Company)
+					<input type="hidden" id="pgStatus" data-value="@Status" />
+					<input type="hidden" id="pgErr" data-value="@Err" />
+					<fieldset>
+
+						<div class="col-xs-10">
+							<div class="form-group">
+								@Html.LabelFor(model => model.LotNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.LotNum, new { htmlAttributes = new { @class = "form-control", @id = "txtLotNum" } })
+									@Html.ValidationMessageFor(model => model.LotNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.OnhandQty, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.OnhandQty, new { htmlAttributes = new { @class = "form-control", @id = "txtOnhandQty", @type = "number", @style = "text-align:right", @readonly = "readonly" } })
+
+									@Html.ValidationMessageFor(model => model.OnhandQty, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.DimCode, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.DimCode, new { htmlAttributes = new { @class = "form-control", @id = "txtDimCode", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.DimCode, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartNum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.PartNum, new { htmlAttributes = new { @class = "form-control", @id = "txtPartNum", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.PartNum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PartDesc, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.PartDesc, new { htmlAttributes = new { @class = "form-control", @id = "txtPartDesc", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.PartDesc, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.FromBin, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.FromBin, new { htmlAttributes = new { @class = "form-control", @id = "txtFromBin", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.FromBin, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.FromWH, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.FromWH, new { htmlAttributes = new { @class = "form-control", @id = "txtFromWH", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.FromWH, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.ToBin, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.ToBin, new { htmlAttributes = new { @class = "form-control", @id = "txtToBin", @autocomplete = "off" } })
+									@Html.ValidationMessageFor(model => model.ToBin, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.ToWH, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.ToWH, new { htmlAttributes = new { @class = "form-control", @id = "txtToWH", @autocomplete = "off" } })
+									@Html.ValidationMessageFor(model => model.ToWH, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+					</fieldset>
+				}
+
+			</div>
+
+			<div class="panel-footer">
+				@*<button type="submit" class="btn btn-primary pull-right" id="btnSubmit" form="DetailForm">Submit</button>*@
+				<button type="button" class="btn btn-primary pull-right" id="btnSubmit">Submit</button>
+				@*<button type="reset" class="btn btn-primary pull-right" id="btnReset" form="DetailForm">Clear</button>*@
+				<button type="button" class="btn btn-primary" id="btnReset">Clear</button>
+			</div>
+		</div>
+	</div>
+
+
+
+</div>
+<!-- The Modal -->
+<div class="modal fade" id="alertModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			@*Modal Header*@
+			<div class="modal-header">
+				<h4 class="modal-title">Modal Heading</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+				<h4>Please insert DO Number.</h4>
+			</div>
+
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!--MODAL//-->
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		$("#txtToBin").change(function () {
+			var binCode = $("#txtToBin").val();
+			if (binCode != "") {
+				var whCode = TrimBinCode(binCode);
+				$("#txtToWH").val(whCode);
+				$('#txtToWH').focus();
+			}
+		});
+
+		$('#btnReset').click(function (){
+			ResetAll();
+		});
+
+		function ResetAll() {
+			@*var url = '@Url.Action("Index", "FG")';*@
+			//window.location.href = url;
+			$('#txtLotNum').val("");
+			$('#txtOnhandQty').val("");
+			$('#txtDimCode').val("");
+			$('#txtPartNum').val("");
+			$('#txtPartDesc').val("");
+
+			$('#txtFromWH').val("");
+			$('#txtFromBin').val("");
+			$('#txtToWH').val("");
+			$('#txtToBin').val("");
+			$('#txtLotNum').focus();
+			$('#btnSubmit').attr("disabled", "disabled");
+		}
+
+		//$('#txtToWH').on({
+		//	keypress: function () { typed_into = true; },
+		//	change: function () {
+		//		if (typed_into) {
+		//			alert('type');
+		//			typed_into = false; //reset type listener
+		//		} else {
+		//			alert('not type');
+		//		}
+		//	}
+		//});
+
+		$('#txtLotNum').focus();
+		$('#btnSubmit').attr("disabled", "disabled");
+		$('#txtLotNum').change(function () {
+			var lot = $('#txtLotNum').val();
+			if (lot != "") {
+				ShowLoader();
+				$.ajax({
+					type: 'GET',
+					url: '@Url.Action("GetFGByLot", "FG")',
+					data: { Company: '@Company', LotNum: $('#txtLotNum').val()},
+					success: function (response) {
+						HideLoader();
+						if (response.success) {
+							$('#txtOnhandQty').val(response.responseText.OnhandQty);
+							$('#txtDimCode').val(response.responseText.DimCode);
+							$('#txtPartNum').val(response.responseText.PartNum);
+							$('#txtPartDesc').val(response.responseText.PartDesc);
+
+							$('#txtFromWH').val(response.responseText.FromWH);
+							$('#txtFromBin').val(response.responseText.FromBin);
+							$('#txtToWH').val(response.responseText.ToWH);
+							$('#txtToBin').val(response.responseText.ToBin);
+							//alert(response.responseText.PartNum);
+							$('#btnSubmit').removeAttr("disabled");
+
+							$('#txtToBin').focus();
+
+							}
+							else {
+							//alert(response.responseText);
+							$('#txtLotNum').val("");
+							$('#txtLotNum').focus();
+							var msg = response.responseText;
+
+							//$.notify(msg, "error");
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Info");
+							model.find('.modal-body').text(msg);
+
+							$('#btnSubmit').attr("disabled", "disabled");
+
+							}
+					},
+					error: function (response) {
+						HideLoader();
+						$('#txtLotNum').val("");
+						$('#txtLotNum').focus();
+						var msg = response.responseText;
+						//alert("Something wrong");
+						//var msg = "Something wrong happen when requesting to the Server.";
+
+						var model = $('#alertModal').modal();
+						model.find('.modal-title').text("Error");
+						model.find('.modal-body').text(msg);
+
+						//$.notify(msg, "error");
+
+						$('#btnSubmit').attr("disabled", "disabled");
+					}
+
+				});
+			}
+
+        });
+
+        var msg = $("#pgStatus").data("value");
+		if (msg != '') {
+			//document.getElementById("DetailForm").reset();
+			//$('#txtLotNum').focus();
+            //alert(msg);
+
+			//$.notify(msg, "info");
+
+            var model = $('#alertModal').modal();
+            model.find('.modal-title').text("Info");
+			model.find('.modal-body').text(msg);
+
+            $('#btnSubmit').attr("disabled", "true");
+		};
+
+		var msgErr = $("#pgErr").data("value");
+		if (msgErr != '') {
+
+			//$.notify(msgErr, "error");
+
+			var model = $('#alertModal').modal();
+			model.find('.modal-title').text("Error");
+			model.find('.modal-body').text(msgErr);
+
+			$('#btnSubmit').attr("disabled", "true");
+		};
+
+		$("#btnSubmit").click(function () {
+			$("#DetailForm").submit();
+		});
+
+    });
+</script>
+

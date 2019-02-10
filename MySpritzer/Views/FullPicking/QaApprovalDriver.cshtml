@@ -1,0 +1,318 @@
+﻿@model MySpritzer.Models.QAApprovalModel
+
+@{
+	ViewBag.Title = "QA Approval - Driver";
+	string Company = Model.UD110Company;
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				QA Approval
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				<fieldset>
+					<div>
+						<form id="QaAppovalForm">
+							<div class="form-group">
+								<input type="hidden" name="UD110Company" id="h_UD110Company" value='@Html.DisplayFor(m => m.UD110Company)' />
+								<input type="hidden" name="UD110Key1" id="h_UD110Key1" value='@Html.DisplayFor(m => m.UD110Key1)' />
+								<input type="hidden" name="UD110Key2" id="h_UD110Key2" value='@Html.DisplayFor(m => m.UD110Key2)' />
+								<input type="hidden" name="UD110FS_QAInspStatus" id="h_UD110FS_QAInspStatus" value='@Html.DisplayFor(m => m.UD110FS_QAInspStatus)' />
+								<input type="hidden" name="UD110FS_TruckStaRemarks" id="h_UD110FS_TruckStaRemarks" value='@Html.DisplayFor(m => m.UD110FS_TruckStaRemarks)' />
+								<input type="hidden" name="UD110FS_TruckQASignanture" id="h_UD110FS_TruckQASignanture" value='@Html.DisplayFor(m => m.UD110FS_TruckQASignanture)' />
+							</div>
+							<br />
+							<div class="form-group">
+								<label class="control-label" for="Signature">Driver Signature:</label>
+								<br />
+								@*<canvas id="canvasInAPerfectWorld" width="490" height="220"></canvas>
+									<div id="canvasDiv"></div>*@
+								<div>
+									<canvas id="signature" style="border:1px solid #000000"></canvas>
+								</div>
+								<input type="hidden" id="SignatureDataUrl" />
+							</div>
+						</form>
+					</div>
+				</fieldset>
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-primary pull-right" id="ConfirmSignBtn">Confirm</button>
+				<button type="button" class="btn btn-danger" id="CloseBtn">Close</button>
+				@*<button type="button" class="btn btn-primary" id="UndoSignBtn">Undo</button>*@
+				<button type="button" class="btn btn-danger" id="ClearSignBtn">Clear</button>
+				@*<button type="button" class="btn btn-primary" id="SaveSignBtn">Save</button>*@
+			</div>
+
+
+
+		</div>
+	</div>
+
+	<!-- responseModal Modal -->
+	<div class="modal fade" id="responseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					@*<button type="button" class="btn btn-danger" id="CancelBtn">Cancel</button>*@
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- responseModal Modal// -->
+	<!-- passResponseModal Modal -->
+	<div class="modal fade" id="successResponseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary RedirectToIndexBtn">Okay</button>
+					@*<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>*@
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- passResponseModal Modal// -->
+
+
+
+
+</div>
+
+<!--HAND DRAWING SIGNATURE-->
+<script src="@Url.Content("~/Scripts/my/sign/signature_pad.js")" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+	$(function () {
+		var canvas = document.querySelector('#signature');
+		var pad = new SignaturePad(canvas, {
+			backgroundColor: 'rgb(255, 255, 255)'
+		});
+
+		$('.RedirectToIndexBtn').click(function () {
+			backToMain();
+		});
+
+		function backToMain() {
+			var url = '@Url.Action("Index", "FullPicking")' + "?Company=" + '@Company';
+			window.location.href = url;
+		}
+
+		$('#CancelBtn').click(function () {
+			history.go(-1);
+		});
+
+		$('#CloseBtn').click(function () {
+			var url = '@Url.Action("QaApproval", "FullPicking")' + "?Company=" + '@Model.UD110Company' + "&DPNum=" + '@Model.UD110Key1' + "&Key2=" + '@Model.UD110Key2';
+			window.location.href = url;
+		});
+
+		$('#ConfirmSignBtn').click(function () {
+			//https://asp.net-hacker.rocks/2018/06/05/signature-pad.html
+			//Get Signature Data
+
+			if (pad.isEmpty()) {
+				var msg = "Please provide a signature";
+
+				var modal = $('#responseModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+			}
+			else
+			{
+				var data = pad.toDataURL();
+
+
+				var obj = new Object();
+				obj.UD110Company = $('#h_UD110Company').val();
+				obj.UD110Key1 = $('#h_UD110Key1').val();
+				obj.UD110Key2 = $('#h_UD110Key2').val();
+				obj.UD110FS_QAInspStatus = $('#h_UD110FS_QAInspStatus').val();
+				obj.UD110FS_TruckStaRemarks = $('#h_UD110FS_TruckStaRemarks').val();
+				obj.UD110FS_TruckQASignanture = $('#h_UD110FS_TruckQASignanture').val();
+				obj.UD110FS_TruckLorryDriverSignature = data; //
+
+				ShowLoader();
+
+				$.ajax(
+				{
+					url: '@(Url.Action("SubmitQaApprovalDriver", "FullPicking"))',
+					data: JSON.stringify(obj),
+					dataType: "json",
+					type: "POST",
+					contentType: 'application/json; charset=utf-8',
+					success: function (data)
+					{
+						HideLoader();
+						if (data.Status == "Success") {
+							backToMain();
+							//var msg = data.Message;
+							//var modal = $('#successResponseModal').modal();
+							//modal.find('.modal-header').text("Response Message");
+							//modal.find('.modal-body').text(msg);
+						} else {
+							var msg = data.Message;
+							var modal = $('#responseModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						}
+					},
+					failure: function (response)
+					{
+						HideLoader();
+						var modal = $('#responseModal').modal();
+						var msg = response.responseText;
+						modal.find('.modal-header').text("Response Message");
+						modal.find('.modal-body').text(msg);
+					},
+					error: function (response)
+					{
+						HideLoader();
+						var modal = $('#responseModal').modal();
+						var msg = response.responseText;
+						modal.find('.modal-header').text("Response Message");
+						modal.find('.modal-body').text(msg);
+					}
+				});
+			}
+		});
+
+
+		$('#UndoSignBtn').click(function () {
+			//alert("Undo");
+			var data = pad.toData();
+
+			if (data) {
+				data.pop(); // remove the last dot or line
+				pad.fromData(data);
+			}
+		});
+
+		$('#ClearSignBtn').click(function () {
+			//alert("Clear");
+			pad.clear();
+		});
+
+		$('#SaveSignBtn').click(function () {
+			//alert("Save");
+			if (pad.isEmpty()) {
+				alert("Please provide a signature first.");
+			} else {
+				var dataURL = pad.toDataURL();
+				//alert(dataUrl);
+				download(dataURL, "signature.png");
+				//sendToServer(dataURL);
+			}
+		});
+
+	});
+
+	function resizeCanvas() {
+		var canvas = document.querySelector('#signature');
+		var pad = new SignaturePad(canvas, {
+			backgroundColor: 'rgb(255, 255, 255)'
+		});
+		// When zoomed out to less than 100%, for some very strange reason,
+		// some browsers report devicePixelRatio as less than 1
+		// and only part of the canvas is cleared then.
+		var ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+		// This part causes the canvas to be cleared
+		canvas.width = canvas.offsetWidth * ratio;
+		canvas.height = canvas.offsetHeight * ratio;
+		canvas.getContext("2d").scale(ratio, ratio);
+
+		// This library does not listen for canvas changes, so after the canvas is automatically
+		// cleared by the browser, SignaturePad#isEmpty might still return false, even though the
+		// canvas looks empty, because the internal data of this library wasn't cleared. To make sure
+		// that the state of this library is consistent with visual state of the canvas, you
+		// have to clear it manually.
+		pad.clear();
+	}
+
+	window.onresize = resizeCanvas;
+	resizeCanvas();
+
+	function download(dataURL, filename) {
+		var blob = dataURLToBlob(dataURL);
+		var url = window.URL.createObjectURL(blob);
+
+		var a = document.createElement("a");
+		a.style = "display: none";
+		a.href = url;
+		a.download = filename;
+
+		document.body.appendChild(a);
+		a.click();
+
+		window.URL.revokeObjectURL(url);
+	}
+
+	// One could simply use Canvas#toBlob method instead, but it's just to show
+	// that it can be done using result of SignaturePad#toDataURL.
+	function dataURLToBlob(dataURL) {
+		// Code taken from https://github.com/ebidel/filer.js
+		var parts = dataURL.split(';base64,');
+		var contentType = parts[0].split(":")[1];
+		var raw = window.atob(parts[1]);
+		var rawLength = raw.length;
+		var uInt8Array = new Uint8Array(rawLength);
+
+		for (var i = 0; i < rawLength; ++i) {
+			uInt8Array[i] = raw.charCodeAt(i);
+		}
+
+		return new Blob([uInt8Array], { type: contentType });
+	}
+
+
+	//Save image to server. Not working
+	function sendToServer(dataURL) {
+		var data = dataURL;
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function () {
+			// request complete
+			if (xhr.readyState == 4) {
+				window.open('http://localhost/signature_pad-gh-pages/snapshots' + xhr.responseText, '_blank');
+			}
+		}
+		xhr.open('POST', 'http://localhost/signature_pad-gh-pages/upload.php', true);
+		xhr.setRequestHeader('Content-Type', 'application/upload');
+		xhr.send(data);
+	}
+</script>
+
+<!--HAND DRAWING SIGNATURE//-->

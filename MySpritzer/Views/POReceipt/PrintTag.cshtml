@@ -1,0 +1,272 @@
+﻿@model MySpritzer.Models.PrintTagModel
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Print Tag
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				@using (Html.BeginForm("GenerateCSV", "POReceipt", FormMethod.Get, new { id = "PrintTagForm" }))
+				{
+					@Html.AntiForgeryToken()
+
+					<input type="hidden" id="Id" name="Id" value=@Html.DisplayFor(model => model.Id)>
+					<input type="hidden" id="Company" name="Company" value=@Html.DisplayFor(model => model.Company)>
+					<input type="hidden" id="PONum" name="PONum" value=@Html.DisplayFor(model => model.PONum)>
+					<input type="hidden" id="POLine" name="POLine" value=@Html.DisplayFor(model => model.POLine)>
+					<input type="hidden" id="DONum" name="DONum" value=@Html.DisplayFor(model => model.DONum)>
+
+					<input type="hidden" id="PartNum" name="PartNum" value=@Html.DisplayFor(model => model.PartNum)>
+					<input type="hidden" id="LotNum" name="LotNum" value=@Html.DisplayFor(model => model.LotNum)>
+
+					var maxQty = ViewBag.UserQty;
+					//var maxQty = Html.DisplayFor(model => model.TransactionQty);
+
+					<input type="hidden" id="MaxQty" name="MaxQty" value='@maxQty'>
+
+					<div class="form-group col-xs-6">
+						<label class="control-label" for="QtyPerContainer">Qty Per Container:</label>
+						<input type="number" class="form-control" name="QtyPerContainer" id="QtyPerContainer" max='@maxQty' step="0.01" value='@ViewBag.UserQty'>
+					</div>
+
+					<div class="form-group col-xs-6">
+						<label class="control-label" for="Uom">UOMCode:</label>
+						<input type="text" class="form-control" name="Uom" id="Uom" readonly value='@ViewBag.Uom'>
+					</div>
+
+					<div class="form-group col-xs-6">
+						<label class="control-label" for="TransactionQty">Transaction Qty:</label>
+						<input type="text" class="form-control" name="TransactionQty" id="TransactionQty" value='@maxQty' readonly>
+					</div>
+
+					<div class="form-group col-xs-6">
+						<label class="control-label" for="TagQty">Tag Qty:</label>
+						<input type="text" class="form-control" name="TagQty" id="TagQty" readonly value='@maxQty'>
+					</div>
+
+					<div class="form-group col-xs-6">
+						<label class="control-label" for="NumberOfTags">Number Of Tags:</label>
+						<input type="text" class="form-control" name="NumberOfTags" id="NumberOfTags" readonly>
+					</div>
+				}
+
+				@using (Html.BeginForm("GenerateCSV", "POReceipt", FormMethod.Get, new { id = "PrintTagHiddenForm" }))
+				{
+					<input type="hidden" name="PONum" value="1">
+					<input type="hidden" name="LotNum" value="LOT90">
+					<input type="hidden" name="Qty" value="3.0">
+					<input type="hidden" name="Uom" value="CM">
+					<input type="hidden" name="Copies" value="10">
+				}
+			</div>
+			<div class="panel-footer">
+				<button type="button" style="" class="btn btn-primary pull-right" id="PrintTagSubmit">Submit</button>
+				@*<button type="submit" class="btn btn-primary" form="PrintTagForm" onclick="onSaveButtonClick();">Print</button>*@
+				@*<button type="submit" class="btn btn-primary pull-right" form="PrintTagForm" onclick="onSaveButtonClick();">Submit</button>*@
+
+				@*<button type="button" class="btn btn-default ExportCsvPrintTagButton">Print CSV</button>*@
+				@*&nbsp;&nbsp;&nbsp;*@
+				@*<button type="button" class="btn btn-default pull-right" style="margin:0px 7px" id="checkPrintTag">Calculate</button>*@
+				<!--<input type="submit" value="Submit" class="btn btn-default" />-->
+			</div>
+		</div>
+	</div>
+
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header
+				<div class="modal-header">
+					<h4 class="modal-title">Modal Heading</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				 -->
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4>Please key in a correct number of qty. Modified qty cannot be higher than the current qty.</h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+	<!-- Response Modal -->
+	<div class="modal fade" id="responseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title">Response Message</h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4>-</h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Index", "POReceipt", new {PONum = @Html.DisplayFor(model => model.PONum), Company = @Html.DisplayFor(model => model.Company), DONum = @Html.DisplayFor(model => model.DONum)})'">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--Response Modal//-->
+
+
+
+</div>
+
+
+<script type="text/javascript">
+	//Show message if user refresh page or close the browser
+	//var changesSaved = false;
+
+	//function onSaveButtonClick() {
+	//	changesSaved = true;
+	//}
+
+	//window.onbeforeunload = function () {
+	//	if (!changesSaved) {
+	//		return "You haven't saved your changes";
+
+	//	}
+	//};
+
+	$(document).ready(function ()
+	{
+		//Call Generate CSV File method in POReceipt. Action Name: ExportPrintTagCsv
+		$('.ExportCsvPrintTagButton').click(function ()
+		{
+			var csv = new Object();
+			csv.PONum = $('#PONum').val();
+			csv.DONum = $('#DONum').val();
+			csv.LotNum = $('#LotNum').val();
+			csv.Qty = $('#QtyPerContainer').val();
+			csv.Uom = $('#Uom').val();
+			csv.Copies = $('#NumberOfTags').val();
+			//var hiddenForm = document.getElementById("PrintTagHiddenForm");
+			//var formData = new FormData(hiddenForm);
+			//var formData = $('#PrintTagHiddenForm').serialize();
+			$.ajax(
+				{
+					url: '@(Url.Action("GenerateCSV", "POReceipt"))',
+					data: JSON.stringify(csv),
+					dataType: "json",
+					type: "get",
+					contentType: 'application/json; charset=utf-8',
+					success: function (data)
+					{
+						alert("Success");
+						alert(data.Message);
+						if (data)
+						{
+							if (data.Message)
+							{
+								alert(data.Message);
+							}
+						}
+					}
+				});
+		});
+
+		//Update data by POST Method
+		$('#PrintTagSubmit').click(function ()
+		{
+			var prinTag = new Object();
+			prinTag.Id = $('#Id').val();
+			prinTag.Company = $('#Company').val();
+			prinTag.PONum = $('#PONum').val();
+			prinTag.POLine = $('#POLine').val();
+			prinTag.QtyPerContainer = $('#QtyPerContainer').val();
+			prinTag.Uom = $('#Uom').val();
+			prinTag.TransactionQty = $('#TransactionQty').val();
+			prinTag.TagQty = $('#TagQty').val();
+			prinTag.NumberOfTags = $('#NumberOfTags').val();
+
+			ShowLoader();
+
+			$.ajax(
+			{
+				url: '@(Url.Action("Update", "POReceipt"))',
+				data: JSON.stringify(prinTag),
+				dataType: "json",
+				type: "POST",
+				contentType: 'application/json; charset=utf-8',
+				success: function (data)
+				{
+					HideLoader();
+					if (data)
+					{
+						if (data.Message != "") {
+
+							var modal = $('#responseModal').modal(
+								{
+									backdrop: 'static',
+									keyboard: false
+								}
+							);
+							var msg = data.Message;
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+
+						} else {
+							backToMain();
+						}
+					}
+				},
+				failure: function (response)
+				{
+					HideLoader();
+					var modal = $('#responseModal').modal(
+						{
+						backdrop: 'static',
+						keyboard: false
+						}
+					);
+					var msg = response.responseText;
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				},
+				error: function (response)
+				{
+					HideLoader();
+					var modal = $('#responseModal').modal(
+						{
+						backdrop: 'static',
+						keyboard: false
+						}
+					);
+					var msg = response.responseText;
+					modal.find('.modal-header').text("Response Message");
+					modal.find('.modal-body').text(msg);
+				}
+			});
+		});
+
+		function backToMain() {
+			var url = '@Url.Action("Index", "POReceipt")' + "?Company=" + '@Model.Company' + "&PONum=" + '@Model.PONum' + "&DONum=" + '@Model.DONum';
+			window.location.href = url;
+		}
+
+	});
+
+
+
+
+</script>
+

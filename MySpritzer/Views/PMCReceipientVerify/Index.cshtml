@@ -1,0 +1,241 @@
+﻿@model IEnumerable<MySpritzer.Models.PMCReceipientVerificationModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="container-fluid">
+    <div>
+        <div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Recipient Verification
+			</div>
+
+            <div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+                @using (@Html.BeginForm())
+                {
+
+
+                    <fieldset>
+                        @* <legend>Pick Details:</legend>*@
+                        <!--Pick DETAILs-->
+                        <div>
+                            <table id="pickRawMtrlDtlTable" class="display" style="width:100%">
+                                <thead>
+                                    <tr>
+										<th>
+											Action
+										</th>
+                                        @*<th>
+                                                @Html.DisplayNameFor(model => model.PickRawMtrlFKId)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.Company)
+                                            </th>*@
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.JobNum)
+                                        </th>
+                                        @*<th>
+                                                @Html.DisplayNameFor(model => model.Plant)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.RequestDate)
+                                            </th>*@
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.PartNum)
+                                        </th>
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.PartDesc)
+                                        </th>
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.LotNo)
+                                        </th>
+                                        @*<th>
+                                                @Html.DisplayNameFor(model => model.TuId)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.TranType)
+                                            </th>*@
+                                        @*<th>
+                                                @Html.DisplayNameFor(model => model.ActQty)
+                                            </th>*@
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.Qty)
+                                        </th>
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.UOM)
+                                        </th>
+                                        @*<th>
+                                                @Html.DisplayNameFor(model => model.PickQty)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.PickUOM)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.FromWarehse)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.FromBinNum)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.ToWarehse)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.ToBinNum)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.PalletType)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.PalletQty)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.UserId)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.ReasonCode)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.ReasonDesc)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.RejQty)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.Status)
+                                            </th>*@
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @if (Model == null)
+                                    {
+                                        <tr>
+                                            <td valign="top" colspan="4" class="dataTables_empty">No data available in table</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Model)
+                                        {
+                                            <tr>
+												<td>
+													@*@Html.ActionLink("Select", "PMCReceipientVerify", new { FKId = item.PickRawMtrlFKId })*@
+													<button type="button" class="btn btn-primary SelectRecVrfyBtn" value='@item.PickRawMtrlFKId'><i class="glyphicon glyphicon-edit"></i></button>
+												</td>
+                                                @*<td>
+                                                        @Html.DisplayFor(modelItem => item.PickRawMtrlFKId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Company)
+                                                    </td>*@
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.JobNum)
+                                                </td>
+                                                @*<td>
+                                                        @Html.DisplayFor(modelItem => item.Plant)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.RequestDate)
+                                                    </td>*@
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.PartNum)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.PartDesc)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.LotNo)
+                                                </td>
+                                                @*<td>
+                                                        @Html.DisplayFor(modelItem => item.TuId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.TranType)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ActQty)
+                                                    </td>*@
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.Qty)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.UOM)
+                                                </td>
+                                                @*<td>
+                                                        @Html.DisplayFor(modelItem => item.PickQty)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.PickUOM)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.FromWarehse)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.FromBinNum)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ToWarehse)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ToBinNum)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.PalletType)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.PalletQty)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.UserId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ReasonCode)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ReasonDesc)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.RejQty)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Status)
+                                                    </td>*@
+                                            </tr>
+
+                                        }
+                                    }
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </fieldset>
+                }
+
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+<script type="text/javascript">
+	$(".SelectRecVrfyBtn").click(function () {
+		var id = $(this).val();
+
+		var url = '@Url.Action("PMCReceipientVerify", "PMCReceipientVerify")' + "?FKId=" + id;
+		window.location.href = url;
+
+	});
+
+
+</script>
+

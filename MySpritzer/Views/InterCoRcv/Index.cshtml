@@ -1,0 +1,567 @@
+﻿@model MySpritzer.Models.InterCoRcvModel
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				Intercompany Receipt
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				@using (Html.BeginForm(new { id = "ICReceipt" }))
+				{
+					@Html.AntiForgeryToken()
+					<hr />
+					@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+					@Html.HiddenFor(model => model.Company)
+					@Html.HiddenFor(model => model.Detail)
+					@Html.HiddenFor(model => model.intQue)
+					@Html.HiddenFor(model => model.TranStatus)
+					@Html.HiddenFor(model => model.VendorNum)
+
+					<fieldset>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.PONum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.PONum, new { htmlAttributes = new { @type = "number", @class = "form-control" } })
+									@Html.ValidationMessageFor(model => model.PONum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								@Html.LabelFor(model => model.DONum, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.DONum, new { htmlAttributes = new { @class = "form-control" } })
+									@Html.ValidationMessageFor(model => model.DONum, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								@Html.LabelFor(model => model.SupName, htmlAttributes: new { @class = "control-label" })
+								<div>
+									@Html.EditorFor(model => model.SupName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+									@Html.ValidationMessageFor(model => model.SupName, "", new { @class = "text-danger" })
+								</div>
+							</div>
+						</div>
+
+					</fieldset>
+
+					<fieldset>
+						<table class="table" id="RcvDtl">
+							<tr>
+								<th>
+									@Html.DisplayNameFor(model => model.Detail[0].LineNo)
+								</th>
+								<th>
+									@Html.DisplayNameFor(model => model.Detail[0].PartNum)
+								</th>
+								<th>
+									@Html.DisplayNameFor(model => model.Detail[0].LotNum)
+								</th>
+								<th>
+									@Html.DisplayNameFor(model => model.Detail[0].Qty)
+								</th>
+								<th>
+									@Html.DisplayNameFor(model => model.Detail[0].SUOM)
+								</th>
+							</tr>
+							@if (@Model.Detail != null)
+							{
+								foreach (var item in Model.Detail)
+								{
+									<tr>
+										<td>
+											@Html.DisplayFor(modelItem => item.LineNo)
+										</td>
+										<td>
+											@Html.DisplayFor(modelItem => item.PartNum)
+										</td>
+										<td>
+											@Html.DisplayFor(modelItem => item.LotNum)
+										</td>
+										<td>
+											@Html.DisplayFor(modelItem => item.Qty)
+										</td>
+										<td>
+											@Html.DisplayFor(modelItem => item.SUOM)
+										</td>
+									</tr>
+								}
+							}
+
+						</table>
+
+					</fieldset>
+					@Html.Hidden("RedirectTo", Url.Action("Index", "Home"));
+				}
+
+
+				<!-- WEB API RESPONSE MODAL -->
+				<div class="modal fade" id="responseModal">
+					<div class="modal-dialog">
+						<div class="modal-content">
+
+							<div class="modal-header">
+								<h4 class="modal-title"></h4>
+								<button type="button" class="close" data-dismiss="modal">&times;</button>
+							</div>
+
+							<div class="modal-body">
+								<h4></h4>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<!-- WEB API RESPONSE MODAL//-->
+				<!-- REJECT COMMENT -->
+				<div class="modal fade" id="rejectModal">
+					<div class="modal-dialog">
+						<div class="modal-content">
+
+							<div class="modal-header">
+								<h4 class="modal-title"></h4>
+								<button type="button" class="close" data-dismiss="modal">&times;</button>
+							</div>
+
+							<div class="modal-body">
+								<div class="col-xs-12">
+									<div class="form-group">
+										Reject Comments
+										<div>
+											@Html.EditorFor(model => model.RejComment, new { htmlAttributes = new { @class = "form-control" } })
+											@Html.ValidationMessageFor(model => model.RejComment, "", new { @class = "text-danger" })
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-danger" btn-lg btn-block data-dismiss="modal" id="RejectGo">Ok</button>
+								<button type="button" class="btn btn-danger" btn-lg btn-block data-dismiss="modal">Cancel</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="panel-footer">
+				<div class="btn-toolbar">
+					<button type="button" style="" class="btn btn-primary pull-right" btn-lg btn-block id="Confirm">Confirm</button>
+					<button type="button" style="" class="btn btn-primary pull-right" btn-lg btn-block id="Reject">Reject</button>
+					@*<button type="button" style="" class="btn btn-primary pull-right" btn-lg btn-block id="goback">Close</button>*@
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#PONum").focus();
+		$("#PONum").change(function () {
+			if ($("#PONum").val() === 0) {
+				msg = 'PO Number must be entered';
+
+				//$.notify(msg, "error");
+
+				var modal = $('#responseModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+				$("#PONum").val("");
+				$("#PONum").focus();
+			} else {
+				$("#DONum").focus();
+			}
+		});
+
+		$('#DONum').change(function () {
+            if ($.trim($("#DONum").val()) != '') {
+                var msg = 'OK';
+                if ($("#PONum").val() === 0) {
+                    msg = 'PO Number must be entered';
+                }
+                if (msg != 'OK') {
+                    var modal = $('#responseModal').modal(
+                        {
+                            backdrop: 'static',
+                            keyboard: false
+                        }
+                    );
+                    modal.find('.modal-header').text("Data Entry Validation");
+                    modal.find('.modal-body').text(msg);
+                    return;
+                }
+
+			ShowLoader();
+           $.ajax(
+               {
+                url: '@(Url.Action("GetPODO", "InterCoRcv"))',
+                data: { Company: $("#Company").val(), PO: $("#PONum").val(), DO: $("#DONum").val() },
+				type: "GET",
+                   contentType: 'application/json; charset=utf-8',
+                   dataType: "json",
+				success: function (data)
+				{
+					HideLoader();
+
+					if (data)
+					{
+                        if (data.Message) {
+
+                            var modal = $('#responseModal').modal(
+                                {
+                                    backdrop: 'static',
+                                    keyboard: false
+                                }
+                            );
+                            var msg = data.Message;
+                            modal.find('.modal-header').text("Response Status");
+                            modal.find('.modal-body').text(msg);
+                            $('#PONum').val(0);
+                            $('#DONum').val("");
+                            $('#PONum').focus;
+                        }
+                        else {
+                            var dataReturn = data.Data;
+
+                            $('#SupName').val(dataReturn.SupName);
+                            $('#intQue').val(dataReturn.intQue);
+                            $('#VendorNum').val(dataReturn.VendorNum);
+                            $('#TranStatus').val(dataReturn.TranStatus);
+                            //remove all rows in table
+                            var table = document.getElementById("RcvDtl");
+
+                            while (table.rows.length > 1) {
+                                table.deleteRow(1);
+                            }
+                            // need to convert list element in data to string and convert to json
+                            // otherwise it creates a long problem to solve
+                            var obj = JSON.stringify(data.Data.Detail);
+                            var obj2 = JSON.parse(obj);
+                            var tr;
+                            for (var i = 0; i < obj2.length; i++) {
+
+                                tr = $('<tr/>');
+                                tr.append("<td>" + obj2[i].LineNo + "</td>");
+                                tr.append("<td>" + obj2[i].PartNum + "</td>");
+                                tr.append("<td>" + obj2[i].LotNum + "</td>");
+                                tr.append("<td>" + obj2[i].Qty + "</td>");
+                                tr.append("<td>" + obj2[i].SUOM + "</td>");
+                                $('#RcvDtl').append(tr);
+                            }
+                            //alert(obj2[0].PartNum);
+                             //$('#RcvDtl').DataTable().ajax.reload();
+
+                        }
+
+                    }
+					},
+				failure: function (response)
+				{
+					HideLoader();
+					var modal = $('#responseModal').modal(
+						{
+						backdrop: 'static',
+						keyboard: false
+						}
+					);
+					var msg = response.responseText;
+					modal.find('.modal-header').text("Response Status");
+					modal.find('.modal-body').text(msg);
+				},
+				error: function (response)
+				{
+					HideLoader();
+					var modal = $('#responseModal').modal(
+						{
+						backdrop: 'static',
+						keyboard: false
+						}
+					);
+					var msg = response.responseText;
+					modal.find('.modal-header').text("Response Status");
+					modal.find('.modal-body').text(msg);
+				}
+			});
+            }
+        });
+
+        $('#Confirm').click(function () {
+            var msg = 'OK';
+            if ($.trim($("#DONum").val()) === '') {
+                msg = 'DO No cannot be blank';
+            }
+            if ($("#PONum").val() === 0) {
+                msg = 'PO No cannot be zero';
+            }
+
+            if (msg != 'OK') {
+                var modal = $('#responseModal').modal(
+                    {
+                        backdrop: 'static',
+                        keyboard: false
+                    }
+                );
+                modal.find('.modal-header').text("Data Entry Validation");
+                modal.find('.modal-body').text(msg);
+                return;
+            }
+            var obj = new Object();
+            obj.Company = $("#Company").val();
+            obj.PONum = $("#PONum").val();
+            obj.DONum = $("#DONum").val();
+            obj.SupName = $("#SupName").val();
+            obj.intQue = $("#intQue").val();
+            obj.TranStatus = $("#TranStatus").val();
+            //need to create a dummy Detail controller requires one detail
+            // Controller does not use the details
+            var obj2 = {};
+            obj2.PartNum = "Dummy";
+            obj2.LineNo = "1";
+            obj2.Qty = "0";
+            obj2.LotNum = "Dummy";
+            obj2.SUOM = "Dummy";
+            var obj3 = [];
+            obj3.push(obj2);
+            obj.Detail = obj3;
+			obj.VendorNum = $("#VendorNum").val();
+
+			ShowLoader();
+
+            $.ajax(
+                {
+                    url: '@(Url.Action("Confirm", "InterCoRcv"))',
+                    data: JSON.stringify(obj),
+                    dataType: "json",
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+					success: function (data) {
+						HideLoader();
+                        if (data) {
+                            if (data.Message) {
+
+                                $('#PONum').focus();
+                                var modal = $('#responseModal').modal(
+                                    {
+                                        backdrop: 'static',
+                                        keyboard: false
+                                    }
+                                );
+                                var msg = data.Message;
+                                modal.find('.modal-header').text("Response Status");
+                                modal.find('.modal-body').text(msg);
+                            }
+                            else {
+                                var dataReturn = data.Data;
+                                //if (dataReturn.TranStatus)
+                                $('#PONum').val('0');
+                                $('#DONum').val('');
+                                $('#SupName').val('');
+                                $('#TranStatus').val('');
+                                $('#intQue').val('0');
+                                $('#VendorNum').val('0');
+                                $('#Detail').val('');
+                                var table = document.getElementById("RcvDtl");
+
+                                while (table.rows.length > 1) {
+                                    table.deleteRow(1);
+                                }
+                                //display message
+                                var modal = $('#responseModal').modal(
+                                    {
+                                        backdrop: 'static',
+                                        keyboard: false
+                                    }
+                                );
+                                var msg = dataReturn.TranStatus;
+                                modal.find('.modal-header').text("Response Status");
+                                modal.find('.modal-body').text(msg);
+                                document.getElementById("PONum").focus();
+                            }
+                        }
+                    },
+					failure: function (response) {
+						HideLoader();
+                        var modal = $('#responseModal').modal(
+                            {
+                                backdrop: 'static',
+                                keyboard: false
+                            }
+                        );
+                        var msg = response.responseText;
+                        modal.find('.modal-header').text("Response Status");
+                        modal.find('.modal-body').text(msg);
+                    },
+					error: function (response) {
+						HideLoader();
+                        var modal = $('#responseModal').modal(
+                            {
+                                backdrop: 'static',
+                                keyboard: false
+                            }
+						);
+						var msg = response.responseText;
+                        modal.find('.modal-header').text("Response Status");
+                        modal.find('.modal-body').text(msg);
+                    }
+                });
+        });
+
+        $('#Reject').click(function () {
+            var modal = $('#rejectModal').modal(
+                {
+                    backdrop: 'static',
+                    keyboard: false
+                }
+            );
+        });
+
+        $('#goback').click(function () {
+            //window.history.back();
+            var url = $("#RedirectTo").val();
+            location.href = url;
+        });
+        $('#RejectGo').click(function () {
+              var msg = 'OK';
+            if ($.trim($("#DONum").val()) === '') {
+                msg = 'DO No cannot be blank';
+            }
+            if ($("#PONum").val() === 0) {
+                msg = 'PO No cannot be zero';
+            }
+
+            if (msg != 'OK') {
+                var modal = $('#responseModal').modal(
+                    {
+                        backdrop: 'static',
+                        keyboard: false
+                    }
+                );
+                modal.find('.modal-header').text("Data Entry Validation");
+                modal.find('.modal-body').text(msg);
+                return;
+            }
+            var obj = new Object();
+            obj.Company = $("#Company").val();
+            obj.PONum = $("#PONum").val();
+            obj.DONum = $("#DONum").val();
+            obj.SupName = $("#SupName").val();
+            obj.intQue = $("#intQue").val();
+            obj.TranStatus = $("#TranStatus").val();
+            //need to create a dummy Detail controller requires one detail
+            // Controller does not use the details
+            var obj2 = {};
+            obj2.PartNum = "Dummy";
+            obj2.LineNo = "1";
+            obj2.Qty = "0";
+            obj2.LotNum = "Dummy";
+            obj2.SUOM = "Dummy";
+            var obj3 = [];
+            obj3.push(obj2);
+            obj.Detail = obj3;
+            obj.VendorNum = $("#VendorNum").val();
+            obj.RejComment = $("#RejComment").val();
+
+			ShowLoader();
+
+            $.ajax(
+                {
+                    url: '@(Url.Action("Reject", "InterCoRcv"))',
+                    data: JSON.stringify(obj),
+                    dataType: "json",
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+					success: function (data) {
+						HideLoader();
+                        if (data) {
+                            if (data.Message) {
+
+                                $('#PONum').focus();
+                                var modal = $('#responseModal').modal(
+                                    {
+                                        backdrop: 'static',
+                                        keyboard: false
+                                    }
+                                );
+                                var msg = data.Message;
+                                modal.find('.modal-header').text("Response Status");
+                                modal.find('.modal-body').text(msg);
+                            }
+                            else {
+                                var dataReturn = data.Data;
+                                //if (dataReturn.TranStatus)
+                                $('#PONum').val('0');
+                                $('#DONum').val('');
+                                $('#SupName').val('');
+                                $('#TranStatus').val('');
+                                $('#intQue').val('0');
+                                $('#VendorNum').val('0');
+                                $('#Detail').val('');
+                                var table = document.getElementById("RcvDtl");
+
+                                while (table.rows.length > 1) {
+                                    table.deleteRow(1);
+                                }
+                                //display message
+                                var modal = $('#responseModal').modal(
+                                    {
+                                        backdrop: 'static',
+                                        keyboard: false
+                                    }
+                                );
+                                var msg = dataReturn.TranStatus;
+                                modal.find('.modal-header').text("Response Status");
+                                modal.find('.modal-body').text(msg);
+
+                                document.getElementById("PONum").focus();
+                            }
+                        }
+                    },
+					failure: function (response) {
+						HideLoader();
+                        var modal = $('#responseModal').modal(
+                            {
+                                backdrop: 'static',
+                                keyboard: false
+                            }
+                        );
+                        var msg = response.responseText;
+                        modal.find('.modal-header').text("Response Status");
+                        modal.find('.modal-body').text(msg);
+                    },
+					error: function (response) {
+						HideLoader();
+                        var modal = $('#responseModal').modal(
+                            {
+                                backdrop: 'static',
+                                keyboard: false
+                            }
+						);
+						var msg = response.responseText;
+                        modal.find('.modal-header').text("Response Status");
+                        modal.find('.modal-body').text(msg);
+                    }
+                });
+        });
+    });
+</script>
+

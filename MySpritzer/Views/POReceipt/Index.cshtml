@@ -1,0 +1,369 @@
+﻿@model MySpritzer.Models.POHeaderModel
+
+@{
+	ViewBag.Title = "Index";
+}
+@{
+	var searchParam = "";
+
+	if (!string.IsNullOrEmpty(Request.QueryString["PONum"]))
+	{
+		searchParam = Request.QueryString["PONum"];
+	}
+
+	var doNumParam = "";
+
+	if (!string.IsNullOrEmpty(Request.QueryString["DONum"]))
+	{
+		doNumParam = Request.QueryString["DONum"];
+	}
+
+
+	string Company = (string)Session["Company"];
+
+}
+
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				PO Receipt
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				@using (@Html.BeginForm("Index", "POReceipt", FormMethod.Get, new { id = "SearchForm" }))
+				{
+					<fieldset>
+						@*<legend>Header:</legend>*@
+						@*<div class="col-xs-6">
+								<div class="form-group">
+									<label class="control-label" for="company">Company:</label>
+									<select name="company" class="form-control">
+
+										@foreach (var comp in ViewBag.Companies)
+										{
+
+											if (comp.CompanyId == companyParam)
+											{
+												selected = "selected";
+											}
+											else
+											{
+												selected = "";
+											}
+
+											<option value="@comp.CompanyId" @selected>@comp.Name</option>
+
+										}
+									</select>
+								</div>
+							</div>*@
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label">Supp Id:</label>
+								<input type="text" class="form-control" readonly value=@Html.DisplayFor(x => x.SuppId)>
+							</div>
+						</div>
+
+						@*<input type="hidden" name="Company" value='@Company' />*@
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="search">PO Num:</label>
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="Enter PO Num" name="PONum" id="poNum" required value="@searchParam">
+									<div class="input-group-btn">
+										<button class="btn btn-primary" type="submit" onclick="onSaveButtonClick();">
+											<i class="glyphicon glyphicon-search"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="suppName">Supp Name:</label>
+								<input type="text" class="form-control" value="@Html.DisplayFor(x => x.SuppName)" readonly>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="DONum">DO Num:</label>
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="Enter DO Num" name="DONum" id="doNum" value="@doNumParam">
+									<div class="input-group-btn">
+										<button class="btn btn-primary" type="submit" onclick="onSaveButtonClick();">
+											<i class="glyphicon glyphicon-search" onclick="onSaveButtonClick();"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+
+					<fieldset>
+						<legend>PO Details:</legend>
+						<!--PO DETAIL-->
+						<div>
+							@*<div class="panel panel-default">
+								<div class="panel-body">*@
+							<table id="poDetailTable" class="table table-responsive table-condensed" style="width:100%">
+								<thead>
+									<tr>
+										<th>Ln</th>
+										<th>PartDesc</th>
+										<th>Qty</th>
+										<th>PUM</th>
+										@*<th>Action</th>*@
+									</tr>
+								</thead>
+								<tbody>
+
+									@if (Model.PODetails == null)
+									{
+										<tr>
+											<td valign="top" colspan="4" class="dataTables_empty">No data available in table</td>
+										</tr>
+									}
+									else
+									{
+										foreach (var item in Model.PODetails)
+										{
+											@*@Html.Hidden("PONumLn", item.PONum)*@
+
+											<tr>
+												<td>
+													<input type="hidden" value="@item.PONum" id='h_PONum' class='h_PONum'>
+													@Html.DisplayFor(modelItem => item.POLine)
+												</td>
+												<td>
+
+													@*@Html.ActionLink(item.PartNum, "Details", new {id = @item.POLine })*@
+
+													<button type="button" class="btn btn-link checkDoNum" onclick="onSaveButtonClick();" value=@item.POLine>
+														@item.PartDesc
+													</button>
+												</td>
+												<td>
+													@Html.DisplayFor(modelItem => item.Qty)
+												</td>
+												<td>
+													@Html.DisplayFor(modelItem => item.PUM)
+
+												</td>
+
+												@*<td>
+														<form method="get" action="POReceipt/Details" class="FormPOLine">
+															<input type="hidden" name="id" value="@item.POLine">
+														</form>
+
+														<button type="button" class="btn btn-primary checkDoNum" value="@item.POLine">
+															Receive
+														</button>
+													</td>*@
+											</tr>
+										}
+									}
+
+								</tbody>
+							</table>
+							@*</div>
+								</div>*@
+						</div>
+					</fieldset>
+				}
+
+			</div>
+
+			@*<div class="panel-footer">
+					<button type="submit" class="btn btn-primary pull-right" form="SearchForm">Submit</button>
+				</div>*@
+
+		</div>
+
+	</div>
+
+	@*<a href="#" class="previous pull-left">&laquo; Previous</a>
+	<a href="#" class="next pull-right">Next &raquo;</a>*@
+
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title">Modal Heading</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4>Please insert DO Number.</h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+</div>
+
+
+@if (ViewBag.Error != null && ViewBag.Error != "Full")
+{
+	<script type="text/javascript">
+		//Showing error message for Not Approve PO Num
+		var model = $('#alertModal').modal();
+		var msg = '@ViewBag.Error';
+		model.find('.modal-title').text("Info");
+		model.find('.modal-body').text(msg);
+
+		$('#poNum').val("");
+		$('#doNum').val("");
+	</script>
+}
+
+<script type="text/javascript">
+	//Show message if user refresh page or close the browser
+	//var changesSaved = false;
+
+	function onSaveButtonClick() {
+		//changesSaved = true;
+	}
+
+	//window.onbeforeunload = function () {
+	//	if (!changesSaved) {
+	//		return "You haven't saved your changes";
+
+	//	}
+	//};
+
+	//Go to Details
+	$(document).ready(function () {
+
+		$('#poNum').focus();
+
+
+
+		$("#poNum").change(function () {
+			$('#doNum').val("");
+			$("#SearchForm").submit();
+			$('#doNum').focus();
+		});
+
+		if ('@searchParam' != null && '@searchParam' != "") {
+			$('#doNum').focus();
+		}
+
+		@*$('#poNum').change(function () {
+
+			var Company = '@Company';
+			var PONum = $("#poNum").val();
+
+			if (PONum) {
+                $.ajax(
+					{
+
+						data: { Company: Company, PONum: PONum },
+                        dataType: "json",
+						type: "GET",
+						url: '@(Url.Action("CheckPONum", "POReceipt"))',
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+
+                            if (data) {
+								if (data.Message!="") {
+									var msg = data.Message;
+                                    //document.getElementById("Part").focus;
+									$('#poNum').val("");
+									$('#poNum').focus();
+
+									//$.notify(msg, "error");
+
+                                    var modal = $('#alertModal').modal();
+                                    modal.find('.modal-header').text("Response Status");
+                                    modal.find('.modal-body').text(msg);
+                                }
+								else {
+									//$('#doNum').focus();
+                                }
+                            }
+                        },
+						failure: function (response) {
+							$('#poNum').val("");
+							$('#poNum').focus();
+
+							var modal = $('#alertModal').modal();
+							var msg = data.Message;
+							modal.find('.modal-header').text("Response Status");
+							modal.find('.modal-body').text(msg);
+                        },
+						error: function (response) {
+							$('#poNum').val("");
+							$('#poNum').focus();
+
+							var modal = $('#alertModal').modal();
+							var msg = data.Message;
+							modal.find('.modal-header').text("Response Status");
+							modal.find('.modal-body').text(msg);
+                        }
+                    });
+			}
+
+			//$('#doNum').focus();
+		});*@
+
+		$('.checkDoNum').click(function () {
+			var msg = "";
+			var receiveId = $(this).val();
+
+			if (receiveId == "") {
+				msg = "POLine is Empty!";
+			}
+			if (receiveId <= 0) {
+				msg = 'POLine is ' + receiveId;
+			}
+			var poNumHdVal = $("#poNum").val();
+			var poNumLnVal = $("#h_PONum").val();
+
+			if (poNumHdVal != poNumLnVal) {
+				msg = "Search PONum: " + poNumHdVal + " & Ln PONum: " + poNumLnVal + "not Equal!";
+			}
+			var doVal = $("#doNum").val();
+			if (doVal == "") {
+				msg = "DO Num is Empty!";
+			}
+			if (msg != "") {
+				var model = $('#alertModal').modal();
+				model.find('.modal-title').text("Error");
+				model.find('.modal-body').text(msg);
+				//alert(msg);
+			} else {
+				//window.location.replace("test.html?" + receiveId);
+				//window.location.href = "POReceipt/Details?id=" + receiveId + "&DONum=" + doVal;//Change to Razor Syntax
+				var url = '@Url.Action("Details", "POReceipt")' + "?id=" + receiveId + "&DONum=" + doVal;
+				window.location.href = url;
+				//document.getElementById("FormPOLine").submit();
+				//$('.FormPOLine').submit();
+
+			}
+		});
+
+	});
+
+</script>
+
+
+

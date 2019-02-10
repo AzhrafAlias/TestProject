@@ -1,0 +1,348 @@
+﻿
+
+@{
+	ViewBag.Title = "Finish Goods Pick Process";
+
+	string Company = "";
+	if (Session["Company"] != null)
+	{
+		Company = (string)Session["Company"];
+	}
+
+	//string Status = "";
+	//if (ViewBag.Status != null)
+	//{
+	//	Status = ViewBag.Status;
+	//}
+}
+@*<input type="hidden" id="pgStatus" data-value='' />*@
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				FG Reduce Process
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+				@*<fieldset>
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="Pallet">Pallet: </label>
+								<br />
+								<label class="control-label" for="TruckNo">Truck No: </label>
+							</div>
+						</div>
+					</fieldset>
+					<hr />*@
+
+				<fieldset>
+
+
+					@*<input type="hidden" id="Company" value='@Html.DisplayFor(model => model.Company)' />
+						<input type="hidden" id="Key1" value='@Html.DisplayFor(model => model.Key1)' />
+						<input type="hidden" id="Key2" value='@Html.DisplayFor(model => model.Key2)' />
+						<input type="hidden" id="Key3" value='@Html.DisplayFor(model => model.Key3)' />
+
+						<input type="hidden" id="PartDesc" value='@Html.DisplayFor(model => model.PartDesc)' />
+						<input type="hidden" id="PalletQty" value='@Html.DisplayFor(model => model.PalletQty)' />
+						<input type="hidden" id="PickedPalletQty" value='@Html.DisplayFor(model => model.PickedPalletQty)' />
+
+						<input type="hidden" id="PickedQty" value='@Html.DisplayFor(model => model.PickedQty)' />
+						<input type="hidden" id="PalletType" value='@Html.DisplayFor(model => model.PalletType)' />
+						<input type="hidden" id="Comment" value='@Html.DisplayFor(model => model.Comment)' />*@
+
+					<input type="hidden" class="form-control" name="DataQty" id="DataQty">
+
+					<div class="col-xs-7">
+						<div class="form-group">
+							<label class="control-label" for="LotNum">LotNum </label>
+							<input type="text" class="form-control" name="LotNum" id="LotNum">
+						</div>
+					</div>
+
+					<div class="col-xs-5">
+						<div class="form-group">
+							<label class="control-label" for="ModifiedQty">Qty </label>
+							<input type="number" step="1" style="text-align: right" class="form-control" name="ModifiedQty" id="ModifiedQty" value="0">
+							@*<div class="input-group">
+
+									<div class="input-group-btn">
+										<button class="btn btn-primary ConfirmBtn" type="button">
+											<i class="glyphicon glyphicon-ok"></i>
+										</button>
+									</div>
+								</div>*@
+						</div>
+					</div>
+
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label">Description</label>
+							<input type="text" class="form-control" name="PartDescription" id="PartDescription" readonly>
+						</div>
+					</div>
+
+				</fieldset>
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-danger" id="HomeBtn">Close</button>
+				<button type="button" class="btn btn-primary" id="ResetScanningBtn">Clear</button>
+				<button type="button" class="btn btn-primary pull-right ConfirmBtn" form="ProductScanningForm">Confirm</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- alertModal Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--alertModal Modal//-->
+
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function ()
+	{
+		//var msg = $("#pgStatus").data("value");
+		//if (msg != '') {
+		//	var model = $('#alertModal').modal();
+		//	model.find('.modal-title').text("Error");
+		//	model.find('.modal-body').text(msg);
+		//};
+
+		$('#LotNum').focus();
+		$('.ConfirmBtn').attr("disabled", "disabled");
+		$('#LotNum').change(function () {
+			var LotNum = $('#LotNum').val();
+			if (LotNum != "") {
+				var obj = new Object();
+				obj.Company = '@Company';
+				obj.LotNum = LotNum;
+				ShowLoader();
+				$.ajax
+					({
+						url: '@(Url.Action("CheckLotNum", "FGReduce"))',
+						//url: "http://10.0.10.29/SpritzerAPI/api/LPPalletSelection",
+						data: JSON.stringify(obj),
+						dataType: "json",
+						type: "POST",
+						contentType: 'application/json; charset=utf-8',
+						success: function (data) {
+							HideLoader();
+							if (data) {
+                                if (data.Status == "Success") {
+
+                                    var PartDescription = data.PartDescription;
+                                    $('#PartDescription').val(PartDescription);
+
+									var qty = data.OnhandQty;
+									$('#DataQty').val(qty);
+
+									$('#ModifiedQty').val(qty);
+									$('#ModifiedQty').select();
+
+									$('.ConfirmBtn').removeAttr("disabled");
+								} else {
+									var qty = data.OnhandQty;
+									$('#ModifiedQty').val(qty);
+
+									$('#PartDescription').val("");
+
+									$('#LotNum').val("");
+									$('#LotNum').focus();
+
+									var msg = data.Message;
+
+									//$.notify(msg, "error");
+
+									var modal = $('#alertModal').modal();
+									modal.find('.modal-header').text("Response Message");
+									modal.find('.modal-body').text(msg);
+
+									$('.ConfirmBtn').attr("disabled", "disabled");
+								}
+							}
+						},
+						failure: function (response) {
+							HideLoader();
+							var msg = response.responseText;
+
+							//$.notify(msg, "error");
+
+							var modal = $('#alertModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						},
+						error: function (response) {
+							HideLoader();
+							var msg = response.responseText;
+
+							//$.notify(msg, "error");
+
+							var modal = $('#alertModal').modal();
+							modal.find('.modal-header').text("Response Message");
+							modal.find('.modal-body').text(msg);
+						}
+					});
+			} else {
+				$('.ConfirmBtn').attr("disabled", "disabled");
+			}
+		});
+
+		$('.ConfirmBtn').click(function ()
+		{
+			var ModifiedQty = parseFloat($('#ModifiedQty').val());
+			var DataQty = parseFloat($('#DataQty').val());
+
+			if ($('#LotNum').val() != "") {
+				if (ModifiedQty) {
+
+					if (ModifiedQty < DataQty && ModifiedQty > 0) {
+
+						var obj = new Object();
+						//obj.Company = $('#Company').val();
+						obj.LotNum = $('#LotNum').val();
+						obj.ModifiedQty = ModifiedQty;
+
+						ShowLoader();
+
+						$.ajax(
+							{
+								url: '@(Url.Action("UpdateLotNum", "FGReduce"))',
+								//url: "http://10.0.10.29/SpritzerAPI/api/LPPalletSelection",
+								data: JSON.stringify(obj),
+								dataType: "json",
+								type: "POST",
+								contentType: 'application/json; charset=utf-8',
+								success: function (data) {
+									HideLoader();
+									if (data) {
+										if (data.Status == "Success") {
+											var msg = data.Message;
+
+											//$.notify(msg, "success");
+
+											var modal = $('#alertModal').modal();
+											modal.find('.modal-header').text("Response Status");
+											modal.find('.modal-body').text(msg);
+
+											$('.ConfirmBtn').attr("disabled", "disabled");
+
+											//Reset the form
+											$('#ModifiedQty').val(0);
+											$('#DataQty').val(0);
+											$('#LotNum').val("");
+											$('#PartDescription').val("");
+
+										} else {
+											var msg = data.Message;
+
+											//$.notify(msg, "error");
+
+											var modal = $('#alertModal').modal();
+											modal.find('.modal-header').text("Response Status");
+											modal.find('.modal-body').text(msg);
+
+											$('.ConfirmBtn').attr("disabled", "disabled");
+										}
+									}
+								},
+								failure: function (response) {
+									HideLoader();
+									var msg = response.responseText;
+
+									//$.notify(msg, "error");
+
+									var modal = $('#alertModal').modal();
+									modal.find('.modal-header').text("Response Status");
+									modal.find('.modal-body').text(msg);
+								},
+								error: function (response) {
+									HideLoader();
+									var msg = response.responseText;
+
+									//$.notify(msg, "error");
+
+									var modal = $('#alertModal').modal();
+									modal.find('.modal-header').text("Response Status");
+									modal.find('.modal-body').text(msg);
+								}
+							});
+					}
+					else if (ModifiedQty < 0) {
+						var msg = "Qty must greater than 0";
+						//$.notify(msg, "error");
+						var modal = $('#alertModal').modal();
+						modal.find('.modal-header').text("Alert Message");
+						modal.find('.modal-body').text(msg);
+					}
+					else {
+						var msg = "Reduce qty must be less than current qty.";
+						//$.notify(msg, "error");
+						var modal = $('#alertModal').modal();
+						modal.find('.modal-header').text("Alert Message");
+						modal.find('.modal-body').text(msg);
+					}
+				} else {
+					var msg = "Please insert a valid Qty";
+					//$.notify(msg, "error");
+					var modal = $('#alertModal').modal();
+					modal.find('.modal-header').text("Alert Message");
+					modal.find('.modal-body').text(msg);
+				}
+			}
+			else {
+				var msg = "Lot Num is empty.";
+				//$.notify(msg, "error");
+				var modal = $('#alertModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+			}
+
+		});
+
+		$('#ResetScanningBtn').click(function () {
+			$('#LotNum').val("");
+			$('#LotNum').focus();
+			$('#ModifiedQty').val(0);
+			$('#PartDescription').val("");
+			//window.location.reload();
+		});
+
+
+		$("#HomeBtn").click(function () {
+			var url = '@Url.Action("Index", "Home")';
+			window.location.href = url;
+		});
+
+	});
+</script>

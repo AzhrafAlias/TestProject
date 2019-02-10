@@ -1,0 +1,416 @@
+﻿@model MySpritzer.Models.QAApprovalModel
+
+@{
+	ViewBag.Title = "Index";
+	string Company = Model.UD110Company;
+
+	bool inspectStatus = Model.UD110FS_QAInspStatus;
+	string trueChecked = "checked";
+	string falseChecked = "";
+	if (inspectStatus)
+	{
+		trueChecked = "checked";
+		falseChecked = "";
+	}
+	else
+	{
+		trueChecked = "";
+		falseChecked = "checked";
+	}
+
+}
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				QA Approval
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				<fieldset>
+					<div>
+						<form id="QaAppovalForm">
+							<div class="form-group">
+								<input type="hidden" name="UD110Company" id="h_UD110Company" value='@Html.DisplayFor(m => m.UD110Company)' />
+								<input type="hidden" name="UD110Key1" id="h_UD110Key1" value='@Html.DisplayFor(m => m.UD110Key1)' />
+								<input type="hidden" name="UD110Key2" id="h_UD110Key2" value='@Html.DisplayFor(m => m.UD110Key2)' />
+								<label class="radio-inline"><input type="radio" name="UD110FS_QAInspStatus" value="true" @trueChecked>Pass</label>
+								<label class="radio-inline"><input type="radio" name="UD110FS_QAInspStatus" value="false" @falseChecked>Fail</label>
+							</div>
+							<br />
+							<div class="form-group">
+								<label class="control-label" for="UD110FS_TruckStaRemarks">Comment:</label>
+								<textarea class="form-control" name="UD110FS_TruckStaRemarks" id="Comment" rows="5">@Html.DisplayFor(m => m.UD110FS_TruckStaRemarks)</textarea>
+							</div>
+							<br />
+							<div class="form-group">
+								<label class="control-label" for="Signature">Signature:</label>
+								<br />
+								@*<canvas id="canvasInAPerfectWorld" width="490" height="220"></canvas>
+									<div id="canvasDiv"></div>*@
+								<div>
+									<canvas id="signature" style="border:1px solid #000000"></canvas>
+								</div>
+								<input type="hidden" id="SignatureDataUrl" />
+							</div>
+						</form>
+					</div>
+				</fieldset>
+
+			</div>
+
+			<div class="panel-footer">
+				<button type="button" class="btn btn-primary pull-right" id="ConfirmSignBtn">Confirm</button>
+				<button type="button" class="btn btn-danger RedirectToIndexBtn">Close</button>
+				@*<button type="button" class="btn btn-primary" id="UndoSignBtn">Undo</button>*@
+				<button type="button" class="btn btn-danger" id="ClearSignBtn">Clear</button>
+				@*<button type="button" class="btn btn-primary" id="SaveSignBtn">Save</button>*@
+			</div>
+
+
+
+		</div>
+	</div>
+
+
+	<!-- failResponseModal Modal -->
+	<div class="modal fade" id="failResponseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" id="RedirectToQADriverBtn">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- failResponseModal Modal// -->
+	<!-- passResponseModal Modal -->
+	<div class="modal fade" id="passResponseModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger RedirectToIndexBtn">Okay</button>
+					@*<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>*@
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- passResponseModal Modal// -->
+	<!-- alertModal Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- alertModal Modal// -->
+
+
+
+</div>
+
+<!--HAND DRAWING SIGNATURE-->
+<script src="@Url.Content("~/Scripts/my/sign/signature_pad.js")" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+	$(function () {
+		var canvas = document.querySelector('#signature');
+		var pad = new SignaturePad(canvas, {
+			backgroundColor: 'rgb(255, 255, 255)'
+		});
+
+
+		$('.RedirectToIndexBtn').click(function () {
+			backToMain();
+		});
+
+		function backToMain() {
+			var url = '@Url.Action("Index", "FullPicking")' + "?Company=" + '@Company';
+			window.location.href = url;
+		}
+
+		function RedirectToQADriver() {
+			var url = '@Url.Action("QaApprovalDriver", "FullPicking")';
+			window.location.href = url;
+		}
+
+		$('#RedirectToQADriverBtn').click(function () {
+			RedirectToQADriver();
+
+			/*
+			var comment = $.trim($("#Comment").val());
+			if (comment != "") {
+				alert(comment);
+			}
+
+			//Get Signature Data
+			var data = pad.toDataURL();
+			//$('#SignatureDataUrl').val(data);
+
+			var radioValue = $("input[name='UD110FS_QAInspStatus']:checked").val();
+			alert(radioValue);
+
+			obj_UD110Company = $('#h_UD110Company').val();
+			obj_UD110Key1 = $('#h_UD110Key1').val();
+			obj_UD110Key2 = $('#h_UD110Key2').val();
+			obj_UD110FS_QAInspStatus = radioValue;
+			obj_UD110FS_TruckStaRemarks = comment;
+			obj_UD110FS_TruckQASignanture = data;
+			*/
+
+			//window.location.href = "QaApprovalDriver";
+			//window.location.href = "FullPicking/QaApprovalDriver?UD110Company=" + obj_UD110Company + "&UD110Key1=" + obj_UD110Key1 + "&UD110Key2=" + obj_UD110Key2 + "&UD110FS_QAInspStatus=" + obj_UD110FS_QAInspStatus + "&UD110FS_TruckStaRemarks=" + obj_UD110FS_TruckStaRemarks + "&obj_UD110FS_TruckQASignanture=" + obj_UD110FS_TruckQASignanture;
+		});
+
+
+
+		$('#ConfirmSignBtn').click(function () {
+			//https://asp.net-hacker.rocks/2018/06/05/signature-pad.html
+			/*
+			var data = pad.toDataURL();
+
+			//$('#savetarget').attr('src', data);
+			//$('#SignatureDataUrl').val(data);
+			sendToServer(data);
+			alert(data);
+			pad.off();
+			*/
+
+			if (pad.isEmpty())
+			{
+				var modal = $('#alertModal').modal();
+				var msg = "Please provide a signature.";
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+			}
+
+			else
+			{
+				var comment = $.trim($("#Comment").val());
+
+				//Get Signature Data
+				var data = pad.toDataURL();
+				//$('#SignatureDataUrl').val(data);
+
+				var radioValue = $("input[name='UD110FS_QAInspStatus']:checked").val();
+
+				var obj = new Object();
+				obj.UD110Company = $('#h_UD110Company').val();
+				obj.UD110Key1 = $('#h_UD110Key1').val();
+				obj.UD110Key2 = $('#h_UD110Key2').val();
+				obj.UD110FS_QAInspStatus = radioValue;
+				obj.UD110FS_TruckStaRemarks = comment;
+				obj.UD110FS_TruckQASignanture = data;
+
+				ShowLoader();
+
+				$.ajax(
+				{
+					url: '@(Url.Action("SubmitQaApproval", "FullPicking"))',
+					data: JSON.stringify(obj),
+					dataType: "json",
+					type: "POST",
+					contentType: 'application/json; charset=utf-8',
+					success: function (data)
+					{
+						HideLoader();
+						if (data)
+						{
+							if (data.Status == "Success") {
+								if (data.InspectStatus == "Fail") {
+									//show fail response modal
+									//alert(data.Message);
+
+									//var msg = data.Message;
+									//var modal = $('#failResponseModal').modal();
+									//modal.find('.modal-header').text("Response Message");
+									//modal.find('.modal-body').text(msg);
+
+									RedirectToQADriver();
+								} else {
+									backToMain();
+									//var msg = data.Message;
+									//var modal = $('#passResponseModal').modal();
+									//modal.find('.modal-header').text("Response Message");
+									//modal.find('.modal-body').text(msg);
+								}
+							} else {
+								var modal = $('#alertModal').modal();
+								var msg = data.Message;
+								modal.find('.modal-header').text("Response Message");
+								modal.find('.modal-body').text(msg);
+							}
+						}
+					},
+					failure: function (response)
+					{
+						HideLoader();
+						alert(response.responseText);
+						//var modal = $('#responseModal').modal();
+						//var msg = response.responseText;
+						//modal.find('.modal-header').text("Response Status");
+						//modal.find('.modal-body').text(msg);
+					},
+					error: function (response)
+					{
+						HideLoader();
+						alert(response.responseText);
+						//var modal = $('#responseModal').modal();
+						//var msg = response.responseText;
+						//modal.find('.modal-header').text("Response Status");
+						//modal.find('.modal-body').text(msg);
+					}
+				});
+
+			}
+
+		});
+
+
+		$('#UndoSignBtn').click(function () {
+			//alert("Undo");
+			var data = pad.toData();
+
+			if (data) {
+				data.pop(); // remove the last dot or line
+				pad.fromData(data);
+			}
+		});
+
+		$('#ClearSignBtn').click(function () {
+			//alert("Clear");
+			pad.clear();
+			$("#Comment").val("");
+		});
+
+		$('#SaveSignBtn').click(function () {
+			//alert("Save");
+			if (pad.isEmpty()) {
+				alert("Please provide a signature first.");
+			} else {
+				var dataURL = pad.toDataURL();
+				//alert(dataUrl);
+				download(dataURL, "signature.png");
+				//sendToServer(dataURL);
+			}
+		});
+
+	});
+
+	function resizeCanvas() {
+		var canvas = document.querySelector('#signature');
+		var pad = new SignaturePad(canvas, {
+			backgroundColor: 'rgb(255, 255, 255)'
+		});
+		// When zoomed out to less than 100%, for some very strange reason,
+		// some browsers report devicePixelRatio as less than 1
+		// and only part of the canvas is cleared then.
+		var ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+		// This part causes the canvas to be cleared
+		canvas.width = canvas.offsetWidth * ratio;
+		canvas.height = canvas.offsetHeight * ratio;
+		canvas.getContext("2d").scale(ratio, ratio);
+
+		// This library does not listen for canvas changes, so after the canvas is automatically
+		// cleared by the browser, SignaturePad#isEmpty might still return false, even though the
+		// canvas looks empty, because the internal data of this library wasn't cleared. To make sure
+		// that the state of this library is consistent with visual state of the canvas, you
+		// have to clear it manually.
+		pad.clear();
+	}
+
+	window.onresize = resizeCanvas;
+	resizeCanvas();
+
+	function download(dataURL, filename) {
+		var blob = dataURLToBlob(dataURL);
+		var url = window.URL.createObjectURL(blob);
+
+		var a = document.createElement("a");
+		a.style = "display: none";
+		a.href = url;
+		a.download = filename;
+
+		document.body.appendChild(a);
+		a.click();
+
+		window.URL.revokeObjectURL(url);
+	}
+
+	// One could simply use Canvas#toBlob method instead, but it's just to show
+	// that it can be done using result of SignaturePad#toDataURL.
+	function dataURLToBlob(dataURL) {
+		// Code taken from https://github.com/ebidel/filer.js
+		var parts = dataURL.split(';base64,');
+		var contentType = parts[0].split(":")[1];
+		var raw = window.atob(parts[1]);
+		var rawLength = raw.length;
+		var uInt8Array = new Uint8Array(rawLength);
+
+		for (var i = 0; i < rawLength; ++i) {
+			uInt8Array[i] = raw.charCodeAt(i);
+		}
+
+		return new Blob([uInt8Array], { type: contentType });
+	}
+
+
+	//Save image to server. Not working
+	function sendToServer(dataURL) {
+		var data = dataURL;
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function () {
+			// request complete
+			if (xhr.readyState == 4) {
+				window.open('http://localhost/signature_pad-gh-pages/snapshots' + xhr.responseText, '_blank');
+			}
+		}
+		xhr.open('POST', 'http://localhost/signature_pad-gh-pages/upload.php', true);
+		xhr.setRequestHeader('Content-Type', 'application/upload');
+		xhr.send(data);
+	}
+
+</script>
+
+<!--HAND DRAWING SIGNATURE//-->

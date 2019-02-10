@@ -1,0 +1,346 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	@*<script type="text/javascript">
+			window.onbeforeunload = function () {
+				//return "Did you save your stuff?"
+				var msg = 'Are u sure to close?';
+				var model = $('#alertModal2').modal();
+				model.find('.modal-title').text("Error");
+				model.find('.modal-body').text(msg);
+			}
+
+		</script>*@
+
+	<title>Spritzer Handheld</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="@Url.Content("~/Content/my/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+	<script src="@Url.Content("~/Scripts/my/jquery.min.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/Scripts/my/bootstrap.min.js")" type="text/javascript"></script>
+
+	<!--DATA TABLE-->
+	<script src="@Url.Content("~/Scripts/my/data-table/jquery.dataTables.min.js")" type="text/javascript"></script>
+	<link href="@Url.Content("~/Content/my/data-table/jquery.dataTables.min.css")" rel="stylesheet" type="text/css" />
+
+	<!--CUSTOM SCRIPT-->
+	<script src="@Url.Content("~/Scripts/my/my-modal.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/Scripts/my/my-data-table.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/Scripts/my/my-script.js")" type="text/javascript"></script>
+	<script src="@Url.Content("~/Scripts/my/notify.js")" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+			//Disable showing previous data in every input field
+			$('input').attr('autocomplete', 'off');
+
+			//Disable browser back button, reference-https://www.youtube.com/watch?v=1AqyGeg5qfw
+			history.pushState(null, null, location.href);
+			window.onpopstate = function () {
+				history.go(1);
+			};
+		});
+
+	</script>
+
+	<style type="text/css">
+		#signature {
+			height: 200px;
+			width: 100%;
+			border-radius: 4px
+		}
+		/*.container {
+			width: auto;
+			padding-right: 1px;
+			padding-left: 1px;
+		}
+
+		.container-fluid {
+			padding-top: 50px;
+			/*padding-bottom: 70px;
+		}*/
+
+
+		.form-group {
+			margin-bottom: 2px !important;
+		}
+
+		.form-control {
+			/*height: 30px !important;*/
+			padding: 2px 4px;
+		}
+
+		option {
+			font-size: 12px !important;
+		}
+
+
+		button {
+			font-size: 15px !important; /*12px edit by AMIN*/
+		}
+
+		.col-xs-7, .col-xs-5, .col-xs-12, .col-xs-6, .col-xs-2, .col-xs-4, .col-xs-6, .col-xs-10, .col-xs-8 {
+			position: relative;
+			min-height: 1px;
+			padding-right: 5px;
+			padding-left: 5px;
+		}
+
+		legend {
+			display: block;
+			width: 100%;
+			padding: 0;
+			margin-bottom: 5px;
+			font-size: 18px;
+		}
+	</style>
+
+	<!--// THIS IS FOR LOADING ANIMATION-->
+	<link href="@Url.Content("~/Content/my/Loader.css")" rel="stylesheet" type="text/css" />
+	<script src="@Url.Content("~/Scripts/my/Loader.js")" type="text/javascript"></script>
+	<!--THIS IS FOR LOADING ANIMATION //-->
+
+</head>
+
+<body onselectstart="return false">
+	@{
+        string Company = "";
+        string UserId = "";
+
+        if (!string.IsNullOrEmpty(Session["Company"] as string))
+        {
+            Company = Session["Company"] as string;
+
+        }
+        if (!string.IsNullOrEmpty(Session["User"] as string))
+        {
+
+            UserId = Session["User"].ToString();
+        }
+	}
+
+	<!--NAV BAR-->
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href='@Url.Action("Index", "Home")'><img src="@Url.Content("~/Content/images/logo.png")" alt="Spritzer" height="34" width="117"> Handheld &nbsp;</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+				@if (string.IsNullOrEmpty(UserId))
+				{
+
+				}
+				else
+				{
+					if (Session["Menu"] != null)
+					{
+						List<Menu> menu = (List<Menu>)Session["Menu"];
+
+						<!--Filter this menu by user-->
+						<ul class="nav navbar-nav">
+							@foreach (var m in menu)
+							{
+								if (m.MenuId == "PO")
+								{
+									<li>
+
+										<a href="#" class="dropdown-toggle" data-toggle="dropdown">PURCHASE ORDER<b class="caret"></b></a>
+
+										<ol class="dropdown-menu multi-level">
+											@foreach (var m2 in menu)
+											{
+												if (m2.MenuId == "PORcpt")
+												{
+													<li>@Html.ActionLink("PO Receipt", "Index", "POReceipt")</li>
+												}
+												if (m2.MenuId == "IntrCRcv")
+												{
+													<li>@Html.ActionLink("InterCoRcv", "Index", "InterCoRcv", new { Company = @Company }, null)</li>
+												}
+											}
+
+										</ol>
+									</li>
+								}
+							}
+
+							@foreach (var m in menu)
+							{
+								if (m.MenuId == "WO")
+								{
+									<li>
+										<a href="#" class="dropdown-toggle" data-toggle="dropdown">WAREHOUSE OUT <b class="caret"></b></a>
+										<ol class="dropdown-menu multi-level">
+											@foreach (var m2 in menu)
+											{
+												if (m2.MenuId == "LP")
+												{
+													<li>@Html.ActionLink("Loose Picking", "Index", "LoosePicking", new { Company = @Company }, null)</li>
+												}
+												if (m2.MenuId == "FP")
+												{
+													<li>@Html.ActionLink("Full Picking", "Index", "FullPicking", new { Company = @Company }, null)</li>
+												}
+												if (m2.MenuId == "FG")
+												{
+													<li>@Html.ActionLink("Finish Goods", "FinishGoods", "FullPicking")</li>
+												}
+											}
+										</ol>
+									</li>
+								}
+							}
+
+							@foreach (var m in menu)
+							{
+								if (m.MenuId == "WI")
+								{
+									<li>
+										<a href="#" class="dropdown-toggle" data-toggle="dropdown">WAREHOUSE IN<b class="caret"></b></a>
+										<ol class="dropdown-menu multi-level">
+											@foreach (var m2 in menu)
+											{
+												if (m2.MenuId == "PRM")
+												{
+													<li>@Html.ActionLink("Pick Raw Mtrl", "Index", "PickRawMtrl", new { Company = @Company, UserId = @UserId }, null)</li>
+												}
+												if (m2.MenuId == "RFP")
+												{
+													<li>@Html.ActionLink("Receive FG Product", "Index", "FG")</li>
+												}
+												if (m2.MenuId == "UI")
+												{
+													<li>@Html.ActionLink("Urgent Issue", "UI", "UrgentIssue")</li>
+												}
+												if (m2.MenuId == "FTP")
+												{
+													<li>@Html.ActionLink("FG TopUp Process", "TopUp", "FGTopUp")</li>
+												}
+												if (m2.MenuId == "FRP")
+												{
+													<li>@Html.ActionLink("FG Reduce Process", "Index", "FGReduce")</li>
+												}
+											}
+										</ol>
+									</li>
+								}
+							}
+
+							@foreach (var m in menu)
+							{
+								if (m.MenuId == "PROD")
+								{
+									<li>
+										<a href="#" class="dropdown-toggle" data-toggle="dropdown">PRODUCTION<b class="caret"></b></a>
+                                        <ol class="dropdown-menu multi-level">
+                                            @foreach (var m2 in menu)
+                                            {
+                                                if (m2.MenuId == "RV")
+                                                {
+                                                    <li>@Html.ActionLink("Recipient Verification", "Index", "PMCReceipientVerify", new { Company = @Company, UserId = @UserId }, null)</li>
+                                                }
+                                                if (m2.MenuId == "PT")
+                                                {
+                                                    <li>@Html.ActionLink("PMC Transfer", "Index", "PMCTransfer")</li>
+                                                }
+                                                if (m2.MenuId == "MI")
+                                                {
+                                                    <li>@Html.ActionLink("Material Issue", "Index", "IssueMaterial", new { Company = @Company }, null)</li>
+                                                }
+                                                if (m2.MenuId == "MR")
+                                                {
+                                                    <li>@Html.ActionLink("Material Return", "Index", "MaterialReturn", new { Company = @Company }, null)</li>
+                                                }
+                                                if (m2.MenuId == "MRV")
+                                                {
+                                                    <li>@Html.ActionLink("Material Retn Verify", "Index", "MatRetnVerify", new { Company = @Company }, null)</li>
+                                                }
+                                                if (m2.MenuId == "MRM")
+                                                {
+                                                    <li>@Html.ActionLink("Material Return - Machine", "Index", "IssueMaterialMachine", new { Company = @Company }, null)</li>
+                                                }
+                                            }
+                                        </ol>
+									</li>
+								}
+							}
+
+
+						</ul>
+						<!--Filter this menu by user-->
+
+					}
+
+				}
+
+
+				<ul class="nav navbar-nav navbar-right">
+					@if (Session["User"] == null)
+					{
+						<li><a href="~/Home/Login"><span class="glyphicon glyphicon-log-in"></span> LogIn</a></li>
+					}
+					else
+					{
+						<li><a href="~/Home/Logout"><span class="glyphicon glyphicon-log-out"></span> LogOut</a></li>
+
+					}
+
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					@if (Session["User"] != null)
+					{
+						<li><a href="#"> <span class="glyphicon glyphicon-user"></span>&nbsp; @Session["User"].ToString()</a></li>
+					}
+
+				</ul>
+			</div>
+
+		</div>
+	</nav>
+	<!--NAV BAR//-->
+
+	@RenderBody()
+
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal2">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title">Modal Heading</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4>Please insert DO Number.</h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+
+
+
+</body>
+
+<!-- Footer -->
+
+
+</html>

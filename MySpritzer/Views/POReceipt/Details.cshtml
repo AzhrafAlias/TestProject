@@ -1,0 +1,527 @@
+﻿@model MySpritzer.Models.PODetailModel
+
+@{
+	ViewBag.Title = "Details";
+
+	var lotNumInputAttribute = "";
+}
+
+<!--//LOADING ANIMATION-->
+<div id="loader" style="display:none"></div>
+<div id="overlay" style="display:none"></div>
+<!--LOADING ANIMATION//-->
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+
+</script>*@
+
+
+
+
+<div class="container-fluid">
+
+	<div>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				PO Detail (DO Num: @Html.DisplayFor(x => x.DONum))
+			</div>
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				@using (Html.BeginForm("LotAttribute", "POReceipt", FormMethod.Get, new { id = "DetailForm" }))
+				{
+					@Html.AntiForgeryToken()
+
+					@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+					@Html.HiddenFor(model => model.Id)
+					@Html.HiddenFor(model => model.Company, new { id = "Company" })
+					@Html.HiddenFor(model => model.SuppNum, new { id = "SuppNum" })
+					@Html.HiddenFor(model => model.DONum, new { id = "DONum" })
+					@Html.HiddenFor(model => model.PONum, new { id = "PONum" })
+					@Html.HiddenFor(model => model.POLine)
+					@Html.HiddenFor(model => model.TrackLot)
+					@Html.HiddenFor(model => model.PUM)
+					@Html.HiddenFor(model => model.PrevRcvQty)
+					@Html.HiddenFor(model => model.WarehouseCode)
+					@Html.HiddenFor(model => model.BinNum)
+					@Html.HiddenFor(model => model.NumOfDecPUM)
+					@Html.HiddenFor(model => model.NumOfDecIUM)
+
+					var step = "";
+					var onInput = "";
+					var value = "";
+					var pattern = "";
+
+					if (Model.NumOfDecPUM > 0)
+					{
+						onInput = "";
+
+						if (Model.NumOfDecPUM == 1)
+						{
+							step = ".1";
+							pattern = @"\d{0,10}(\.\d{0,1})?";
+							value = String.Format("{0:0.0}", Model.Qty);
+
+						}
+						else
+							if (Model.NumOfDecPUM == 2)
+						{
+							step = ".01";
+							pattern = @"\d{0,10}(\.\d{0,2})?";
+							value = String.Format("{0:0.00}", Model.Qty);
+						}
+						else
+							if (Model.NumOfDecPUM == 3)
+						{
+							step = ".001";
+							pattern = @"\d{0,10}(\.\d{0,3})?";
+							value = String.Format("{0:0.000}", Model.Qty);
+						}
+						else
+							if (Model.NumOfDecPUM == 4)
+						{
+							step = ".0001";
+							pattern = @"\d{0,10}(\.\d{0,4})?";
+							value = String.Format("{0:0.0000}", Model.Qty);
+						}
+					}
+					else
+					{
+						step = "1";
+						onInput = "this.value=(parseInt(this.value)||0)";
+						pattern = @"\d{0,10}(\.\d{0,0})?";
+						//int valueInt = (int)Math.Round(Model.Qty, 0);
+						//value = valueInt.ToString();
+
+						value = String.Format("{0:0}", Model.Qty);
+					}
+
+
+
+
+
+
+					<fieldset>
+
+						@*<legend>Header:</legend>*@
+
+						<input type="hidden" name="h_XOrdQty" class="h_XOrdQty" value=@Html.DisplayFor(x => x.XOrdQty) />
+						<input type="hidden" name="OrdQty" class="h_OrdQty" value=@Html.DisplayFor(x => x.OrdQty) />
+
+						<input type="hidden" name="TuConv" class="TuConv" value=@Html.DisplayFor(x => x.TuConv) />
+						<input type="hidden" name="h_QtyPUM" id="h_QtyPUM" value=@Html.DisplayFor(x => x.Qty) />
+
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="POInfo">PONum/Line:</label>
+								<input type="text" class="form-control" title="PO Info" name="POInfo" id="POInfo" value="@Html.DisplayFor(x => x.PONum) / @Html.DisplayFor(x => x.POLine)" readonly>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="ReceiveStatus">Status:</label>
+								<input type="text" class="form-control" title="POLn ReceiveStatus" name="ReceiveStatus" id="ReceiveStatus" value="@Html.DisplayFor(x => x.ReceiveStatus)" readonly>
+							</div>
+						</div>
+
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="PartNum">PartNum:</label>
+								<input type="text" class="form-control" name="PartNum" id="PartNum" value="@Html.DisplayFor(x => x.PartNum)" readonly>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="PartDesc">Description:</label>
+								@*<input type="text" class="form-control" name="PartDesc" id="PartDesc" value="@Html.DisplayFor(x => x.PartDesc)" readonly>*@
+								<textarea class="form-control" name="PartDesc" id="PartDesc" readonly rows="3">@Html.DisplayFor(x => x.PartDesc)</textarea>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="TuId">TU ID:</label>
+								<input type="text" class="form-control ValidateTuId" name="TuId" id="TuId" value="@Html.DisplayFor(x => x.TuId)">
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" for="LotNum">LotNum:</label>
+								@{
+									//if TrackLot is TRUE = Enable and Mandatory to key in
+									//if TrackLot is FALSE Display Only
+									
+
+									if (Model.TrackLot == true)
+									{
+										lotNumInputAttribute = "required";
+									}
+									else
+									{
+										lotNumInputAttribute = "readonly";
+									}
+
+								}
+								<input type="text" class="form-control ValidateTuId" name="LotNum" id="LotNum" @lotNumInputAttribute value="@Html.DisplayFor(x => x.LotNum)">
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="Qty">Qty (PUM) :</label>
+								<input type="number" step='@step' pattern='@pattern' class="form-control Qty" style="text-align: right" title="PO Available Qty" id="QtyPUM" name="Qty" required value="@value">
+							</div>
+						</div>
+
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="PUM">PUM:</label>
+								<input type="text" class="form-control" title="PUM" name="PUM" id="PUM" value="@Html.DisplayFor(x => x.PUM)" readonly>
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="XOrdQty">Qty (IUM):</label>
+								<input type="number" class="form-control XOrdQty" name="XOrdQty" style="text-align: right" readonly value="@Html.DisplayFor(x => x.XOrdQty)">
+							</div>
+						</div>
+
+
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label" for="IUM">IUM:</label>
+								<input type="text" class="form-control" name="IUM" id="IUM" value="@Html.DisplayFor(x => x.IUM)" readonly>
+							</div>
+						</div>
+
+						<div>
+							<div class="col-xs-4">
+								<div class="form-group">
+									<label class="control-label" for="JobNum">Job Num:</label>
+									<input type="text" class="form-control" name="JobNum" value="@Html.DisplayFor(model => model.JobNum)" readonly>
+								</div>
+							</div>
+
+							<div class="col-xs-4">
+								<div class="form-group">
+									<label class="control-label" for="Assembly">Assy:</label>
+									<input type="text" class="form-control" name="Assembly" value="@Html.DisplayFor(model => model.Assembly)" readonly>
+								</div>
+							</div>
+
+							<div class="col-xs-4">
+								<div class="form-group">
+									<label class="control-label" for="Sequence">Seq:</label>
+									<input type="text" class="form-control" name="Sequence" value="@Html.DisplayFor(model => model.Sequence)" readonly>
+								</div>
+							</div>
+						</div>
+
+						@Html.HiddenFor(model => model.LotAttribute.Id)
+						@Html.HiddenFor(model => model.LotAttribute.Company)
+						@Html.HiddenFor(model => model.LotAttribute.PONum)
+						@Html.HiddenFor(model => model.LotAttribute.POLine)
+						@Html.HiddenFor(model => model.LotAttribute.PartNum)
+
+						@Html.HiddenFor(model => model.LotAttribute.AttBatch)
+						@Html.HiddenFor(model => model.LotAttribute.AttBeforeDt)
+						@Html.HiddenFor(model => model.LotAttribute.AttCureDt)
+						@Html.HiddenFor(model => model.LotAttribute.AttExpDt)
+						@Html.HiddenFor(model => model.LotAttribute.AttFirmware)
+						@Html.HiddenFor(model => model.LotAttribute.AttHeat)
+						@Html.HiddenFor(model => model.LotAttribute.AttMfgBatch)
+						@Html.HiddenFor(model => model.LotAttribute.AttMfgDt)
+						@Html.HiddenFor(model => model.LotAttribute.AttMfgLot)
+
+						@Html.HiddenFor(model => model.LotAttribute.Batch)
+						@Html.HiddenFor(model => model.LotAttribute.BestBefore)
+						@Html.HiddenFor(model => model.LotAttribute.Cure)
+						@Html.HiddenFor(model => model.LotAttribute.Expire)
+						@Html.HiddenFor(model => model.LotAttribute.Firm)
+						@Html.HiddenFor(model => model.LotAttribute.Heat)
+						@Html.HiddenFor(model => model.LotAttribute.MBatch)
+						@Html.HiddenFor(model => model.LotAttribute.OrigMfg)
+						@Html.HiddenFor(model => model.LotAttribute.MLot)
+
+					</fieldset>
+				}
+
+			</div>
+
+			<div class="panel-footer">
+				<!--<input type="submit" value="Save" class="btn btn-primary" onclick="location.href='//Url.Action("LotAttribute", "POReceipt")'" />-->
+				<button type="submit" class="btn btn-danger" id="BtnCloseDetail">Close</button>
+				<button type="button" class="btn btn-primary pull-right" id="PODtlSubmit" form="DetailForm">Submit</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+
+</div>
+
+
+<script type="text/javascript">
+	$(function () {
+		$('#QtyPUM').on('input', function () {
+			var pos = this.selectionStart;
+			var re = $(this).attr('pattern');
+			$(this).val($(this).val().match(re)[0]);
+
+			// Restore caret position after setting value
+			this.setSelectionRange(pos, pos);
+		});
+	});
+
+    $(document).ready(function () {
+
+		$('#PODtlSubmit').click(function () {
+			var tuid = $('#TuId').val();
+			var lot = $('#LotNum').val();
+			var qty = parseFloat($("#QtyPUM").val());
+
+			if ('@lotNumInputAttribute' == "required") {
+				if (tuid != "" && lot != "" && qty > 0) {
+					$('#DetailForm').submit();
+				} else if (tuid == "") {
+					DisplaySubmitError("TU ID is required !");
+					$('#TuId').focus();
+				} else if (lot == "") {
+					DisplaySubmitError("Lot Num is required !");
+					$('#LotNum').focus();
+				} else if (qty <= 0) {
+					DisplaySubmitError("Valid qty is required !");
+					$('#QtyPUM').focus();
+					$('#QtyPUM').select();
+				} else {
+					DisplaySubmitError("TU ID, Lot Num, Qty is required !");
+				}
+			} else {
+				if (tuid != "" && qty > 0) {
+					$('#DetailForm').submit();
+				} else if (tuid == "") {
+					DisplaySubmitError("TU ID is required !");
+					$('#TuId').focus();
+				} else if (qty <= 0) {
+					DisplaySubmitError("Valid qty is required !");
+					$('#QtyPUM').focus();
+					$('#QtyPUM').select();
+				} else {
+					DisplaySubmitError("TU ID and Qty is required !");
+				}
+			}
+
+		});
+
+
+		function DisplaySubmitError(msg) {
+			var model = $('#alertModal').modal();
+			model.find('.modal-title').text("Alert Message");
+			model.find('.modal-body').text(msg);
+		}
+
+
+		$('#TuId').focus();
+		$('#TuId').change(function () {
+			$('#LotNum').focus();
+		});
+
+		$('#LotNum').change(function () {
+			$('#QtyPUM').select();
+		});
+
+		$("#QtyPUM").focus(function () {
+			$("#QtyPUM").select();
+		});
+
+		$("#QtyPUM").change(function () {
+			var qty = $("#QtyPUM").val();
+			var h_qty = $("#h_QtyPUM").val();
+			if (qty) {
+				qty = parseFloat(qty);
+				h_qty = parseFloat(h_qty);
+
+				if (qty > h_qty) {
+					var msg = "Qty cannot be more than order qty!";
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Alert Message");
+					model.find('.modal-body').text(msg);
+
+					$("#QtyPUM").val(h_qty);
+					$(".XOrdQty").val(h_qty);
+					$('#QtyPUM').select();
+				}
+
+				if (qty <= 0) {
+					var msg = "Please insert a quantity";
+					var model = $('#alertModal').modal();
+					model.find('.modal-title').text("Alert Message");
+					model.find('.modal-body').text(msg);
+					$("#PODtlSubmit").attr("disabled", "disabled");
+				} else {
+					$("#PODtlSubmit").removeAttr("disabled");
+				}
+
+			} else {
+				var msg = "Please insert a quantity";
+				var model = $('#alertModal').modal();
+				model.find('.modal-title').text("Alert Message");
+				model.find('.modal-body').text(msg);
+
+				$("#QtyPUM").val(0);
+				$(".XOrdQty").val(0);
+				$('#QtyPUM').select();
+
+				$("#PODtlSubmit").attr("disabled", "disabled");
+			}
+		});
+
+		//TU VALIDATION
+		$("#PODtlSubmit").attr("disabled", "disabled");
+
+		$('.ValidateTuId').change(function () {
+			var LotNumVal = $('#LotNum').val();
+			var CompanyVal = $('#Company').val();//'EPIC03'; //Hidden
+			var DONumVal = $('#DONum').val(); //'DOXX1';
+			var SuppNumVal = $('#SuppNum').val();
+			var TuIdVal = $('#TuId').val();
+			var PartNumVal = $('#PartNum').val();
+			//alert("Comp" + CompanyVal);
+			//alert("Supp Num" + SuppNumVal);
+			//alert("DO Num" + DONumVal);
+			if (TuIdVal != "") {
+				//alert("LotNum is not empty!");
+				ShowLoader();
+				$.ajax({
+					type: "GET",
+					//url: "http://192.188.1.155/WebApi/api/TuValidation",
+					//url: "http://10.0.10.29/SpritzerAPI/api/TuValidation",
+					//url: "http://localhost:65458/api/TuValidation",
+					url: '@Url.Action("TuValidation", "POReceipt")',
+					data: { Company: CompanyVal, DONum: DONumVal, TuId: TuIdVal, LotNum: LotNumVal, PartNum: PartNumVal, SuppNum: SuppNumVal },
+					success: function (data) {
+						HideLoader();
+						if (data.Valid == true) {
+							$("#PODtlSubmit").removeAttr("disabled");
+						}
+						else {
+							$("#TuId").val("");
+							$("#LotNum").val("");
+							$("#TuId").focus();
+
+							$("#PODtlSubmit").attr("disabled", "disabled");
+
+							var msg = "";
+							//js check if data.Message has any value (not: null, empty, 0, false). if has, take the msg, else show custom msg from front end
+							if (data.Message) {
+								msg = data.Message;
+							} else {
+								msg = "Tu Validation Failed!";
+							}
+
+							//$.notify(msg, "error");
+
+							var model = $('#alertModal').modal();
+							model.find('.modal-title').text("Error");
+							model.find('.modal-body').text(msg);
+						}
+						//alert('Result3: ' + data);
+					},
+					error: function (data) {
+						HideLoader();
+						var msg = data.responseText;
+						var model = $('#alertModal').modal();
+						model.find('.modal-title').text("Error");
+						model.find('.modal-body').text(msg);
+					}
+				});
+			}
+		});
+
+        CalculateQty();
+
+        $('.Qty').keyup(CalculateQty);
+        $('.Qty').change(CalculateQty);
+
+        function CalculateQty() {
+            var h_OrdQty = parseFloat($('.h_OrdQty').val());
+			var h_XOrdQty = parseFloat($('.h_XOrdQty').val());
+
+			//var perQty = h_XOrdQty / h_OrdQty;
+
+
+			//Get Conv Factor by comparing XOrderQty with OrdQty. Which one is higher, that one will be divided with the lower
+			var perQty;
+			if (h_XOrdQty > h_OrdQty) {
+				perQty = h_XOrdQty / h_OrdQty;
+			} else {
+				perQty = h_OrdQty / h_XOrdQty;
+			}
+			//
+
+            perQty = parseFloat(perQty);
+
+            var OrdQty = parseFloat($('.Qty').val());
+
+            var newQty = OrdQty * perQty;
+
+            if ('@Model.NumOfDecIUM' == 0)
+            {
+               newQty =  Math.ceil(newQty);
+            }
+            else
+            {
+               newQty = newQty ;
+            }
+
+
+
+			$('.XOrdQty').val(newQty);
+
+			$('.TuConv').val(perQty);
+
+		}
+
+		$("#BtnCloseDetail").click(function () {
+			BackToMain();
+		});
+
+		function BackToMain() {
+			//Company=CSSA&PONum=23&DONum=1
+			var url = '@Url.Action("Index","POReceipt")' + "?Company=" + $('#Company').val() + "&PONum=" + $('#PONum').val() + "&DONum=" + $('#DONum').val();
+			window.location.href = url;
+		}
+
+    });
+
+
+</script>
+

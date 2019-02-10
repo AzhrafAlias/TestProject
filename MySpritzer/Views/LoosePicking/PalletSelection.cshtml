@@ -1,0 +1,211 @@
+﻿@model List<MySpritzer.Models.PalletModel>
+
+@{
+	ViewBag.Title = "PalletSelection";
+
+	string SONum = "";
+
+	if (!string.IsNullOrEmpty(Session["SONum"] as string))
+	{
+		SONum = Session["SONum"] as string;
+	}
+
+	string rowColor = "#FFFF00";
+
+
+	//Checking for refresh
+	string Company = "";
+	string ShipByDate = "";
+	if (!string.IsNullOrEmpty(Request.QueryString["Company"]) && !string.IsNullOrEmpty(Request.QueryString["SONum"]) && !string.IsNullOrEmpty(Request.QueryString["ShipByDate"]))
+	{
+		Company = Request.QueryString["Company"];
+		SONum = Request.QueryString["SONum"];
+		ShipByDate = Request.QueryString["ShipByDate"];
+	}
+}
+
+<div class="container-fluid">
+	<div>
+		<div class="panel panel-primary">
+
+			<div class="panel-heading">
+				Loose Picking - Pallet Selection
+			</div>
+
+			<div class="panel-body" style="max-height:550px;overflow-y: scroll;">
+
+				<fieldset>
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label" for="SONum">SO Num: @SONum</label>
+						</div>
+					</div>
+				</fieldset>
+				<hr />
+
+				<fieldset>
+					<div>
+						<table id="palletListTable" class="table table-responsive table-condensed" style="width:100%">
+							<thead>
+								<tr>
+									<th>Verify</th>
+									<th>Pallet</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var pm in Model)
+								{
+									if (pm.PQty > 0)
+									{
+										<tr style="background-color: @rowColor">
+											<td>
+												<button type="button" class="btn btn-default VerifyPalletButton" value=@pm.PId><i class="glyphicon glyphicon-eye-open"></i></button>
+											</td>
+											@if (pm.isVerified == false)
+											{
+											<td>
+												<button type="button" class="btn btn-primary ConfirmPalletButton" value=@pm.PId>@pm.PId</button>
+												/ @pm.PQty
+											</td>
+											}
+											else
+											{
+											<td>
+												<button type="button" class="btn btn-primary" disabled value=@pm.PId>@pm.PId</button>
+												/ @pm.PQty
+											</td>
+											}
+
+										</tr>
+									}
+									else
+									{
+										<tr>
+											<td>
+												<button type="button" class="btn btn-default EmptyVerifyPalletButton" value=@pm.PId><i class="glyphicon glyphicon-eye-open"></i></button>
+											</td>
+											<td>
+												<button type="button" class="btn btn-primary ConfirmPalletButton" value=@pm.PId>@pm.PId</button>
+												/ @pm.PQty
+											</td>
+										</tr>
+									}
+
+								}
+							</tbody>
+						</table>
+					</div>
+				</fieldset>
+
+
+			</div>
+
+			<div class="panel-footer">
+				@*<button type="button" class="btn btn-primary">Retrieve</button>
+		<button type="button" class="btn btn-primary">Pick</button>*@
+				@*<button type="button" class="btn btn-danger" onclick="location.href = '/LoosePicking/Details';">Close</button>*@
+				<button type="button" class="btn btn-danger" id="ClosePalletSelectionBtn">Close</button>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- The Modal -->
+	<div class="modal fade" id="alertModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				@*Modal Header*@
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<h4></h4>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Okay</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!--MODAL//-->
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		@*if (@SONum!= "" && @Company!= "" && @ShipByDate!= "") {
+			location.reload();
+		}*@
+
+		//location.reload();
+
+		//https://stackoverflow.com/questions/6985507/one-time-page-refresh-after-first-page-load
+		//Check if the current URL contains '#'
+		/*
+		if (document.URL.indexOf("#") == -1) {
+			// Set the URL to whatever it was plus "#".
+			url = document.URL + "#";
+			location = "#";
+
+			//Reload the page
+			location.reload(true);
+		}
+		*/
+
+		$('.EmptyVerifyPalletButton').click(function () {
+			msg = "No item in this Pallet to verify";
+
+			//$.notify(msg, "warn");
+
+			var modal = $('#alertModal').modal();
+			modal.find('.modal-header').text("Alert Message");
+			modal.find('.modal-body').text(msg);
+		});
+
+
+		$('#ClosePalletSelectionBtn').click(function () {
+			//history.go(-1);
+			@*window.location.href = '@ViewBag.BackButtonParams';*@
+			var url = '@Url.Action("Details", "LoosePicking")';
+			window.location.href = url;
+		});
+
+		$('.ConfirmPalletButton').click(function () {
+			var partNum = $(this).val();
+			var qty = '@ViewBag.LoosePickingDetailQty';
+			if (qty <= 0) {
+				var msg = "Not enough qty for Picking";
+
+				//$.notify(msg, "warn");
+
+				var modal = $('#alertModal').modal();
+				modal.find('.modal-header').text("Alert Message");
+				modal.find('.modal-body').text(msg);
+			} else {
+				var url = '@Url.Action("ProductScanning", "LoosePicking")' + "?id=" + partNum;
+				window.location.href = url;
+				//window.location.href = "ProductScanning?id=" + partNum;
+			}
+		});
+
+		$('.VerifyPalletButton').click(function () {
+			var palletId = $(this).val();
+			var url = '@Url.Action("Verification", "LoosePicking")' + "?id=" + palletId;
+			window.location.href = url;
+			//window.location.href = "Verification?id=" + palletId;
+		});
+
+
+	});
+
+
+</script>
+
+
+

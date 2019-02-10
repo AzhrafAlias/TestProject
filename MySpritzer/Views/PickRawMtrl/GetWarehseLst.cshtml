@@ -1,0 +1,83 @@
+﻿@model IEnumerable<MySpritzer.Models.WarehseModel>
+
+@*<p>
+		@Html.ActionLink("Create New", "Create")
+	</p>*@
+
+<div class="container">
+
+	<div class="table-responsive">
+		<table class="table">
+			<thead>
+				<tr>
+					@*<th>
+			@Html.DisplayNameFor(model => model.Company)
+		</th>
+		<th>
+			@Html.DisplayNameFor(model => model.PartNum)
+		</th>
+		<th>
+			@Html.DisplayNameFor(model => model.LotNum)
+		</th>*@
+
+					<th></th>
+					<th>
+						@Html.DisplayNameFor(model => model.Warehse)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.BinNum)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.SuppId)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Qty)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.ExpriyDate)
+					</th>
+
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+						@*<td>
+								@Html.DisplayFor(modelItem => item.Company)
+							</td>*@
+						@*<td>
+								@Html.DisplayFor(modelItem => item.PartNum)
+							</td>*@
+						@*<td>
+								@Html.DisplayFor(modelItem => item.LotNum)
+							</td>*@
+
+						<td>
+							@*@Html.ActionLink("Select", "Edit", new { /* id=item.PrimaryKey */ })*@
+							@Html.ActionLink("Select", null, null, new { Company = item.Company, Warehse = item.Warehse, BinNum = item.BinNum }, new { @class = "select" })
+							@*<a href="#" id="select">Select</a>*@
+						</td>
+
+						<td>
+							@Html.DisplayFor(modelItem => item.Warehse)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.BinNum)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.SuppId)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Qty)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.ExpriyDate)
+						</td>
+
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>

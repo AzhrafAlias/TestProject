@@ -1,0 +1,43 @@
+﻿
+@{
+	ViewBag.Title = "ManualUpdate";
+
+	string Company = "";
+	if (ViewBag.Company != null)
+	{
+		Company = ViewBag.Company;
+	}
+	string PONum = "";
+	if (ViewBag.PONum != null)
+	{
+		PONum = ViewBag.PONum.ToString();
+	}
+	string DONum = "";
+	if (ViewBag.DONum != null)
+	{
+		DONum = ViewBag.DONum;
+	}
+
+	string Msg = "";
+	if (ViewBag.Status != null)
+	{
+		Msg = ViewBag.Status as string;
+	}
+}
+@if (ViewBag.Status != null)
+{
+	<h2>@Msg</h2>
+}
+
+@Html.ActionLink("Back to Main", "Index", "POReceipt", new { Company = @Company, PONum = @PONum, DONum = @DONum }, new { htmlAttributes = new { @class = "pull-left" } })
+
+<script type="text/javascript">
+
+	$(document).ready(function () {
+		if ('@Msg' == "" || '@Msg' == "\"\"") {
+			var url = '@Url.Action("Index", "POReceipt")' + "?Company=" + '@Company' + "&PONum=" + '@PONum' + "&DONum=" + '@DONum';
+			window.location.href = url;
+		}
+	});
+
+</script>
